@@ -1,0 +1,7 @@
+{
+  "name": "mcubed",
+  "short_name": "mcubed",
+  "description": "A Twitter clone.",
+  "start_url": "/",
+  "display": "standalone"
+}
