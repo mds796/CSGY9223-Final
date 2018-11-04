@@ -48,7 +48,7 @@ class UserProfile extends LitElement {
         </style>
         
         <div class="container login" ?hidden="${this._user.isLoggedIn}">
-            <a href="/login">Log In ${offlineMessage}</a>
+            ${when(this.offline, () => offlineMessage, () => html`<a href="/login">Log In</a>`)}
         </div>
         
         <div class="container user" ?hidden="${!this._user.isLoggedIn}" @click="${this._userProfileClicked}">

@@ -238,16 +238,23 @@ class McubedApp extends LitElement {
 
     _offlineChanged(offline) {
         this._offline = offline;
+        this._locationChanged();
     }
 
     _locationChanged() {
         const noUserPages = ['login', 'register'];
+        const online = !this._offline;
+        const loggedIn = this._loginToken;
+
         let page = this._extractPage();
 
-        if (this._loginToken && noUserPages.includes(page)) {
+        if (online && loggedIn && noUserPages.includes(page)) {
             window.history.pushState({}, '', '/feed');
             page = 'feed';
-        } else if (!this._loginToken && !noUserPages.includes(page)) {
+        } else if (online && !loggedIn && !noUserPages.includes(page)) {
+            window.history.pushState({}, '', '/');
+            page = 'about';
+        } else if (!online) {
             window.history.pushState({}, '', '/');
             page = 'about';
         }
