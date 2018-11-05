@@ -4,7 +4,7 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
  * @customElement
  * @polymer
  */
-class McubedApp extends PolymerElement {
+class UserCard extends PolymerElement {
   static get template() {
     return html`
       <style>
@@ -12,17 +12,19 @@ class McubedApp extends PolymerElement {
           display: block;
         }
       </style>
-      <h2>Hello [[prop1]]!</h2>
+      
+      <span>[[user]]@</span>
+      <slot></slot>
     `;
   }
+
   static get properties() {
     return {
-      prop1: {
-        type: String,
-        value: 'mcubed-app'
+      user: {
+        type: String
       }
     };
   }
 }
 
-window.customElements.define('mcubed-app', McubedApp);
+window.customElements.define('user-card', UserCard);

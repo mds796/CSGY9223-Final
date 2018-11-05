@@ -4,25 +4,24 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
  * @customElement
  * @polymer
  */
-class McubedApp extends PolymerElement {
+class DataProvider extends PolymerElement {
   static get template() {
     return html`
       <style>
         :host {
-          display: block;
+          display: hidden;
         }
       </style>
-      <h2>Hello [[prop1]]!</h2>
     `;
   }
+  
   static get properties() {
     return {
-      prop1: {
-        type: String,
-        value: 'mcubed-app'
-      }
+      user: { type: Object },
+      feed: { type: Array },
+      influencers: { type: Array }
     };
   }
 }
 
-window.customElements.define('mcubed-app', McubedApp);
+window.customElements.define('data-provider', DataProvider);

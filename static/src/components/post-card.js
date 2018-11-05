@@ -1,28 +1,40 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import './user-card.js';
 
 /**
  * @customElement
  * @polymer
  */
-class McubedApp extends PolymerElement {
+class PostCard extends PolymerElement {
   static get template() {
     return html`
       <style>
         :host {
           display: block;
         }
+
+        user-card {
+          display: inline;
+        }
       </style>
-      <h2>Hello [[prop1]]!</h2>
+      <div>
+        <user-card user="[[user]]"></user-card>
+        <p>[[text]]</p>
+      </div>
     `;
   }
   static get properties() {
     return {
-      prop1: {
+      user: {
         type: String,
-        value: 'mcubed-app'
+        value: 'mds796'
+      },
+      text: {
+        type: String,
+        value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultrices leo sollicitudin nisl facilisis imperdiet. Nam a pellentesque enim. Donec sollicitudin placerat semper. Nam non neque quam. Suspendisse nec mauris rutrum dolor accumsan pellentesque nec vel tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras et quam viverra nunc vulputate euismod nec in nisi. In vehicula faucibus erat, id ullamcorper sapien. Maecenas eu tristique ligula, a tempus ipsum. Nam vel pretium sed.'
       }
     };
   }
 }
 
-window.customElements.define('mcubed-app', McubedApp);
+window.customElements.define('post-card', PostCard);

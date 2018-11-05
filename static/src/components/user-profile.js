@@ -1,7 +1,7 @@
 import {html, LitElement} from '@polymer/lit-element';
 import {when} from 'lit-html/directives/when';
 
-import {userIcon} from './icons.js'
+import './user-card.js'
 
 /**
  * @customElement
@@ -36,7 +36,7 @@ class UserProfile extends LitElement {
                 display: none;
             }
                         
-            .user {
+            user-card {
                 cursor: pointer;
             }
         
@@ -51,8 +51,10 @@ class UserProfile extends LitElement {
             ${when(this.offline, () => offlineMessage, () => html`<a href="/login">Log In</a>`)}
         </div>
         
-        <div class="container user" ?hidden="${!this._user.isLoggedIn}" @click="${this._userProfileClicked}">
-            <a>${this._user.name} ${offlineMessage} ${userIcon}</a>
+        <div class="container user" >
+            <user-card class="container" user="${this._user.name}" ?hidden="${!this._user.isLoggedIn}" @click="${this._userProfileClicked}">
+                ${offlineMessage}
+            </user-card>
         </div>
     `;
     }
