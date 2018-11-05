@@ -19,7 +19,7 @@ class LoginView extends PageViewElement {
           
           <h2>Log In</h2>
           
-          <form action="/login" method="post">
+          <form action="/api/login" method="post">
             <div>
                 <label for="username">Username: </label>
                 <input id="username" name="username" placeholder="Username"/>
