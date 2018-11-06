@@ -7,6 +7,7 @@ import (
 
 type User struct {
 	uuid     uuid.UUID
+	id       string
 	username string
 }
 
