@@ -7,7 +7,7 @@ import './user-card.js'
  * @customElement
  * @polymer
  */
-class UserProfile extends LitElement {
+class ProfileCard extends LitElement {
     static get properties() {
         return {
             offline: {type: Boolean},
@@ -76,4 +76,4 @@ class UserProfile extends LitElement {
     }
 }
 
-window.customElements.define('user-profile', UserProfile);
+window.customElements.define('profile-card', ProfileCard);

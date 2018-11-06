@@ -1,27 +1,30 @@
-import { html } from '@polymer/lit-element';
+import { html, PolymerElement } from '@polymer/polymer';
 
-import { PageViewElement } from './page-view-element.js';
-import { SharedStyles } from './shared-styles.js';
+import { ViewStyle } from './view-style.js';
 
 /**
  * @customElement
  * @polymer
  */
-class RegisterView extends PageViewElement {
-  render() {
+class RegisterView extends PolymerElement {
+  static get template() {
     return html`
-      ${SharedStyles}
-      <h2>Hello ${this.prop1}!</h2>
+      <dom-if if=[[active]]>
+        <template>
+          ${ViewStyle}
+  
+          <section>
+            <h2>Register view!</h2>
+          </section>
+        </template>
+      </dom-if>
     `;
   }
+
   static get properties() {
     return {
-      prop1: {type: String}
+      active: {type: Boolean, value: false}
     };
-  }
-  constructor() {
-    super();
-    this.prop1 = 'Register View';
   }
 }
 

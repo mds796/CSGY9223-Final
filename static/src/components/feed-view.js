@@ -18,7 +18,7 @@ class FeedView extends PolymerElement {
           <dom-repeat items="[[posts]]">
             <template>
               <section>
-                <post-card user="[[item]]"></post-card>
+                <post-card user="[[item.name]]" text="[[item.text]]"></post-card>
               </section>
             </template>
           </dom-repeat>
@@ -30,7 +30,7 @@ class FeedView extends PolymerElement {
   static get properties() {
     return {
       active: {type: Boolean, value: false},
-      posts: {type: Array, value: [1,2,3,4,5,6,7,8,9,0]}
+      posts: {type: Array, value: []}
     };
   }
 }

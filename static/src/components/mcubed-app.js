@@ -1,4 +1,4 @@
-import {html, LitElement} from '@polymer/lit-element';
+import { html, PolymerElement } from '@polymer/polymer';
 import {setPassiveTouchGestures} from '@polymer/polymer/lib/utils/settings.js';
 import {installOfflineWatcher} from 'pwa-helpers/network.js';
 import {installRouter} from 'pwa-helpers/router.js';
@@ -11,78 +11,59 @@ import '@polymer/app-layout/app-toolbar/app-toolbar.js';
 
 import {AppStyle} from './app-style.js';
 import {menuIcon} from './icons.js';
+
 import './register-view.js';
 import './login-view.js';
 import './feed-view.js';
 import './follow-view.js';
 import './about-view.js';
 import './not-found-view.js';
-import './user-profile.js';
+import './profile-card.js';
+import './data-provider.js';
 
 /**
  * @customElement
  * @polymer
  */
-class McubedApp extends LitElement {
-    constructor() {
-        super();
-
-        this._drawerOpened = false;
-
-        if (document.cookie !== "") {
-            this._loginToken = document.cookie;
-        }
-
-        // To force all event listeners for gestures to be passive.
-        // See https://www.polymer-project.org/3.0/docs/devguide/settings#setting-passive-touch-gestures
-        setPassiveTouchGestures(true);
-    }
-
-    static get properties() {
-        return {
-            appTitle: {type: String},
-            _page: {type: String},
-            _drawerOpened: {type: Boolean},
-            _loginToken: {type: String},
-            _offline: {type: Boolean}
-        };
-    }
-
-    render() {
+class McubedApp extends PolymerElement {
+    static get template() {
         return html`
             ${AppStyle}
+
+            <data-provider posts={{posts}} influencers="{{influencers}}"></data-provider>
+
             <app-header condenses reveals effects="waterfall">
                 <app-toolbar class="toolbar-top">
-                    <button class="menu-btn" title="Menu" @click="${this._menuButtonClicked}">${menuIcon}</button>
-                    <div main-title>${this.appTitle}</div>
-                    <user-profile class="user-profile" .offline="${this._offline}" .token="${this._loginToken}" @logged-out="${this._loggedOut}"></user-profile>
+                    <button class="menu-btn" title="Menu" on-click="_menuButtonClicked">${menuIcon}</button>
+                    <div main-title>[[appTitle]]</div>
+                    <profile-card class="user-profile" offline="[[_offline]]" token="[[_loginToken]]" on-logged-out="_loggedOut"></profile-card>
                 </app-toolbar>
             
                 <!-- This gets hidden on a small screen-->
                 <nav class="toolbar-list">
-                    <a ?hidden="${!this._loginToken}" ?selected="${this._page === 'feed'}" href="/feed">Feed</a>
-                    <a ?hidden="${!this._loginToken}" ?selected="${this._page === 'follow'}" href="/follow">Follow</a>
-                    <a ?selected="${this._page === 'about'}" href="/about">About Us</a>
+                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFeedView]]" href="/feed">Feed</a>
+                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFollowView]]" href="/follow">Follow</a>
+                    <a selected$="[[_isAboutView]]" href="/about">About Us</a>
                 </nav>
             </app-header>
             
-            <app-drawer .opened="${this._drawerOpened}" @opened-changed="${this._drawerOpenedChanged}">
+            <app-drawer opened="{{_drawerOpened}}">
                 <nav class="drawer-list">
-                    <a ?hidden="${!this._loginToken}" ?selected="${this._page === 'feed'}" href="/feed">Feed</a>
-                    <a ?hidden="${!this._loginToken}" ?selected="${this._page === 'follow'}" href="/follow">Follow</a>
-                    <a ?selected="${this._page === 'about'}" href="/about">About Us</a>
+                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFeedView]]" href="/feed">Feed</a>
+                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFollowView]]" href="/follow">Follow</a>
+                    <a selected$="[[_isAboutView]]" href="/about">About Us</a>
                 </nav>
             </app-drawer>
 
             <main role="main" class="main-content">
-                <register-view class="page" ?active="${this._page === 'register'}"></register-view>
-                <login-view class="page" ?active="${this._page === 'login'}" @logged-in="${this._loggedIn}"></login-view>
+                <register-view class="page" active$="[[_isRegisterView]]"></register-view>
+                <login-view class="page" active$="[[_isLoginView]]" on-logged-in="_registered"></login-view>
                 
-                <feed-view class="page" ?active="${this._page === 'feed'}"></feed-view>
-                <follow-view class="page" ?active="${this._page === 'follow'}"></follow-view>
-                <about-view class="page" ?active="${this._page === 'about'}"></about-view>
+                <feed-view class="page" active$="[[_isFeedView]]" posts="[[posts]]"></feed-view>
+                <follow-view class="page" active$="[[_isFollowView]]"></follow-view>
+                <about-view class="page" active$="[[_isAboutView]]"></about-view>
                 
-                <not-found-view class="page" ?active="${this._page === 'not-found'}"></not-found-view>              
+                <not-found-view class="page" active$="[[_isNotFoundView]]"></not-found-view>              
             </main>
 
             <footer>
@@ -91,20 +72,56 @@ class McubedApp extends LitElement {
     `;
     }
 
-    firstUpdated() {
+    ready() {
+        super.ready();
+
+        // To force all event listeners for gestures to be passive.
+        // See https://www.polymer-project.org/3.0/docs/devguide/settings#setting-passive-touch-gestures
+        setPassiveTouchGestures(true);
+        
         installRouter((location) => this._locationChanged(location));
         installOfflineWatcher((offline) => this._offlineChanged(offline));
     }
 
-    updated(changedProps) {
-        if (changedProps.has('_page')) {
-            const pageTitle = this.appTitle + ' - ' + this._page;
-            updateMetadata({
-                title: pageTitle,
-                description: pageTitle
-                // This object also takes an image property, that points to an img src.
-            });
-        }
+    static get properties() {
+        return {
+            appTitle: {type: String, value: "mCubed"},
+            user: { type: Object, value: {name: "mds796"} },
+            posts: {type: Array, value: [{name: "fake123", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultrices leo sollicitudin nisl facilisis imperdiet. Nam a pellentesque enim. Donec sollicitudin placerat semper. Nam non neque quam. Suspendisse nec mauris rutrum dolor accumsan pellentesque nec vel tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras et quam viverra nunc vulputate euismod nec in nisi. In vehicula faucibus erat, id ullamcorper sapien. Maecenas eu tristique ligula, a tempus ipsum. Nam vel pretium sed."}]},
+            influencers: { type: Array, value: [{name: "fake123"}] },
+
+            _page: {type: String, value: "about", observer: "_pageChanged"},
+            _drawerOpened: {type: Boolean, value: false},
+            _loginToken: {type: String, value: document.cookie},
+            _offline: {type: Boolean, value: false},
+            _loggedIn: {type: Boolean, computed: "_isLoggedIn(_loginToken)"},
+
+            // View predicates
+            _isFeedView: {type: Boolean, computed: "_isActive(_page, 'feed')"},
+            _isFollowView: {type: Boolean, computed: "_isActive(_page, 'follow')"},
+            _isRegisterView: {type: Boolean, computed: "_isActive(_page, 'register')"},
+            _isLoginView: {type: Boolean, computed: "_isActive(_page, 'login')"},
+            _isAboutView: {type: Boolean, computed: "_isActive(_page, 'about')"},
+            _isNotFoundView: {type: Boolean, computed: "_isActive(_page, 'not-found')"}
+        };
+    }
+
+    _isActive(page, expected) {
+        return page === expected;
+    }
+
+    _pageChanged(oldValue, newValue) {
+        const pageTitle = this.appTitle + ' - ' + this._page;
+
+        updateMetadata({
+            title: pageTitle,
+            description: pageTitle
+            // This object also takes an image property, that points to an img src.
+        });
+    }
+
+    _isLoggedIn(token) {
+        return token !== "";
     }
 
     _offlineChanged(offline) {
@@ -135,7 +152,7 @@ class McubedApp extends LitElement {
         // you can do here.
 
         // Close the drawer - in case the *path* change came from a link in the drawer.
-        this._updateDrawerState(false);
+        this._drawerOpened = false;
     }
 
     _extractPage() {
@@ -148,43 +165,27 @@ class McubedApp extends LitElement {
         }
     }
 
-    _updateDrawerState(opened) {
-        if (opened !== this._drawerOpened) {
-            this._drawerOpened = opened;
-        }
-    }
-
     _loadPage(page) {
         switch (page) {
             case 'feed':
-                import('./feed-view.js');
                 break;
             case 'follow':
-                import('./follow-view.js');
                 break;
             case 'about':
-                import('./about-view.js');
                 break;
             case 'register':
-                import('./register-view.js');
                 break;
             case 'login':
-                import('./login-view.js');
                 break;
             default:
                 page = 'not-found';
-                import('./not-found-view.js');
         }
 
         this._page = page;
     }
 
     _menuButtonClicked() {
-        this._updateDrawerState(true);
-    }
-
-    _drawerOpenedChanged(e) {
-        this._updateDrawerState(e.target.opened);
+        this._drawerOpened = true;
     }
 
     _loggedOut() {
@@ -193,7 +194,7 @@ class McubedApp extends LitElement {
         this._locationChanged();
     }
 
-    _loggedIn() {
+    _registered() {
         const oneDay = 24 * 60 * 60 * 1000;
         const d = new Date();
 

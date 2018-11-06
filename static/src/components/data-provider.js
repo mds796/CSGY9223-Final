@@ -17,9 +17,9 @@ class DataProvider extends PolymerElement {
   
   static get properties() {
     return {
-      user: { type: Object },
-      feed: { type: Array },
-      influencers: { type: Array }
+      user: { type: Object, value: {} },
+      posts: { type: Array, value: [] },
+      influencers: { type: Array, value: [] }
     };
   }
 }

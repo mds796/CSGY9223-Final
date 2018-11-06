@@ -1,4 +1,4 @@
-import { html } from '@polymer/lit-element';
+import { html } from '@polymer/polymer';
 
 export const AppStyle = html`
 <style>

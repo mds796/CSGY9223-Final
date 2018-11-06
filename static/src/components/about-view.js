@@ -1,18 +1,30 @@
-import { html } from '@polymer/lit-element';
+import { html, PolymerElement } from '@polymer/polymer';
 
-import { PageViewElement } from './page-view-element.js';
-import { SharedStyles } from './shared-styles.js';
+import { ViewStyle } from './view-style.js';
 
 /**
  * @customElement
  * @polymer
  */
-class AboutView extends PageViewElement {
-  render() {
+class AboutView extends PolymerElement {
+  static get template() {
     return html`
-      ${SharedStyles}
-      <h2>About view!</h2>
+      <dom-if if=[[active]]>
+        <template>
+          ${ViewStyle}
+
+          <section>
+            <h2>About view!</h2>
+          </section>
+        </template>
+      </dom-if>
     `;
+  }
+
+  static get properties() {
+    return {
+      active: {type: Boolean, value: false}
+    };
   }
 }
 
