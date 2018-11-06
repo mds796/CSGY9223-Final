@@ -32,7 +32,7 @@ class UserProfile extends LitElement {
                 display: block;
             }
 
-            .container[hidden] {
+            [hidden] {
                 display: none;
             }
                         
@@ -40,22 +40,19 @@ class UserProfile extends LitElement {
                 cursor: pointer;
             }
         
-            .container > a {
+            a {
                 color: var(--app-header-text-color);
                 text-decoration: none;
                 line-height: 30px;
             }
         </style>
         
-        <div class="container login" ?hidden="${this._user.isLoggedIn}">
-            ${when(this.offline, () => offlineMessage, () => html`<a href="/login">Log In</a>`)}
-        </div>
         
-        <div class="container user" >
-            <user-card class="container" user="${this._user.name}" ?hidden="${!this._user.isLoggedIn}" @click="${this._userProfileClicked}">
-                ${offlineMessage}
-            </user-card>
-        </div>
+        <a href="/login" ?hidden="${this._user.isLoggedIn || this.offline}">Log In</a>
+        <user-card title="Log out" name="${this._user.name}" ?hidden="${!this._user.isLoggedIn}" @click="${this._userProfileClicked}">    
+        </user-card>
+
+        ${offlineMessage}
     `;
     }
 

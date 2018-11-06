@@ -15,19 +15,23 @@ class PostCard extends PolymerElement {
 
         user-card {
           display: inline;
+          margin-right: 5px;
+        }
+
+        p {
+          display: inline;
         }
       </style>
-      <div>
-        <user-card user="[[user]]"></user-card>
-        <p>[[text]]</p>
-      </div>
+
+      <user-card name="[[name]]"></user-card>
+      <p>[[text]]</p>
     `;
   }
   static get properties() {
     return {
-      user: {
+      name: {
         type: String,
-        value: 'mds796'
+        value: ""
       },
       text: {
         type: String,

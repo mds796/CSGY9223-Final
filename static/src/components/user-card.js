@@ -10,24 +10,22 @@ class UserCard extends PolymerElement {
       <style>
         :host {
           display: block;
-        }
-
-        .container {
           background: #cccccc;
+          border-radius: 25px;
+          padding: 5px;
         }
       </style>
       
-      <div class="container">
-        <span>[[user]]@</span>
-        <slot></slot>
-      </div>
+      <span>[[name]]@</span>
+      <slot></slot>
     `;
   }
 
   static get properties() {
     return {
-      user: {
-        type: String
+      name: {
+        type: String,
+        value: ""
       }
     };
   }

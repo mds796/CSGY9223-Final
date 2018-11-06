@@ -19,7 +19,7 @@ class FeedView extends PageViewElement {
       <section>
         <h2>Feed</h2>
         <ul>
-          ${this.posts.map((i) => html`<li><post-card></post-card></li>`)}
+          ${this.posts.map((i) => html`<li><post-card .name="${i}"></post-card></li>`)}
         </ul>
       </section>
     `;
