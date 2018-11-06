@@ -14,6 +14,9 @@ class FeedView extends PageViewElement {
     return html`
       ${SharedStyles}
       <style>
+        ul {
+          list-style: none;
+        }
       </style>
 
       <section>
