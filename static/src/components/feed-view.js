@@ -1,7 +1,6 @@
-import { html } from '@polymer/lit-element';
+import { html, PolymerElement } from '@polymer/polymer';
 
-import { PageViewElement } from './page-view-element.js';
-import { SharedStyles } from './shared-styles.js';
+import { ViewStyle } from './view-style.js';
 
 import './post-card.js';
 
@@ -9,32 +8,30 @@ import './post-card.js';
  * @customElement
  * @polymer
  */
-class FeedView extends PageViewElement {
-  render() {
+class FeedView extends PolymerElement {
+  static get template() {
     return html`
-      ${SharedStyles}
-      <style>
-        ul {
-          list-style: none;
-        }
-      </style>
+      <dom-if if=[[active]]>
+        <template>
+          ${ViewStyle}
 
-      <section>
-        <h2>Feed</h2>
-        <ul>
-          ${this.posts.map((i) => html`<li><post-card .user="${i}"></post-card></li>`)}
-        </ul>
-      </section>
+          <dom-repeat items="[[posts]]">
+            <template>
+              <section>
+                <post-card user="[[item]]"></post-card>
+              </section>
+            </template>
+          </dom-repeat>
+        </template>
+      </dom-if>
     `;
   }
+
   static get properties() {
     return {
-      posts: {type: Array}
+      active: {type: Boolean, value: false},
+      posts: {type: Array, value: [1,2,3,4,5,6,7,8,9,0]}
     };
-  }
-  constructor() {
-    super();
-    this.posts = [1,2,3,4,5,6,7,8,9,0];
   }
 }
 

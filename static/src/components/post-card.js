@@ -11,10 +11,6 @@ class PostCard extends PolymerElement {
       <style>
         :host {
           display: block;
-          background: #cccccc;
-          border-radius: 25px;
-          padding: 5px;
-          margin-bottom: 5px;
         }
 
         user-card {

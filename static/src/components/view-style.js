@@ -1,6 +1,6 @@
-import { html } from '@polymer/lit-element';
+import { html } from '@polymer/polymer';
 
-export const SharedStyles = html`
+export const ViewStyle = html`
 <style>
   :host {
     display: block;

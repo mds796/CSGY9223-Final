@@ -10,7 +10,7 @@ class UserCard extends PolymerElement {
       <style>
         :host {
           display: block;
-          background: #4286f4;
+          background: #cccccc;
           border-radius: 25px;
           padding: 5px;
         }
