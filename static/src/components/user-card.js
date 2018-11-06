@@ -11,10 +11,16 @@ class UserCard extends PolymerElement {
         :host {
           display: block;
         }
+
+        .container {
+          background: #cccccc;
+        }
       </style>
       
-      <span>[[user]]@</span>
-      <slot></slot>
+      <div class="container">
+        <span>[[user]]@</span>
+        <slot></slot>
+      </div>
     `;
   }
 
