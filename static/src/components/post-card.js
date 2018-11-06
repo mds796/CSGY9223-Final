@@ -23,13 +23,13 @@ class PostCard extends PolymerElement {
         }
       </style>
 
-      <user-card name="[[name]]"></user-card>
+      <user-card user="[[user]]"></user-card>
       <p>[[text]]</p>
     `;
   }
   static get properties() {
     return {
-      name: {
+      user: {
         type: String,
         value: ""
       },

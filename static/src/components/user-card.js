@@ -16,14 +16,14 @@ class UserCard extends PolymerElement {
         }
       </style>
       
-      <span>[[name]]@</span>
+      <span>[[user]]@</span>
       <slot></slot>
     `;
   }
 
   static get properties() {
     return {
-      name: {
+      user: {
         type: String,
         value: ""
       }

@@ -49,7 +49,7 @@ class UserProfile extends LitElement {
         
         
         <a href="/login" ?hidden="${this._user.isLoggedIn || this.offline}">Log In</a>
-        <user-card title="Log out" name="${this._user.name}" ?hidden="${!this._user.isLoggedIn}" @click="${this._userProfileClicked}">    
+        <user-card title="Log out" user="${this._user.name}" ?hidden="${!this._user.isLoggedIn}" @click="${this._userProfileClicked}">    
         </user-card>
 
         ${offlineMessage}
