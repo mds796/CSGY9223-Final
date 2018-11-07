@@ -22,6 +22,14 @@ class DataProvider extends PolymerElement {
       influencers: { type: Array, value: [] }
     };
   }
+
+  ready() {
+    fetch("/feed").then(this.handleFetchFeed.bind(this))
+  }
+
+  handleFetchFeed(response) {
+    this.posts = response.json().posts;
+  }
 }
 
 window.customElements.define('data-provider', DataProvider);

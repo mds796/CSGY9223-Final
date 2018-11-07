@@ -16,6 +16,9 @@ class FollowView extends PolymerElement {
           ${ViewStyle}
 
           <style>
+            button {
+              padding-top: 1pt;
+            }
             user-card {
               display: inline-block;
             }
@@ -23,12 +26,13 @@ class FollowView extends PolymerElement {
 
           <section>
             <h2>Follow</h2>
-            <input type="text" value="{{query}}" placeholder="Username"/>
+            <label for="query">Type a username, then press Enter.</label>
+            <input id="query" type="text" value="{{query::change}}" placeholder="Username"/>
 
             <dom-repeat items="[[users]]">
               <template>
                 <section>
-                  <button class="remove">${minusIcon}</button>
+                  <button>${minusIcon}</button>
                   <user-card user="[[item.name]]"></user-card>
                 </section>
               </template>

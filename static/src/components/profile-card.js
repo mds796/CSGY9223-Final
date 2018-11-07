@@ -31,6 +31,7 @@ class ProfileCard extends PolymerElement {
                         
             user-card {
                 cursor: pointer;
+                display: inline-block;
             }
         
             a {
@@ -55,7 +56,6 @@ class ProfileCard extends PolymerElement {
                 </user-card>        
             </template>
         </dom-if>
-
         <dom-if if="[[offline]]">
             <template>
                 <span>(Offline)</span>    
