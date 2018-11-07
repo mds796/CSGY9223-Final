@@ -1,13 +1,31 @@
 package user
 
 type CreateUserRequest struct {
-	Alias string // The user name (alias)
+	Username string
 }
 
 type CreateUserResponse struct {
-	UserId string // the HEX-encoded string representation of the UUID.
+	Uuid string
+}
+
+type ViewUserRequest struct {
+	Uuid string
+}
+
+type ViewUserResponse struct {
+	Username string
+}
+
+type SearchUserRequest struct {
+	Query string
+}
+
+type SearchUserResponse struct {
+	Uuids []string
 }
 
 type Service interface {
-	Create(CreateUserRequest request) (CreateUserResponse, error)
+	Create(request CreateUserRequest) (CreateUserResponse, error)
+	View(request ViewUserRequest) (ViewUserResponse, error)
+	Search(request SearchUserRequest) (SearchUserResponse, error)
 }
