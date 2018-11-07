@@ -67,3 +67,18 @@
 ### stub
 * uuid, puids
 
+
+## Web
+### How to run
+Make sure you have node.js and npm installed. Once you do, run `./run` from the root of the repository.
+That command will execute `npm run build:static` from the `static` directory, execute `go build`, and finally run the Web Server. This allows the web server to serve updates to the static files.
+
+If you prefer to run the commands yourself, run the following from the root of the repository:
+1. cd static
+1. npm run build:static
+1. cd ../
+1. go build
+1. ./CSGY9223-Final web start&
+
+To stop the web server:
+1. ./CSGY9223-Final web stop
