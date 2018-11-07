@@ -1,0 +1,4 @@
+curl localhost:8080/register?username=blah&password=foobar
+curl localhost:8080/register?username=blah&password=foobar
+curl localhost:8080/register?username=blah&password=foobar
+curl localhost:8080/register?username=blah&password=foobar

@@ -1,0 +1,1 @@
+cd static && polymer build && cd .. && go build && ./CSGY9223-Final web start -H 0.0.0.0
