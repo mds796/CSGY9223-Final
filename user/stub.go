@@ -63,5 +63,3 @@ func (s *StubService) Search(request SearchUserRequest) (SearchUserResponse, err
 
 	return response, nil
 }
-
-func main() {}
