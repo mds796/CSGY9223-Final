@@ -33,6 +33,12 @@ func (s *StubService) Register(request RegisterAuthRequest) (RegisterAuthRespons
 }
 
 func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error) {
+	if _, ok := s.PasswordCache[request.Uuid]; !ok {
+		// user is not registered
+		err := errors.New("[AUTH]: Uuid does not exist.")
+		return LoginAuthResponse{}, err
+	}
+
 	h := sha256.New()
 	h.Write([]byte(request.Password))
 	if bytes.Equal(s.PasswordCache[request.Uuid], h.Sum(nil)) {
