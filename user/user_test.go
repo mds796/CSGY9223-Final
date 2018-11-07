@@ -47,3 +47,43 @@ func TestUserViewDoesNotExist(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestUserSearchStandard(t *testing.T) {
+	service := CreateStub()
+	create_request := CreateUserRequest{Username: "mksavic"}
+	service.Create(create_request)
+
+	request := SearchUserRequest{Query: "sav"}
+	response, _ := service.Search(request)
+
+	if len(response.Uuids) != 1 {
+		t.Fail()
+	}
+}
+
+func TestUserSearchDoesNotExist(t *testing.T) {
+	service := CreateStub()
+	request := SearchUserRequest{Query: "sav"}
+	response, _ := service.Search(request)
+
+	if len(response.Uuids) > 0 {
+		t.Fail()
+	}
+}
+
+func TestUserSearchMulti(t *testing.T) {
+	service := CreateStub()
+	create_request := CreateUserRequest{Username: "mksavic"}
+	service.Create(create_request)
+	create_request = CreateUserRequest{Username: "mds796"}
+	service.Create(create_request)
+	create_request = CreateUserRequest{Username: "mvp307"}
+	service.Create(create_request)
+
+	request := SearchUserRequest{Query: "s"}
+	response, _ := service.Search(request)
+
+	if len(response.Uuids) != 2 {
+		t.Fail()
+	}
+}
