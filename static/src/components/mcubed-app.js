@@ -41,23 +41,23 @@ class McubedApp extends PolymerElement {
             
                 <!-- This gets hidden on a small screen-->
                 <nav class="toolbar-list">
-                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFeedView]]" href="/feed">Feed</a>
-                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFollowView]]" href="/follow">Follow</a>
-                    <a selected$="[[_isAboutView]]" href="/about">About Us</a>
+                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFeedView]]" href="#/feed">Feed</a>
+                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFollowView]]" href="#/follow">Follow</a>
+                    <a selected$="[[_isAboutView]]" href="#/about">About Us</a>
                 </nav>
             </app-header>
             
             <app-drawer opened="{{_drawerOpened}}">
                 <nav class="drawer-list">
-                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFeedView]]" href="/feed">Feed</a>
-                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFollowView]]" href="/follow">Follow</a>
-                    <a selected$="[[_isAboutView]]" href="/about">About Us</a>
+                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFeedView]]" href="#/feed">Feed</a>
+                    <a hidden$="[[!_loggedIn]]" selected$="[[_isFollowView]]" href="#/follow">Follow</a>
+                    <a selected$="[[_isAboutView]]" href="#/about">About Us</a>
                 </nav>
             </app-drawer>
 
             <main role="main" class="main-content">
                 <register-view class="page" active$="[[_isRegisterView]]"></register-view>
-                <login-view class="page" active$="[[_isLoginView]]" on-logged-in="_registered"></login-view>
+                <login-view class="page" active$="[[_isLoginView]]"></login-view>
                 
                 <feed-view class="page" active$="[[_isFeedView]]" posts="[[posts]]"></feed-view>
                 <follow-view class="page" active$="[[_isFollowView]]"></follow-view>
@@ -78,7 +78,7 @@ class McubedApp extends PolymerElement {
         // To force all event listeners for gestures to be passive.
         // See https://www.polymer-project.org/3.0/docs/devguide/settings#setting-passive-touch-gestures
         setPassiveTouchGestures(true);
-        
+
         installRouter((location) => this._locationChanged(location));
         installOfflineWatcher((offline) => this._offlineChanged(offline));
     }
@@ -126,24 +126,24 @@ class McubedApp extends PolymerElement {
 
     _offlineChanged(offline) {
         this._offline = offline;
-        this._locationChanged();
+        this._locationChanged(window.location);
     }
 
-    _locationChanged() {
+    _locationChanged(location) {
         const noUserPages = ['login', 'register'];
         const online = !this._offline;
         const loggedIn = this._loginToken;
 
-        let page = this._extractPage();
+        let page = this._extractPage(location);
 
         if (online && loggedIn && noUserPages.includes(page)) {
-            window.history.pushState({}, '', '/feed');
+            window.history.pushState({}, '', '#/feed');
             page = 'feed';
         } else if (online && !loggedIn && !noUserPages.includes(page)) {
-            window.history.pushState({}, '', '/');
+            window.history.pushState({}, '', '#/');
             page = 'about';
         } else if (!online) {
-            window.history.pushState({}, '', '/');
+            window.history.pushState({}, '', '#/');
             page = 'about';
         }
 
@@ -155,13 +155,13 @@ class McubedApp extends PolymerElement {
         this._drawerOpened = false;
     }
 
-    _extractPage() {
-        const path = window.decodeURIComponent(window.location.pathname);
+    _extractPage(location) {
+        const path = window.decodeURIComponent(location.hash);
 
-        if (path === '/') {
+        if (path === '#' || path === '') {
             return this._loginToken ? 'feed' : 'about';
         } else {
-            return path.slice(1);
+            return path.slice(2);
         }
     }
 
@@ -191,18 +191,6 @@ class McubedApp extends PolymerElement {
     _loggedOut() {
         this._setCookie();
         window.history.pushState({}, '', '/');
-        this._locationChanged();
-    }
-
-    _registered() {
-        const oneDay = 24 * 60 * 60 * 1000;
-        const d = new Date();
-
-        d.setTime(d.getTime() + (oneDay));
-
-        this._setCookie(d.toUTCString());
-
-        window.history.pushState({}, '', '/feed');
         this._locationChanged();
     }
 

@@ -4,3 +4,4 @@ static/node_modules/
 profile.prof
 CSGY9223-Final
 .web.pid
+static/build/

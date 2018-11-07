@@ -22,7 +22,7 @@ class LoginView extends PolymerElement {
           <section>
             <h2>Log In</h2>
            
-            <form action="/api/login" method="post">
+            <form action="/login" method="post">
               <div>
                 <label for="username">Username: </label>
                 <input id="username" name="username" placeholder="Username"/>
@@ -35,7 +35,7 @@ class LoginView extends PolymerElement {
               <input type="submit" value="Log In"/>
             </form>
                         
-            <button on-click="_register">Register</button>
+            <a href="#/register">Register</a>
           </section>
         </template>
       </dom-if>
@@ -46,10 +46,6 @@ class LoginView extends PolymerElement {
     return {
       active: {type: Boolean, value: false}
     };
-  }
- 
-  _register() {
-    this.dispatchEvent(new CustomEvent('logged-in'));
   }
 }
 

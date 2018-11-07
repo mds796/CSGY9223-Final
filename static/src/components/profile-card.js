@@ -1,4 +1,4 @@
-import {html, LitElement} from '@polymer/lit-element';
+import { html, PolymerElement } from '@polymer/polymer';
 import {when} from 'lit-html/directives/when';
 
 import './user-card.js'
@@ -7,25 +7,18 @@ import './user-card.js'
  * @customElement
  * @polymer
  */
-class ProfileCard extends LitElement {
+class ProfileCard extends PolymerElement {
     static get properties() {
         return {
-            offline: {type: Boolean},
+            offline: {type: Boolean, value: false},
             token: {type: String},
-            _user: {type: Object},
+            _user: {type: Object, computed: '_getUser(token)'},
+            _canLogin: {type: Object, computed: '_showLogin(token, offline)'},
+            _hasUser: {type: Object, computed: '_showUser(token)'},
         };
     }
 
-    constructor() {
-        super();
-
-        this.offline = false;
-        this._user = {isLoggedIn: false};
-    }
-
-    render() {
-        const offlineMessage = html`${when(this.offline, () => html`<span>(Offline)</span>`, () => html``)}`;
-
+    static get template() {
         return html`
          <style>
             :host {
@@ -47,23 +40,42 @@ class ProfileCard extends LitElement {
             }
         </style>
         
+        <dom-if if="[[_canLogin]]">
+            <template>
+                <a href="#/login">Log In</a>        
+            </template>
+        </dom-if>
         
-        <a href="/login" ?hidden="${this._user.isLoggedIn || this.offline}">Log In</a>
-        <user-card title="Log out" user="${this._user.name}" ?hidden="${!this._user.isLoggedIn}" @click="${this._userProfileClicked}">    
-        </user-card>
+        <dom-if if="[[_hasUser]]">
+            <template>       
+                <form action="/logout" method="post" id="logout" hidden>
+                    <input type="submit" value="Log Out"/>       
+                </form>
+                <user-card title="Log out" user="[[_user]]" on-click="_userProfileClicked">
+                </user-card>        
+            </template>
+        </dom-if>
 
-        ${offlineMessage}
+        <dom-if if="[[offline]]">
+            <template>
+                <span>(Offline)</span>    
+            </template>
+        </dom-if>
     `;
     }
 
-    updated(changedProps) {
-        if (changedProps.has('token')) {
-            if (this.token) {
-                // TODO: verify the token using the web service.
-                this._user = {name: "mds796", isLoggedIn: true};
-            } else {
-                this._user = {isLoggedIn: false};
-            }
+    _showLogin(token, offline) {
+        return !(token || offline);
+    }
+
+    _showUser(token) {
+        return token;
+    }
+
+    _getUser(token) {
+        if (this.token) {
+            // TODO: verify the token using the web service.
+            return this.token.split(",")[0].split("=")[1];
         }
     }
 
@@ -72,7 +84,7 @@ class ProfileCard extends LitElement {
     }
 
     _logOutClicked() {
-        this.dispatchEvent(new CustomEvent('logged-out'));
+        this.shadowRoot.getElementById('logout').submit();
     }
 }
 

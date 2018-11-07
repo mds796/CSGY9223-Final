@@ -1,32 +1,28 @@
 package web
 
 import (
-	"io"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"time"
 )
 
 func Start(host string, port uint16, staticPath string) {
-	const redirect = 307
-
 	multiplexer := http.NewServeMux()
 
-	multiplexer.Handle("/feed", http.RedirectHandler("/", redirect))
-	multiplexer.Handle("/follow", http.RedirectHandler("/", redirect))
-	multiplexer.Handle("/about", http.RedirectHandler("/", redirect))
-	multiplexer.Handle("/login", http.RedirectHandler("/", redirect))
-	multiplexer.Handle("/register", http.RedirectHandler("/", redirect))
-
-	multiplexer.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
-		if r.Body != nil {
-			if _, err := io.Copy(w, r.Body); err != nil {
-				log.Printf("Encountered an error while echoing the body: %v\n.", err)
-			}
-		}
+	multiplexer.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{Name: "username", Value: "mds796", Expires: time.Now().Add(24 * time.Hour)})
+		http.Redirect(w, r, "/", 307)
+	})
+	multiplexer.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{Name: "username", Value: "", Expires: time.Unix(0, 0)})
+		http.Redirect(w, r, "/", 307)
 	})
 
-	multiplexer.Handle("/", http.FileServer(http.Dir(staticPath)))
+	multiplexer.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filepath.Join(staticPath, r.URL.Path))
+	})
 
 	log.Printf("Now listening on port %v.\n", port)
 	log.Fatal(http.ListenAndServe(host+":"+strconv.Itoa(int(port)), multiplexer))
