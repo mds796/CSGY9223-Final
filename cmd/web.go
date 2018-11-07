@@ -1,16 +1,13 @@
 package cmd
 
 import (
+	"github.com/mds796/CSGY9223-Final/web"
 	"github.com/spf13/cobra"
-	"io"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
-	"syscall"
-	"time"
 )
 
 var staticPath string
@@ -42,7 +39,7 @@ var webCmd = &cobra.Command{
 	Long:  `Runs a web server process to serve the static and dynamic assets for our twitter clone.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		writePidFile()
-		startServer()
+		web.Start(host, port, staticPath)
 	},
 }
 
@@ -52,7 +49,7 @@ var startWebCmd = &cobra.Command{
 	Long:  `Starts a web server process to serve the static and dynamic assets for our twitter clone.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		writePidFile()
-		startServer()
+		web.Start(host, port, staticPath)
 	},
 }
 
@@ -67,24 +64,29 @@ var stopWebCmd = &cobra.Command{
 
 func stopServer() {
 	pid := readPid()
+	if pid == -1 {
+		return
+	}
 
 	process, err := os.FindProcess(pid)
 	panicOnError(err)
-	err = process.Kill()
 
+	err = process.Kill()
 	if err != nil {
-		select {
-		case <-time.After(5 * time.Second):
-			process.Signal(syscall.SIGKILL)
-		}
+		log.Print(err)
 	}
+
+	err = process.Release()
+	panicOnError(err)
 
 	os.Remove(pidFile)
 }
 
 func readPid() int {
 	bytes, err := ioutil.ReadFile(pidFile)
-	panicOnError(err)
+	if err != nil {
+		return -1
+	}
 
 	pid, err := strconv.Atoi(strings.TrimSpace(string(bytes)))
 	panicOnError(err)
@@ -106,21 +108,6 @@ var restartWebCmd = &cobra.Command{
 		stopWebCmd.Run(stopWebCmd, args)
 		startWebCmd.Run(cmd, args)
 	},
-}
-
-func startServer() {
-	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
-		if r.Body != nil {
-			if _, err := io.Copy(w, r.Body); err != nil {
-				log.Printf("Encountered an error while echoing the body: %v\n.", err)
-			}
-		}
-	})
-
-	http.Handle("/", http.FileServer(http.Dir(staticPath)))
-
-	log.Printf("Now listening on port %v.\n", port)
-	log.Fatal(http.ListenAndServe(host+":"+strconv.Itoa(int(port)), nil))
 }
 
 func writePidFile() {
