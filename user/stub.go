@@ -25,14 +25,14 @@ func (s *StubService) Create(request CreateUserRequest) (CreateUserResponse, err
 		}
 	}
 
-	// create the User object
-	user := User{uuid: uuid.New().String(), username: request.Username}
+	// generate the uuid
+	user_uuid := uuid.New().String()
 
 	// add the user
-	s.UsersCache[user.uuid] = user.username
+	s.UsersCache[user_uuid] = request.Username
 
 	// create the response
-	response := CreateUserResponse{Uuid: user.uuid}
+	response := CreateUserResponse{Uuid: user_uuid}
 
 	return response, nil
 }
