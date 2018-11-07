@@ -10,7 +10,7 @@ type StubService struct {
 	UsersCache map[string]string
 }
 
-func CreateStub() *StubService {
+func CreateStub() Service {
 	stub := new(StubService)
 	stub.UsersCache = make(map[string]string)
 	return stub
