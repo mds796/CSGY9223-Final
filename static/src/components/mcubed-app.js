@@ -35,7 +35,7 @@ class McubedApp extends PolymerElement {
             <app-header condenses reveals effects="waterfall">
                 <app-toolbar class="toolbar-top">
                     <button class="menu-btn" title="Menu" on-click="_menuButtonClicked">${menuIcon}</button>
-                    <div main-title>[[appTitle]]</div>
+                    <div main-title>M<sup>3</sup></div>
                     <profile-card class="user-profile" offline="[[_offline]]" token="[[_loginToken]]" on-logged-out="_loggedOut"></profile-card>
                 </app-toolbar>
             
@@ -85,7 +85,6 @@ class McubedApp extends PolymerElement {
 
     static get properties() {
         return {
-            appTitle: {type: String, value: "mCubed"},
             user: { type: Object, value: {name: "mds796"} },
             posts: {type: Array, value: [{name: "fake123", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultrices leo sollicitudin nisl facilisis imperdiet. Nam a pellentesque enim. Donec sollicitudin placerat semper. Nam non neque quam. Suspendisse nec mauris rutrum dolor accumsan pellentesque nec vel tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras et quam viverra nunc vulputate euismod nec in nisi. In vehicula faucibus erat, id ullamcorper sapien. Maecenas eu tristique ligula, a tempus ipsum. Nam vel pretium sed."}]},
             influencers: { type: Array, value: [{name: "fake123"}] },
@@ -111,7 +110,7 @@ class McubedApp extends PolymerElement {
     }
 
     _pageChanged(oldValue, newValue) {
-        const pageTitle = this.appTitle + ' - ' + this._page;
+        const pageTitle = "mCubed - " + this._page;
 
         updateMetadata({
             title: pageTitle,

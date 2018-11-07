@@ -1,6 +1,6 @@
-import { html, PolymerElement } from '@polymer/polymer';
+import {html, PolymerElement} from '@polymer/polymer';
 
-import { ViewStyle } from './view-style.js';
+import {ViewStyle} from './view-style.js';
 
 /**
  * @customElement
@@ -14,7 +14,8 @@ class AboutView extends PolymerElement {
           ${ViewStyle}
 
           <section>
-            <h2>About view!</h2>
+            <h2>About Us</h2>
+            <p>M <sup>3</sup> is a Twitter clone created by Miguel, Mel, and Matheus.</p>
           </section>
         </template>
       </dom-if>
