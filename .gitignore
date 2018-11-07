@@ -5,3 +5,4 @@ profile.prof
 CSGY9223-Final
 .web.pid
 static/build/
+static/package-lock.json
