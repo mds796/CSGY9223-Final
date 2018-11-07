@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+var staticPath string
 var pidFile string
 var host string
 var port uint16
@@ -21,6 +22,7 @@ func init() {
 	rootCmd.AddCommand(webCmd)
 
 	webCmd.PersistentFlags().StringVarP(&pidFile, "pidFile", "p", ".web.pid", "The name of the process ID file.")
+	webCmd.PersistentFlags().StringVarP(&staticPath, "staticPath", "S", "static/build/default", "The file path of the static assets directory.")
 	webCmd.AddCommand(startWebCmd)
 	webCmd.AddCommand(stopWebCmd)
 	webCmd.AddCommand(restartWebCmd)
@@ -114,7 +116,9 @@ func startServer() {
 			}
 		}
 	})
-	http.Handle("/", http.FileServer(http.Dir("static/build/default")))
+
+	http.Handle("/", http.FileServer(http.Dir(staticPath)))
+
 	log.Printf("Now listening on port %v.\n", port)
 	log.Fatal(http.ListenAndServe(host+":"+strconv.Itoa(int(port)), nil))
 }
@@ -122,6 +126,7 @@ func startServer() {
 func writePidFile() {
 	bytes := []byte(strconv.Itoa(os.Getpid()) + "\n")
 	err := ioutil.WriteFile(pidFile, bytes, 400)
+
 	if err != nil {
 		panic(err)
 	}
