@@ -1,1 +1,3 @@
+# install NPM
+# run: cd static && npm install && npm install -g polymer-cli 
 cd static && polymer build && cd .. && go build && ./CSGY9223-Final web start -H 0.0.0.0

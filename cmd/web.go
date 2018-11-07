@@ -1,13 +1,14 @@
 package cmd
 
 import (
-	"github.com/mds796/CSGY9223-Final/web"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/mds796/CSGY9223-Final/web"
+	"github.com/spf13/cobra"
 )
 
 var staticPath string
@@ -19,7 +20,6 @@ func init() {
 	rootCmd.AddCommand(webCmd)
 
 	webCmd.PersistentFlags().StringVarP(&pidFile, "pidFile", "p", ".web.pid", "The name of the process ID file.")
-	webCmd.PersistentFlags().StringVarP(&staticPath, "staticPath", "S", "static/build/default", "The file path of the static assets directory.")
 	webCmd.AddCommand(startWebCmd)
 	webCmd.AddCommand(stopWebCmd)
 	webCmd.AddCommand(restartWebCmd)
@@ -31,6 +31,7 @@ func init() {
 func setStartArgs(command *cobra.Command) {
 	command.Flags().StringVarP(&host, "host", "H", "localhost", "The host interface to listen on.")
 	command.Flags().Uint16VarP(&port, "port", "P", 8080, "The TCP port to listen on.")
+	command.Flags().StringVarP(&staticPath, "staticPath", "S", "static/build/default", "The file path of the static assets directory.")
 }
 
 var webCmd = &cobra.Command{
@@ -38,8 +39,6 @@ var webCmd = &cobra.Command{
 	Short: "Runs the web server for our Twitter clone.",
 	Long:  `Runs a web server process to serve the static and dynamic assets for our twitter clone.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		writePidFile()
-		web.Start(host, port, staticPath)
 	},
 }
 
