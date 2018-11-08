@@ -22,7 +22,7 @@ class FollowView extends PolymerElement {
           </style>
 
           <section>
-            <label for="query">Type a username, then press Enter to search for users:</label>
+            <label for="query">Type a search query, then press Enter to search for users:</label>
             <input id="query" type="text" value="{{query::change}}" placeholder="Username"/>
           </section>
             
