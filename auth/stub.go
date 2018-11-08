@@ -18,7 +18,7 @@ type StubService struct {
 	UserService   user.Service
 	PasswordCache map[string][]byte      // (UUID, sha256(password))
 	StatusCache   map[string]int         // (UUID, status)
-	CookieCache   map[string]http.Cookie // (UUID, cookie)
+	CookieCache   map[string]http.Cookie // (username, cookie)
 }
 
 func CreateStub(userService user.Service) Service {
@@ -47,7 +47,7 @@ func (s *StubService) Register(request RegisterAuthRequest) (RegisterAuthRespons
 	s.StatusCache[createUserResponse.Uuid] = LOGGED_IN
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 	cookie := http.Cookie{Name: request.Username, Expires: expiration}
-	s.CookieCache[createUserResponse.Uuid] = cookie
+	s.CookieCache[request.Username] = cookie
 	return RegisterAuthResponse{Cookie: cookie}, nil
 }
 
@@ -69,7 +69,7 @@ func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error)
 		s.StatusCache[viewUserResponse.Uuid] = LOGGED_IN
 		expiration := time.Now().Add(365 * 24 * time.Hour)
 		cookie := http.Cookie{Name: request.Username, Expires: expiration}
-		s.CookieCache[viewUserResponse.Uuid] = cookie
+		s.CookieCache[request.Username] = cookie
 		return LoginAuthResponse{Cookie: cookie}, nil
 	} else {
 		return LoginAuthResponse{}, &LoginAuthError{request.Username, request.Password}

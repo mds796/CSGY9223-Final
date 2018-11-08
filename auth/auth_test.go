@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAuthRegisterStandard(t *testing.T) {
+func TestAuthRegisterBasic(t *testing.T) {
 	userService := user.CreateStub()
 	authService := CreateStub(userService)
 
@@ -30,12 +30,30 @@ func TestAuthRegisterExists(t *testing.T) {
 	}
 }
 
-func TestAuthLoginStandard(t *testing.T) {
+func TestAuthLoginBasic(t *testing.T) {
 	userService := user.CreateStub()
 	authService := CreateStub(userService)
 
-	register_request := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
-	authService.Register(register_request)
+	registerRequest := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	authService.Register(registerRequest)
+
+	logoutRequest := LogoutAuthRequest{Username: "mksavic"}
+	authService.Logout(logoutRequest)
+
+	request := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
+	_, err := authService.Login(request)
+
+	if err != nil {
+		t.Fail()
+	}
+}
+
+func TestAuthLoginAlreadyLoggedIn(t *testing.T) {
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
+
+	registerRequest := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	authService.Register(registerRequest)
 
 	request := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
 	_, err := authService.Login(request)
@@ -61,13 +79,32 @@ func TestAuthLoginPasswordIncorrect(t *testing.T) {
 	userService := user.CreateStub()
 	authService := CreateStub(userService)
 
-	register_request := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
-	authService.Register(register_request)
+	registerRequest := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	authService.Register(registerRequest)
 
 	request := LoginAuthRequest{Username: "mksavic", Password: "123abc"}
 	_, err := authService.Login(request)
 
 	if err == nil {
+		t.Fail()
+	}
+}
+
+func TestAuthVerifyBasic(t *testing.T) {
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
+
+	registerRequest := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	registerResponse, _ := authService.Register(registerRequest)
+
+	verifyRequest := VerifyAuthRequest{Cookie: registerResponse.Cookie}
+	verifyResponse, err := authService.Verify(verifyRequest)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if verifyResponse.Username != "mksavic" {
 		t.Fail()
 	}
 }
