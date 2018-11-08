@@ -31,7 +31,8 @@ func (s *StubService) Create(request CreateUserRequest) (CreateUserResponse, err
 	s.UsernameCache[request.Username] = new_uuid
 
 	// create the response
-	return CreateUserResponse{}, nil
+	response := CreateUserResponse{Uuid: new_uuid}
+	return response, nil
 }
 
 func (s *StubService) View(request ViewUserRequest) (ViewUserResponse, error) {

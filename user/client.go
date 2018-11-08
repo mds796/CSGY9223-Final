@@ -5,6 +5,7 @@ type CreateUserRequest struct {
 }
 
 type CreateUserResponse struct {
+	Uuid string
 }
 
 type ViewUserRequest struct {
