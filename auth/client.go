@@ -1,7 +1,7 @@
 package auth
 
 type RegisterAuthRequest struct {
-	Uuid     string
+	Username string
 	Password string
 }
 
@@ -9,7 +9,7 @@ type RegisterAuthResponse struct {
 }
 
 type LoginAuthRequest struct {
-	Uuid     string
+	Username string
 	Password string
 }
 
@@ -21,11 +21,11 @@ type VerifyAuthRequest struct {
 }
 
 type VerifyAuthResponse struct {
-	Uuid string
+	Username string
 }
 
 type LogoutAuthRequest struct {
-	Uuid string
+	Username string
 }
 
 type LogoutAuthResponse struct {

@@ -3,6 +3,7 @@ package auth
 import (
 	"bytes"
 	"crypto/sha256"
+	"github.com/mds796/CSGY9223-Final/user"
 )
 
 const (
@@ -11,44 +12,56 @@ const (
 )
 
 type StubService struct {
+	UserService   user.Service
 	PasswordCache map[string][]byte
 	StatusCache   map[string]int
 }
 
-func CreateStub() Service {
+func CreateStub(userService user.Service) Service {
 	stub := new(StubService)
+	stub.UserService = userService
 	stub.PasswordCache = make(map[string][]byte)
 	stub.StatusCache = make(map[string]int)
 	return stub
 }
 
 func (s *StubService) Register(request RegisterAuthRequest) (RegisterAuthResponse, error) {
-	if _, ok := s.PasswordCache[request.Uuid]; ok {
-		// user is already registered
-		return RegisterAuthResponse{}, &RegisterAuthError{request.Uuid}
-	} else {
-		// hash the password and save it
-		h := sha256.New()
-		h.Write([]byte(request.Password))
-		s.PasswordCache[request.Uuid] = h.Sum(nil)
-		return RegisterAuthResponse{}, nil
+	// create the user in user service
+	createUserRequest := user.CreateUserRequest{Username: request.Username}
+	createUserResponse, err := s.UserService.Create(createUserRequest)
+
+	// something went wrong in user service
+	if err != nil {
+		return RegisterAuthResponse{}, &RegisterAuthError{request.Username}
 	}
+
+	// register the user
+	h := sha256.New()
+	h.Write([]byte(request.Password))
+	s.PasswordCache[createUserResponse.Uuid] = h.Sum(nil)
+	s.StatusCache[createUserResponse.Uuid] = LOGGED_IN
+	return RegisterAuthResponse{}, nil
 }
 
 func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error) {
-	if _, ok := s.PasswordCache[request.Uuid]; !ok {
-		// user is not registered
-		return LoginAuthResponse{}, &LoginAuthError{request.Uuid, request.Password}
+	// view the user in user service
+	viewUserRequest := user.ViewUserRequest{Username: request.Username}
+	viewUserResponse, err := s.UserService.View(viewUserRequest)
+
+	// something went wrong in user service
+	if err != nil {
+		return LoginAuthResponse{}, &LoginAuthError{request.Username, request.Password}
 	}
 
+	// check user password
 	h := sha256.New()
 	h.Write([]byte(request.Password))
-	if bytes.Equal(s.PasswordCache[request.Uuid], h.Sum(nil)) {
+	if bytes.Equal(s.PasswordCache[viewUserResponse.Uuid], h.Sum(nil)) {
 		// login the user, their current status is irrelevant
-		s.StatusCache[request.Uuid] = LOGGED_IN
+		s.StatusCache[viewUserResponse.Uuid] = LOGGED_IN
 		return LoginAuthResponse{}, nil
 	} else {
-		return LoginAuthResponse{}, &LoginAuthError{request.Uuid, request.Password}
+		return LoginAuthResponse{}, &LoginAuthError{request.Username, request.Password}
 	}
 }
 
@@ -57,7 +70,16 @@ func (s *StubService) Verify(request VerifyAuthRequest) (VerifyAuthResponse, err
 }
 
 func (s *StubService) Logout(request LogoutAuthRequest) (LogoutAuthResponse, error) {
+	// view the user in user service
+	viewUserRequest := user.ViewUserRequest{Username: request.Username}
+	viewUserResponse, err := s.UserService.View(viewUserRequest)
+
+	// something went wrong in user service
+	if err != nil {
+		return LogoutAuthResponse{}, &LogoutAuthError{request.Username}
+	}
+
 	// logout the user, their current status is irrelevant
-	s.StatusCache[request.Uuid] = LOGGED_OUT
+	s.StatusCache[viewUserResponse.Uuid] = LOGGED_OUT
 	return LogoutAuthResponse{}, nil
 }

@@ -1,13 +1,16 @@
 package auth
 
 import (
+	"github.com/mds796/CSGY9223-Final/user"
 	"testing"
 )
 
 func TestAuthRegisterStandard(t *testing.T) {
-	service := CreateStub()
-	request := RegisterAuthRequest{Uuid: "123456", Password: "abc123"}
-	_, err := service.Register(request)
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
+
+	request := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	_, err := authService.Register(request)
 
 	if err != nil {
 		t.Fail()
@@ -15,10 +18,12 @@ func TestAuthRegisterStandard(t *testing.T) {
 }
 
 func TestAuthRegisterExists(t *testing.T) {
-	service := CreateStub()
-	request := RegisterAuthRequest{Uuid: "123456", Password: "abc123"}
-	service.Register(request)
-	_, err := service.Register(request)
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
+
+	request := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	authService.Register(request)
+	_, err := authService.Register(request)
 
 	if err == nil {
 		t.Fail()
@@ -26,12 +31,14 @@ func TestAuthRegisterExists(t *testing.T) {
 }
 
 func TestAuthLoginStandard(t *testing.T) {
-	service := CreateStub()
-	register_request := RegisterAuthRequest{Uuid: "123456", Password: "abc123"}
-	service.Register(register_request)
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
 
-	request := LoginAuthRequest{Uuid: "123456", Password: "abc123"}
-	_, err := service.Login(request)
+	register_request := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	authService.Register(register_request)
+
+	request := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
+	_, err := authService.Login(request)
 
 	if err != nil {
 		t.Fail()
@@ -39,9 +46,11 @@ func TestAuthLoginStandard(t *testing.T) {
 }
 
 func TestAuthLoginDoesNotExist(t *testing.T) {
-	service := CreateStub()
-	request := LoginAuthRequest{Uuid: "123456", Password: "abc123"}
-	_, err := service.Login(request)
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
+
+	request := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
+	_, err := authService.Login(request)
 
 	if err == nil {
 		t.Fail()
@@ -49,12 +58,14 @@ func TestAuthLoginDoesNotExist(t *testing.T) {
 }
 
 func TestAuthLoginPasswordIncorrect(t *testing.T) {
-	service := CreateStub()
-	register_request := RegisterAuthRequest{Uuid: "123456", Password: "abc123"}
-	service.Register(register_request)
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
 
-	request := LoginAuthRequest{Uuid: "123456", Password: "123abc"}
-	_, err := service.Login(request)
+	register_request := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	authService.Register(register_request)
+
+	request := LoginAuthRequest{Username: "mksavic", Password: "123abc"}
+	_, err := authService.Login(request)
 
 	if err == nil {
 		t.Fail()
