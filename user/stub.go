@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"github.com/google/uuid"
 	"strings"
 )
@@ -21,8 +20,7 @@ func CreateStub() Service {
 func (s *StubService) Create(request CreateUserRequest) (CreateUserResponse, error) {
 	// ensure this username doesn't already exist
 	if _, ok := s.UsernameCache[request.Username]; ok {
-		err := errors.New("[USER]: Username already exists.")
-		return CreateUserResponse{}, err
+		return CreateUserResponse{}, &CreateUserError{request.Username}
 	}
 
 	// generate the uuid
@@ -44,8 +42,7 @@ func (s *StubService) View(request ViewUserRequest) (ViewUserResponse, error) {
 		return response, nil
 	} else {
 		// uuid doesn't exist
-		err := errors.New("[USER]: UUID does not exist.")
-		return ViewUserResponse{}, err
+		return ViewUserResponse{}, &ViewUserError{request.Uuid}
 	}
 }
 
