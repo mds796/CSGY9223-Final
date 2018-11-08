@@ -1,11 +1,16 @@
 package auth
 
+import (
+	"net/http"
+)
+
 type RegisterAuthRequest struct {
 	Username string
 	Password string
 }
 
 type RegisterAuthResponse struct {
+	Cookie http.Cookie
 }
 
 type LoginAuthRequest struct {
@@ -14,10 +19,11 @@ type LoginAuthRequest struct {
 }
 
 type LoginAuthResponse struct {
+	Cookie http.Cookie
 }
 
 type VerifyAuthRequest struct {
-	Cookie string
+	Cookie http.Cookie
 }
 
 type VerifyAuthResponse struct {

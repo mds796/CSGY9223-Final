@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"github.com/mds796/CSGY9223-Final/user"
+	"net/http"
+	"reflect"
+	"time"
 )
 
 const (
@@ -13,8 +16,9 @@ const (
 
 type StubService struct {
 	UserService   user.Service
-	PasswordCache map[string][]byte
-	StatusCache   map[string]int
+	PasswordCache map[string][]byte      // (UUID, sha256(password))
+	StatusCache   map[string]int         // (UUID, status)
+	CookieCache   map[string]http.Cookie // (UUID, cookie)
 }
 
 func CreateStub(userService user.Service) Service {
@@ -22,6 +26,7 @@ func CreateStub(userService user.Service) Service {
 	stub.UserService = userService
 	stub.PasswordCache = make(map[string][]byte)
 	stub.StatusCache = make(map[string]int)
+	stub.CookieCache = make(map[string]http.Cookie)
 	return stub
 }
 
@@ -40,7 +45,10 @@ func (s *StubService) Register(request RegisterAuthRequest) (RegisterAuthRespons
 	h.Write([]byte(request.Password))
 	s.PasswordCache[createUserResponse.Uuid] = h.Sum(nil)
 	s.StatusCache[createUserResponse.Uuid] = LOGGED_IN
-	return RegisterAuthResponse{}, nil
+	expiration := time.Now().Add(365 * 24 * time.Hour)
+	cookie := http.Cookie{Name: request.Username, Expires: expiration}
+	s.CookieCache[createUserResponse.Uuid] = cookie
+	return RegisterAuthResponse{Cookie: cookie}, nil
 }
 
 func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error) {
@@ -59,14 +67,26 @@ func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error)
 	if bytes.Equal(s.PasswordCache[viewUserResponse.Uuid], h.Sum(nil)) {
 		// login the user, their current status is irrelevant
 		s.StatusCache[viewUserResponse.Uuid] = LOGGED_IN
-		return LoginAuthResponse{}, nil
+		expiration := time.Now().Add(365 * 24 * time.Hour)
+		cookie := http.Cookie{Name: request.Username, Expires: expiration}
+		s.CookieCache[viewUserResponse.Uuid] = cookie
+		return LoginAuthResponse{Cookie: cookie}, nil
 	} else {
 		return LoginAuthResponse{}, &LoginAuthError{request.Username, request.Password}
 	}
 }
 
 func (s *StubService) Verify(request VerifyAuthRequest) (VerifyAuthResponse, error) {
-	return VerifyAuthResponse{}, nil
+	// check if there is a username assigned to that cookie
+	for username, cookie := range s.CookieCache {
+		if reflect.DeepEqual(cookie, request.Cookie) {
+			response := VerifyAuthResponse{Username: username}
+			return response, nil
+		}
+	}
+
+	// cookie is not known to us
+	return VerifyAuthResponse{}, &VerifyAuthError{request.Cookie}
 }
 
 func (s *StubService) Logout(request LogoutAuthRequest) (LogoutAuthResponse, error) {
@@ -81,5 +101,6 @@ func (s *StubService) Logout(request LogoutAuthRequest) (LogoutAuthResponse, err
 
 	// logout the user, their current status is irrelevant
 	s.StatusCache[viewUserResponse.Uuid] = LOGGED_OUT
+	delete(s.StatusCache, viewUserResponse.Uuid)
 	return LogoutAuthResponse{}, nil
 }

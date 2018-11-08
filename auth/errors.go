@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
 )
 
 type RegisterAuthError struct {
@@ -11,6 +12,10 @@ type RegisterAuthError struct {
 type LoginAuthError struct {
 	Username string
 	Password string
+}
+
+type VerifyAuthError struct {
+	Cookie http.Cookie
 }
 
 type LogoutAuthError struct {
@@ -23,6 +28,10 @@ func (e *RegisterAuthError) Error() string {
 
 func (e *LoginAuthError) Error() string {
 	return fmt.Sprintf("[AUTH]: Invalid login request for %s:%s.", e.Username, e.Password)
+}
+
+func (e *VerifyAuthError) Error() string {
+	return fmt.Sprintf("[AUTH]: Invalid cookie %s.", e.Cookie.String())
 }
 
 func (e *LogoutAuthError) Error() string {
