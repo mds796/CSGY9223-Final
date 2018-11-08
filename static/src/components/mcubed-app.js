@@ -30,7 +30,7 @@ class McubedApp extends PolymerElement {
         return html`
             ${AppStyle}
 
-            <data-provider posts={{posts}} influencers="{{influencers}}"></data-provider>
+            <data-provider user="{{user}}" posts={{posts}} follows="{{follows}}"></data-provider>
 
             <app-header condenses reveals effects="waterfall">
                 <app-toolbar class="toolbar-top">
@@ -85,9 +85,9 @@ class McubedApp extends PolymerElement {
 
     static get properties() {
         return {
-            user: { type: Object, value: {} },
-            posts: {type: Array, value: []},
-            influencers: { type: Array, value: [] },
+            user: { type: Object, value: {}, notify: true },
+            posts: {type: Array, value: [], notify: true },
+            follows: { type: Array, value: [], notify: true },
 
             _page: {type: String, value: "about", observer: "_pageChanged"},
             _drawerOpened: {type: Boolean, value: false},

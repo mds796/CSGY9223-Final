@@ -1,8 +1,34 @@
 {
-  "npm": true,
+  "entrypoint": "index.html",
+  "shell": "src/components/mcubed-app.js",
+  "extraDependencies": [
+    "node_modules/@webcomponents/webcomponentsjs/**"
+  ],
   "lint": {
     "rules": [
       "polymer-3"
     ]
-  }
+  },
+  "builds": [
+    {
+      "name": "default",
+      "browserCapabilities": [
+        "es2015",
+        "modules"
+      ],
+      "js": {
+        "minify": true
+      },
+      "css": {
+        "minify": true
+      },
+      "html": {
+        "minify": true
+      },
+      "bundle": true,
+      "addServiceWorker": true
+    }
+  ],
+  "moduleResolution": "node",
+  "npm": true
 }
