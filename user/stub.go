@@ -35,9 +35,9 @@ func (s *StubService) Create(request CreateUserRequest) (CreateUserResponse, err
 }
 
 func (s *StubService) View(request ViewUserRequest) (ViewUserResponse, error) {
-	if _, ok := s.UsernameCache[request.Username]; ok {
+	if uuid, ok := s.UsernameCache[request.Username]; ok {
 		// username exists
-		return ViewUserResponse{}, nil
+		return ViewUserResponse{Uuid: uuid}, nil
 	} else {
 		// username doesn't exist
 		return ViewUserResponse{}, &ViewUserError{request.Username}

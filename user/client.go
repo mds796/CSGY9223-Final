@@ -12,6 +12,7 @@ type ViewUserRequest struct {
 }
 
 type ViewUserResponse struct {
+	Uuid string
 }
 
 type SearchUserRequest struct {
