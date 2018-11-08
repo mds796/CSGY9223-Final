@@ -45,7 +45,7 @@ func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error)
 	h.Write([]byte(request.Password))
 	if bytes.Equal(s.PasswordCache[request.Uuid], h.Sum(nil)) {
 		// login the user, their current status is irrelevant
-		s.StatusCache[request.Uuid] = 1
+		s.StatusCache[request.Uuid] = LOGGED_IN
 		return LoginAuthResponse{}, nil
 	} else {
 		return LoginAuthResponse{}, &LoginAuthError{request.Uuid, request.Password}
@@ -58,6 +58,6 @@ func (s *StubService) Verify(request VerifyAuthRequest) (VerifyAuthResponse, err
 
 func (s *StubService) Logout(request LogoutAuthRequest) (LogoutAuthResponse, error) {
 	// logout the user, their current status is irrelevant
-	s.StatusCache[request.Uuid] = 0
+	s.StatusCache[request.Uuid] = LOGGED_OUT
 	return LogoutAuthResponse{}, nil
 }
