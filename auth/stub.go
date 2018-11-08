@@ -3,7 +3,11 @@ package auth
 import (
 	"bytes"
 	"crypto/sha256"
-	"errors"
+)
+
+const (
+	LOGGED_OUT = iota // LOGGED_OUT == 0
+	LOGGED_IN  = iota // LOGGED_IN == 1
 )
 
 type StubService struct {
@@ -21,8 +25,7 @@ func CreateStub() Service {
 func (s *StubService) Register(request RegisterAuthRequest) (RegisterAuthResponse, error) {
 	if _, ok := s.PasswordCache[request.Uuid]; ok {
 		// user is already registered
-		err := errors.New("[AUTH]: Uuid already exists.")
-		return RegisterAuthResponse{}, err
+		return RegisterAuthResponse{}, &RegisterAuthError{request.Uuid}
 	} else {
 		// hash the password and save it
 		h := sha256.New()
@@ -35,8 +38,7 @@ func (s *StubService) Register(request RegisterAuthRequest) (RegisterAuthRespons
 func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error) {
 	if _, ok := s.PasswordCache[request.Uuid]; !ok {
 		// user is not registered
-		err := errors.New("[AUTH]: Uuid does not exist.")
-		return LoginAuthResponse{}, err
+		return LoginAuthResponse{}, &LoginAuthError{request.Uuid, request.Password}
 	}
 
 	h := sha256.New()
@@ -46,8 +48,7 @@ func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error)
 		s.StatusCache[request.Uuid] = 1
 		return LoginAuthResponse{}, nil
 	} else {
-		err := errors.New("[AUTH]: Password is incorrect.")
-		return LoginAuthResponse{}, err
+		return LoginAuthResponse{}, &LoginAuthError{request.Uuid, request.Password}
 	}
 }
 
