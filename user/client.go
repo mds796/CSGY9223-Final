@@ -5,15 +5,13 @@ type CreateUserRequest struct {
 }
 
 type CreateUserResponse struct {
-	Uuid string
 }
 
 type ViewUserRequest struct {
-	Uuid string
+	Username string
 }
 
 type ViewUserResponse struct {
-	Username string
 }
 
 type SearchUserRequest struct {
@@ -21,7 +19,7 @@ type SearchUserRequest struct {
 }
 
 type SearchUserResponse struct {
-	Uuids []string
+	Usernames []string
 }
 
 type Service interface {

@@ -31,31 +31,29 @@ func (s *StubService) Create(request CreateUserRequest) (CreateUserResponse, err
 	s.UsernameCache[request.Username] = new_uuid
 
 	// create the response
-	response := CreateUserResponse{Uuid: new_uuid}
-	return response, nil
+	return CreateUserResponse{}, nil
 }
 
 func (s *StubService) View(request ViewUserRequest) (ViewUserResponse, error) {
-	if username, ok := s.UuidCache[request.Uuid]; ok {
-		// uuid exists
-		response := ViewUserResponse{Username: username}
-		return response, nil
+	if _, ok := s.UsernameCache[request.Username]; ok {
+		// username exists
+		return ViewUserResponse{}, nil
 	} else {
-		// uuid doesn't exist
-		return ViewUserResponse{}, &ViewUserError{request.Uuid}
+		// username doesn't exist
+		return ViewUserResponse{}, &ViewUserError{request.Username}
 	}
 }
 
 func (s *StubService) Search(request SearchUserRequest) (SearchUserResponse, error) {
 	// find uuids that match given query
-	var uuids []string
-	for uuid, username := range s.UuidCache {
+	var usernames []string
+	for username, _ := range s.UsernameCache {
 		if strings.Contains(username, request.Query) {
-			uuids = append(uuids, uuid)
+			usernames = append(usernames, username)
 		}
 	}
 
 	// create the response
-	response := SearchUserResponse{Uuids: uuids}
+	response := SearchUserResponse{Usernames: usernames}
 	return response, nil
 }
