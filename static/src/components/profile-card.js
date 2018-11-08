@@ -1,5 +1,4 @@
-import { html, PolymerElement } from '@polymer/polymer';
-import {when} from 'lit-html/directives/when';
+import {html, PolymerElement} from '@polymer/polymer';
 
 import './user-card.js'
 
@@ -10,9 +9,10 @@ import './user-card.js'
 class ProfileCard extends PolymerElement {
     static get properties() {
         return {
-            offline: {type: Boolean, value: false},
+            offline: {type: Boolean},
             token: {type: String},
-            _user: {type: Object, computed: '_getUser(token)'},
+            user: {type: Object},
+
             _canLogin: {type: Object, computed: '_showLogin(token, offline)'},
             _hasUser: {type: Object, computed: '_showUser(token)'},
         };
@@ -52,7 +52,7 @@ class ProfileCard extends PolymerElement {
                 <form action="/logout" method="post" id="logout" hidden>
                     <input type="submit" value="Log Out"/>       
                 </form>
-                <user-card title="Log out" user="[[_user]]" on-click="_userProfileClicked">
+                <user-card title="Log out" user="[[user.name]]" on-click="_userProfileClicked">
                 </user-card>        
             </template>
         </dom-if>
@@ -70,13 +70,6 @@ class ProfileCard extends PolymerElement {
 
     _showUser(token) {
         return token;
-    }
-
-    _getUser(token) {
-        if (this.token) {
-            // TODO: verify the token using the web service.
-            return this.token.split(",")[0].split("=")[1];
-        }
     }
 
     _userProfileClicked() {

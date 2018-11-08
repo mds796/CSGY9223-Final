@@ -19,7 +19,6 @@ import './follow-view.js';
 import './about-view.js';
 import './not-found-view.js';
 import './profile-card.js';
-import './data-provider.js';
 
 /**
  * @customElement
@@ -28,15 +27,13 @@ import './data-provider.js';
 class McubedApp extends PolymerElement {
     static get template() {
         return html`
-            ${AppStyle}
-
-            <data-provider user="{{user}}" posts={{posts}} follows="{{follows}}"></data-provider>
+            ${AppStyle}          
 
             <app-header condenses reveals effects="waterfall">
                 <app-toolbar class="toolbar-top">
                     <button class="menu-btn" title="Menu" on-click="_menuButtonClicked">${menuIcon}</button>
                     <div main-title>mCubed</div>
-                    <profile-card class="user-profile" offline="[[_offline]]" token="[[_loginToken]]" on-logged-out="_loggedOut"></profile-card>
+                    <profile-card class="user-profile" offline="[[_offline]]" user="[[user]]" token="[[token]]"></profile-card>
                 </app-toolbar>
             
                 <!-- This gets hidden on a small screen-->
@@ -59,7 +56,7 @@ class McubedApp extends PolymerElement {
                 <register-view class="page" active$="[[_isRegisterView]]"></register-view>
                 <login-view class="page" active$="[[_isLoginView]]"></login-view>
                 
-                <feed-view class="page" active$="[[_isFeedView]]" posts="[[posts]]"></feed-view>
+                <feed-view class="page" active$="[[_isFeedView]]" feed="[[feed]]"></feed-view>
                 <follow-view class="page" active$="[[_isFollowView]]"></follow-view>
                 <about-view class="page" active$="[[_isAboutView]]"></about-view>
                 
@@ -81,19 +78,23 @@ class McubedApp extends PolymerElement {
 
         installRouter((location) => this._locationChanged(location));
         installOfflineWatcher((offline) => this._offlineChanged(offline));
+
+        this.fetchFeed(this);
+        this.fetchFollows(this);
     }
 
     static get properties() {
         return {
-            user: { type: Object, value: {}, notify: true },
-            posts: {type: Array, value: [], notify: true },
-            follows: { type: Array, value: [], notify: true },
+            token: { type: String, value: document.cookie },
+            cookies: {type: Object, computed: 'parseCookie(token)'},
+            user: {type: Object, computed: 'fetchUser(cookies)'},
+            feed: {type: Array, value: []},
+            follows: { type: Array, value: []},
 
             _page: {type: String, value: "about", observer: "_pageChanged"},
             _drawerOpened: {type: Boolean, value: false},
-            _loginToken: {type: String, value: document.cookie},
             _offline: {type: Boolean, value: false},
-            _loggedIn: {type: Boolean, computed: "_isLoggedIn(_loginToken)"},
+            _loggedIn: {type: Boolean, computed: "_isLoggedIn(token)"},
 
             // View predicates
             _isFeedView: {type: Boolean, computed: "_isActive(_page, 'feed')"},
@@ -103,6 +104,36 @@ class McubedApp extends PolymerElement {
             _isAboutView: {type: Boolean, computed: "_isActive(_page, 'about')"},
             _isNotFoundView: {type: Boolean, computed: "_isActive(_page, 'not-found')"}
         };
+    }
+
+    parseCookie(token) {
+        const cookie = {};
+        token.split(";").map(p=>p.split("=")).map(p=>cookie[p[0]]=p[1]);
+        return cookie;
+    }
+
+    fetchUser(cookie) {
+        return {name: cookie.username};
+    }
+
+    fetchFeed(provider) {
+        fetch('/feed').then(response => {
+            return response.json();
+        }).then(data => {
+            provider.feed = data.feed;
+        }).catch(err => {
+            console.log("Unable to fetch feed: ", err);
+        });
+    }
+
+    fetchFollows(provider) {
+        fetch('/follows').then(response => {
+            return response.json();
+        }).then(data => {
+            provider.follows = data.follows;
+        }).catch(err => {
+            console.log("Unable to fetch follows: ", err);
+        });
     }
 
     _isActive(page, expected) {
@@ -131,7 +162,7 @@ class McubedApp extends PolymerElement {
     _locationChanged(location) {
         const noUserPages = ['login', 'register'];
         const online = !this._offline;
-        const loggedIn = this._loginToken;
+        const loggedIn = this.token;
 
         let page = this._extractPage(location);
 
@@ -185,24 +216,6 @@ class McubedApp extends PolymerElement {
 
     _menuButtonClicked() {
         this._drawerOpened = true;
-    }
-
-    _loggedOut() {
-        this._setCookie();
-        window.history.pushState({}, '', '/');
-        this._locationChanged();
-    }
-
-    _setCookie(time) {
-        const expires = time ? time : "Thu, 01 Jan 1970 00:00:00 GMT";
-
-        document.cookie = "username=" + "mds796" + ";expires=" + expires + ";path=/";
-
-        if (time) {
-            this._loginToken = document.cookie
-        } else {
-            this._loginToken = undefined;
-        }
     }
 }
 

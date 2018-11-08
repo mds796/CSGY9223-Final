@@ -16,16 +16,6 @@
         "es2015",
         "modules"
       ],
-      "js": {
-        "minify": true
-      },
-      "css": {
-        "minify": true
-      },
-      "html": {
-        "minify": true
-      },
-      "bundle": true,
       "addServiceWorker": true
     }
   ],

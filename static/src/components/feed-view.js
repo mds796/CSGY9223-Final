@@ -1,6 +1,6 @@
-import { html, PolymerElement } from '@polymer/polymer';
+import {html, PolymerElement} from '@polymer/polymer';
 
-import { ViewStyle } from './view-style.js';
+import {ViewStyle} from './view-style.js';
 
 import './post-card.js';
 
@@ -15,7 +15,7 @@ class FeedView extends PolymerElement {
         <template>
           ${ViewStyle}
 
-          <dom-repeat items="[[posts]]">
+          <dom-repeat items="[[feed]]">
             <template>
               <section>
                 <post-card user="[[item.name]]" text="[[item.text]]"></post-card>
@@ -30,7 +30,7 @@ class FeedView extends PolymerElement {
   static get properties() {
     return {
       active: {type: Boolean, value: false},
-      posts: {type: Array, value: []}
+      feed: {type: Array, value: []}
     };
   }
 }
