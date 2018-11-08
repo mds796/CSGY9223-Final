@@ -1,12 +1,19 @@
 package web
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
 	"time"
 )
+
+type Follow struct {
+	Name     string
+	Followed bool
+}
 
 func Start(host string, port uint16, staticPath string) {
 	multiplexer := http.NewServeMux()
@@ -35,14 +42,23 @@ func Start(host string, port uint16, staticPath string) {
 			`))
 		}
 	})
+	multiplexer.HandleFunc("/follow", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			if bytes, err := ioutil.ReadAll(r.Body); err == nil {
+				follow := new(Follow)
+				json.Unmarshal(bytes, follow)
+				log.Printf("%v", follow)
+			}
+		}
+	})
 	multiplexer.HandleFunc("/follows", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			w.WriteHeader(200)
 			w.Write([]byte(`
 			{ 
 				"follows":[
-                	{"name": "fake123"},
-                	{"name": "fake234"}
+                	{"name": "fake123", "followed": true},
+                	{"name": "fake234", "followed": false}
             	]
 			}
 			`))

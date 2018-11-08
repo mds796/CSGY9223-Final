@@ -9,12 +9,17 @@ import './post-card.js';
  * @polymer
  */
 class FeedView extends PolymerElement {
-  static get template() {
-    return html`
+    static get template() {
+        return html`
       <dom-if if=[[active]]>
         <template>
           ${ViewStyle}
 
+          <section>           
+            <label for="post">Post:</label>
+            <input type="textarea" value="{{post::change}}"/>
+            <input type="submit" value="Post"/>
+          </section>  
           <dom-repeat items="[[feed]]">
             <template>
               <section>
@@ -25,14 +30,14 @@ class FeedView extends PolymerElement {
         </template>
       </dom-if>
     `;
-  }
+    }
 
-  static get properties() {
-    return {
-      active: {type: Boolean, value: false},
-      feed: {type: Array, value: []}
-    };
-  }
+    static get properties() {
+        return {
+            active: {type: Boolean, value: false},
+            feed: {type: Array, value: []}
+        };
+    }
 }
 
 window.customElements.define('feed-view', FeedView);

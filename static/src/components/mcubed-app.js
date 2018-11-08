@@ -80,7 +80,6 @@ class McubedApp extends PolymerElement {
         installOfflineWatcher((offline) => this._offlineChanged(offline));
 
         this.fetchFeed(this);
-        this.fetchFollows(this);
     }
 
     static get properties() {
@@ -89,7 +88,6 @@ class McubedApp extends PolymerElement {
             cookies: {type: Object, computed: 'parseCookie(token)'},
             user: {type: Object, computed: 'fetchUser(cookies)'},
             feed: {type: Array, value: []},
-            follows: { type: Array, value: []},
 
             _page: {type: String, value: "about", observer: "_pageChanged"},
             _drawerOpened: {type: Boolean, value: false},
@@ -126,21 +124,11 @@ class McubedApp extends PolymerElement {
         });
     }
 
-    fetchFollows(provider) {
-        fetch('/follows').then(response => {
-            return response.json();
-        }).then(data => {
-            provider.follows = data.follows;
-        }).catch(err => {
-            console.log("Unable to fetch follows: ", err);
-        });
-    }
-
     _isActive(page, expected) {
         return page === expected;
     }
 
-    _pageChanged(oldValue, newValue) {
+    _pageChanged(newValue, oldValue) {
         const pageTitle = "mCubed - " + this._page;
 
         updateMetadata({
