@@ -42,6 +42,13 @@ func Start(host string, port uint16, staticPath string) {
 			`))
 		}
 	})
+	multiplexer.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			if bytes, err := ioutil.ReadAll(r.Body); err == nil {
+				log.Println(string(bytes))
+			}
+		}
+	})
 	multiplexer.HandleFunc("/follow", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			if bytes, err := ioutil.ReadAll(r.Body); err == nil {

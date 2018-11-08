@@ -16,10 +16,11 @@ class FeedView extends PolymerElement {
           ${ViewStyle}
 
           <section>           
-            <label for="post">Post:</label>
-            <input type="textarea" value="{{post::change}}"/>
-            <input type="submit" value="Post"/>
+            <textarea value="{{post::change}}" rows="7" cols="80">
+            </textarea>
+            <input type="submit" value="Post" on-click="submitPost"/>
           </section>  
+          
           <dom-repeat items="[[feed]]">
             <template>
               <section>
@@ -35,8 +36,24 @@ class FeedView extends PolymerElement {
     static get properties() {
         return {
             active: {type: Boolean, value: false},
+            post: {type: String, value: ""},
             feed: {type: Array, value: []}
         };
+    }
+
+    submitPost(e) {
+        const provider = this;
+
+        e.target.disabled = true;
+
+        fetch('/post', {method: 'POST', body: provider.post, headers:{'Content-Type': 'text/plain'}})
+            .then(response => {
+                provider.post = "";
+                e.target.disabled = false;
+            })
+            .catch(err => {
+            console.log("Unable to post new message: ", err);
+        });
     }
 }
 
