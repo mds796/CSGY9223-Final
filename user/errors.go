@@ -13,7 +13,7 @@ type ViewUserError struct {
 }
 
 func (e *CreateUserError) Error() string {
-	return fmt.Sprintf("[USER]: Username %s already exists.", e.Username)
+	return fmt.Sprintf("[USER]: Invalid username %s.", e.Username)
 }
 
 func (e *ViewUserError) Error() string {
