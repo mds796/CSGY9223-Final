@@ -145,3 +145,17 @@ func getUsernameAndToken(r *http.Request) (username string, token *http.Cookie, 
 
 	return usernameCookie.Value, tokenCookie, nil
 }
+
+func (srv *HttpService) verifyToken(r *http.Request) (string, error) {
+	_, token, err := getUsernameAndToken(r)
+	if err != nil {
+		return "", err
+	}
+
+	response, err := srv.AuthService.Verify(auth.VerifyAuthRequest{Cookie: *token})
+	if err != nil {
+		return "", err
+	}
+
+	return response.Username, nil
+}

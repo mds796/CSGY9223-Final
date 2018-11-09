@@ -1,8 +1,8 @@
 package web
 
 import (
+	"github.com/mds796/CSGY9223-Final/post"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -21,9 +21,28 @@ func (srv *HttpService) FetchFeed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (srv *HttpService) MakePost(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		if bytes, err := ioutil.ReadAll(r.Body); err == nil {
-			log.Println(string(bytes))
-		}
+	err := srv.createPost(r)
+
+	if err != nil {
+		w.WriteHeader(400)
+	} else {
+		w.WriteHeader(200)
 	}
+}
+func (srv *HttpService) createPost(r *http.Request) error {
+	username, err := srv.verifyToken(r)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+
+	request := post.CreatePostRequest{UserID: username, Text: string(bytes)}
+
+	_, err = srv.PostService.Create(request)
+
+	return err
 }

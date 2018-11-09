@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"github.com/mds796/CSGY9223-Final/user"
 	"net/http"
-	"reflect"
 	"time"
 )
 
@@ -79,7 +78,7 @@ func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error)
 func (s *StubService) Verify(request VerifyAuthRequest) (VerifyAuthResponse, error) {
 	// check if cookie is assigned to a username
 	for username, cookie := range s.CookieCache {
-		if reflect.DeepEqual(cookie, request.Cookie) {
+		if cookie.Name == request.Cookie.Name && cookie.Path == request.Cookie.Path && cookie.Value == request.Cookie.Value {
 			response := VerifyAuthResponse{Username: username}
 			return response, nil
 		}
