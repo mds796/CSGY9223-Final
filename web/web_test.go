@@ -22,7 +22,7 @@ func TestHttpService_RegisterUser(t *testing.T) {
 	service := StartService()
 	defer service.Stop()
 
-	response, err := http.Get("http://localhost:9999/index.html")
+	response, err := http.Get("http://localhost:9999/register")
 
 	if err != nil {
 		t.Fatalf("The server did not start as expected: %v\n", err)
@@ -33,7 +33,7 @@ func TestHttpService_RegisterUser(t *testing.T) {
 
 func StartService() Service {
 	service := New("localhost", 9999, "../static/")
-	service.Start()
+	go service.Start()
 
 	return service
 }

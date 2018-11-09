@@ -33,8 +33,7 @@ type Service interface {
 
 func (srv *HttpService) Start() {
 	srv.configureRoutes()
-
-	go srv.listenAndServe()
+	srv.listenAndServe()
 }
 
 func (srv *HttpService) configureRoutes() {
