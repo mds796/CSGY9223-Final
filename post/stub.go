@@ -22,3 +22,13 @@ func (stub *StubService) Create(request CreatePostRequest) (CreatePostResponse, 
 
 	return response, nil
 }
+
+func (stub *StubService) View(request CreateViewRequest) (CreateViewResponse, error) {
+	post, ok := stub.PostCache[request.PostID]
+
+	if !ok {
+		return CreateViewResponse{}, &InvalidPostIDError{PostID: request.PostID}
+	}
+
+	return CreateViewResponse{Text: post.Text}, nil
+}

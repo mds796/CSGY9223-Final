@@ -28,3 +28,34 @@ func TestCreatePostReturnsValidUUID(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestViewReturnTextAfterCreatingPost(t *testing.T) {
+	service := CreateStub()
+	createResponse, _ := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing"})
+	viewResponse, _ := service.View(CreateViewRequest{PostID: createResponse.PostID})
+
+	if viewResponse.Text != "testing" {
+		t.Fail()
+	}
+}
+
+func TestViewReturnTextFromCorrectPost(t *testing.T) {
+	service := CreateStub()
+	service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing"})
+	createResponse, _ := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing more"})
+	viewResponse, _ := service.View(CreateViewRequest{PostID: createResponse.PostID})
+
+	if viewResponse.Text != "testing more" {
+		t.Fail()
+	}
+}
+
+func TestViewReturnErrorWithInvalidPostID(t *testing.T) {
+	service := CreateStub()
+	_, err := service.View(CreateViewRequest{PostID: "123"})
+	_, ok := err.(*InvalidPostIDError)
+
+	if !ok {
+		t.Fail()
+	}
+}
