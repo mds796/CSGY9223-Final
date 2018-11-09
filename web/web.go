@@ -37,25 +37,23 @@ func (srv *HttpService) Start() {
 }
 
 func (srv *HttpService) configureRoutes() {
-	srv.Multiplexer.HandleFunc("/register", srv.RegisterUser())
-	srv.Multiplexer.HandleFunc("/login", srv.LogInUser())
-	srv.Multiplexer.HandleFunc("/logout", srv.LogOutUser())
-	srv.Multiplexer.HandleFunc("/feed", srv.FetchFeed())
-	srv.Multiplexer.HandleFunc("/post", srv.MakePost())
-	srv.Multiplexer.HandleFunc("/follow", srv.ListFollows())
-	srv.Multiplexer.HandleFunc("/follows", srv.ToggleFollow())
-	srv.Multiplexer.HandleFunc("/", srv.ServeStatic())
+	srv.Multiplexer.HandleFunc("/register", srv.RegisterUser)
+	srv.Multiplexer.HandleFunc("/login", srv.LogInUser)
+	srv.Multiplexer.HandleFunc("/logout", srv.LogOutUser)
+	srv.Multiplexer.HandleFunc("/feed", srv.FetchFeed)
+	srv.Multiplexer.HandleFunc("/post", srv.MakePost)
+	srv.Multiplexer.HandleFunc("/follow", srv.ListFollows)
+	srv.Multiplexer.HandleFunc("/follows", srv.ToggleFollow)
+	srv.Multiplexer.HandleFunc("/", srv.ServeStatic)
 }
 
-func (srv *HttpService) ServeStatic() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		path := filepath.Join(srv.StaticPath, r.URL.Path)
+func (srv *HttpService) ServeStatic(w http.ResponseWriter, r *http.Request) {
+	path := filepath.Join(srv.StaticPath, r.URL.Path)
 
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			http.Redirect(w, r, "/index.html", 307)
-		} else {
-			http.ServeFile(w, r, path)
-		}
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		http.Redirect(w, r, "/index.html", 307)
+	} else {
+		http.ServeFile(w, r, path)
 	}
 }
 

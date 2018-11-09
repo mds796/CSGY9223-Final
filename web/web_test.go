@@ -35,6 +35,22 @@ func TestHttpService_RegisterUser(t *testing.T) {
 	}
 }
 
+func TestHttpService_RegisterUser_InvalidPassword(t *testing.T) {
+	service := StartService()
+	defer service.Stop()
+
+	response, err := http.Post(
+		"http://localhost:9999/register",
+		"application/x-www-form-urlencoded",
+		strings.NewReader("username=fake123&password=1234567890&password2=123"))
+
+	if err != nil {
+		t.Fatalf("Could not register service: %v\n", err)
+	} else if response.StatusCode != 307 {
+		t.Fatalf("Could not fetch index page from server. Status: %d.\n", response.StatusCode)
+	}
+}
+
 func StartService() Service {
 	service := New("localhost", 9999, "../static/")
 	go service.Start()

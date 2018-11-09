@@ -15,7 +15,7 @@ class LoginView extends PolymerElement {
 
           <style>
             :host {
-              text-align: center
+              text-align: center;
             }
           </style>
 

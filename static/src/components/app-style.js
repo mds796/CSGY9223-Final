@@ -101,6 +101,11 @@ export const AppStyle = html`
     main {
         display: block;
     }
+    
+    .error {
+        text-align: center;
+        background: #ff4e3d;
+    }
 
     .main-content {
         padding-top: 64px;

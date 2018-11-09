@@ -53,11 +53,17 @@ class McubedApp extends PolymerElement {
             </app-drawer>
 
             <main role="main" class="main-content">
-                <register-view class="page" active$="[[_isRegisterView]]" error="[[error]]"></register-view>
-                <login-view class="page" active$="[[_isLoginView]]" error="[[error]]"></login-view>
+                <dom-if if="[[error]]">
+                    <template>
+                        <section class="error">[[_errorMessage]]</section>
+                    </template>
+                </dom-if>    
                 
-                <feed-view class="page" active$="[[_isFeedView]]" feed="[[feed]]" error="[[error]]"></feed-view>
-                <follow-view class="page" active$="[[_isFollowView]]" error="[[error]]"></follow-view>
+                <register-view class="page" active$="[[_isRegisterView]]"></register-view>
+                <login-view class="page" active$="[[_isLoginView]]"></login-view>
+                
+                <feed-view class="page" active$="[[_isFeedView]]" feed="[[feed]]"></feed-view>
+                <follow-view class="page" active$="[[_isFollowView]]"></follow-view>
                 <about-view class="page" active$="[[_isAboutView]]"></about-view>
                 
                 <not-found-view class="page" active$="[[_isNotFoundView]]"></not-found-view>              
@@ -90,6 +96,7 @@ class McubedApp extends PolymerElement {
             error: {type: String, computed: 'fetchError(cookies)'},
             feed: {type: Array, value: []},
 
+            _errorMessage: {type: String, computed: 'errorMessage(error)'},
             _page: {type: String, value: "about", observer: "_pageChanged"},
             _drawerOpened: {type: Boolean, value: false},
             _offline: {type: Boolean, value: false},
@@ -103,6 +110,10 @@ class McubedApp extends PolymerElement {
             _isAboutView: {type: Boolean, computed: "_isActive(_page, 'about')"},
             _isNotFoundView: {type: Boolean, computed: "_isActive(_page, 'not-found')"}
         };
+    }
+
+    errorMessage(error) {
+        return JSON.parse(error);
     }
 
     parseCookie() {

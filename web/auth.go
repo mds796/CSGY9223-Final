@@ -11,26 +11,24 @@ import (
 	"time"
 )
 
-func (srv *HttpService) RegisterUser() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		username, password, err := getUserAndPassword(r.Body)
+func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	username, password, err := getUserAndPassword(r.Body)
+	if err == nil {
+		response, err := srv.AuthService.Register(auth.RegisterAuthRequest{Username: username, Password: password})
+
 		if err == nil {
-			response, err := srv.AuthService.Register(auth.RegisterAuthRequest{Username: username, Password: password})
+			http.SetCookie(w, &http.Cookie{Name: "error", Value: "", Expires: time.Unix(0, 0)})
+			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
+			http.SetCookie(w, &response.Cookie)
 
-			if err == nil {
-				http.SetCookie(w, &http.Cookie{Name: "error", Value: "", Expires: time.Unix(0, 0)})
-				http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
-				http.SetCookie(w, &response.Cookie)
-
-				http.Redirect(w, r, "/#/login", 307)
-			}
+			http.Redirect(w, r, "/#/login", 307)
 		}
+	}
 
-		if err != nil {
-			log.Println(err)
-			setErrorCookie(w, "Invalid register request.")
-			http.Redirect(w, r, "/#/register", 307)
-		}
+	if err != nil {
+		log.Println(err)
+		setErrorCookie(w, "Invalid register request.")
+		http.Redirect(w, r, "/#/register", 307)
 	}
 }
 
@@ -83,16 +81,31 @@ func setErrorCookie(w http.ResponseWriter, message string) {
 	http.SetCookie(w, &http.Cookie{Name: "error", Value: message, Expires: time.Now().Add(5 * time.Minute)})
 }
 
-func (srv *HttpService) LogInUser() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		http.SetCookie(w, &http.Cookie{Name: "username", Value: "mds796", Expires: time.Now().Add(24 * time.Hour)})
-		http.Redirect(w, r, "/", 307)
+func (srv *HttpService) LogInUser(w http.ResponseWriter, r *http.Request) {
+	username, password, err := getUserAndPassword(r.Body)
+	if err == nil {
+		response, err := srv.AuthService.Login(auth.LoginAuthRequest{Username: username, Password: password})
+
+		if err == nil {
+			http.SetCookie(w, &http.Cookie{Name: "error", Value: "", Expires: time.Unix(0, 0)})
+			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
+			http.SetCookie(w, &response.Cookie)
+
+			http.Redirect(w, r, "/#/login", 307)
+		}
 	}
+
+	if err != nil {
+		log.Println(err)
+		setErrorCookie(w, "Invalid login request.")
+		http.Redirect(w, r, "/#/register", 307)
+	}
+
+	http.SetCookie(w, &http.Cookie{Name: "username", Value: "mds796", Expires: time.Now().Add(24 * time.Hour)})
+	http.Redirect(w, r, "/", 307)
 }
 
-func (srv *HttpService) LogOutUser() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		http.SetCookie(w, &http.Cookie{Name: "username", Value: "", Expires: time.Unix(0, 0)})
-		http.Redirect(w, r, "/", 307)
-	}
+func (srv *HttpService) LogOutUser(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{Name: "username", Value: "", Expires: time.Unix(0, 0)})
+	http.Redirect(w, r, "/", 307)
 }
