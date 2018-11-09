@@ -26,9 +26,14 @@ type HttpService struct {
 	PostService post.Service
 }
 
+func (srv *HttpService) Address() string {
+	return "http://" + srv.Server.Addr
+}
+
 type Service interface {
 	Start()
 	Stop()
+	Address() string
 }
 
 func (srv *HttpService) Start() {
@@ -64,7 +69,7 @@ func (srv *HttpService) Stop() {
 }
 
 func (srv *HttpService) listenAndServe() {
-	log.Printf("Now listening on %v.\n", srv.Server.Addr)
+	log.Printf("Now listening on %v.\n", srv.Address())
 	srv.Server.ListenAndServe()
 }
 

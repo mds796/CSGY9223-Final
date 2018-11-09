@@ -12,6 +12,7 @@ import (
 )
 
 func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Registering user\n")
 	username, password, err := getUserAndPassword(r.Body)
 	if err == nil {
 		response, err := srv.AuthService.Register(auth.RegisterAuthRequest{Username: username, Password: password})
@@ -41,6 +42,7 @@ func getUserAndPassword(reader io.ReadCloser) (username string, password string,
 
 	parameters := string(bytes)
 	values, err := url.ParseQuery(parameters)
+	log.Println(values)
 
 	if err != nil {
 		return "", "", err
