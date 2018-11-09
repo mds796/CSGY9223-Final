@@ -7,7 +7,6 @@ import (
 	"github.com/mds796/CSGY9223-Final/user"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 )
@@ -54,12 +53,7 @@ func (srv *HttpService) configureRoutes() {
 
 func (srv *HttpService) ServeStatic(w http.ResponseWriter, r *http.Request) {
 	path := filepath.Join(srv.StaticPath, r.URL.Path)
-
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		http.Redirect(w, r, "/index.html", 307)
-	} else {
-		http.ServeFile(w, r, path)
-	}
+	http.ServeFile(w, r, path)
 }
 
 func (srv *HttpService) Stop() {

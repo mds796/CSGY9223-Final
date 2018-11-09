@@ -32,6 +32,7 @@ type VerifyAuthResponse struct {
 
 type LogoutAuthRequest struct {
 	Username string
+	Cookie   http.Cookie
 }
 
 type LogoutAuthResponse struct {

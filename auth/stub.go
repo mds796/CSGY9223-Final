@@ -68,7 +68,7 @@ func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error)
 		// login the user, their current status is irrelevant
 		s.StatusCache[viewUserResponse.Uuid] = LOGGED_IN
 		expiration := time.Now().Add(365 * 24 * time.Hour)
-		cookie := http.Cookie{Name: request.Username, Expires: expiration}
+		cookie := http.Cookie{Name: request.Username, Value: viewUserResponse.Uuid, Expires: expiration}
 		s.CookieCache[request.Username] = cookie
 		return LoginAuthResponse{Cookie: cookie}, nil
 	} else {
