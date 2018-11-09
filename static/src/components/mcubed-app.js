@@ -53,11 +53,11 @@ class McubedApp extends PolymerElement {
             </app-drawer>
 
             <main role="main" class="main-content">
-                <register-view class="page" active$="[[_isRegisterView]]"></register-view>
-                <login-view class="page" active$="[[_isLoginView]]"></login-view>
+                <register-view class="page" active$="[[_isRegisterView]]" error="[[error]]"></register-view>
+                <login-view class="page" active$="[[_isLoginView]]" error="[[error]]"></login-view>
                 
-                <feed-view class="page" active$="[[_isFeedView]]" feed="[[feed]]"></feed-view>
-                <follow-view class="page" active$="[[_isFollowView]]"></follow-view>
+                <feed-view class="page" active$="[[_isFeedView]]" feed="[[feed]]" error="[[error]]"></feed-view>
+                <follow-view class="page" active$="[[_isFollowView]]" error="[[error]]"></follow-view>
                 <about-view class="page" active$="[[_isAboutView]]"></about-view>
                 
                 <not-found-view class="page" active$="[[_isNotFoundView]]"></not-found-view>              
@@ -84,9 +84,10 @@ class McubedApp extends PolymerElement {
 
     static get properties() {
         return {
-            token: { type: String, value: document.cookie },
-            cookies: {type: Object, computed: 'parseCookie(token)'},
+            token: { type: String, computed: 'fetchToken(cookies)' },
+            cookies: {type: Object, computed: 'parseCookie()'},
             user: {type: Object, computed: 'fetchUser(cookies)'},
+            error: {type: String, computed: 'fetchError(cookies)'},
             feed: {type: Array, value: []},
 
             _page: {type: String, value: "about", observer: "_pageChanged"},
@@ -104,14 +105,22 @@ class McubedApp extends PolymerElement {
         };
     }
 
-    parseCookie(token) {
+    parseCookie() {
         const cookie = {};
-        token.split(";").map(p=>p.split("=")).map(p=>cookie[p[0]]=p[1]);
+        document.cookie.split(";").map(p=>p.split("=")).map(p=>cookie[p[0]]=p[1]);
         return cookie;
     }
 
     fetchUser(cookie) {
         return {name: cookie.username};
+    }
+
+    fetchToken(cookie) {
+        return cookie[cookie.username] || "";
+    }
+
+    fetchError(cookie) {
+        return cookie.error;
     }
 
     fetchFeed(provider) {

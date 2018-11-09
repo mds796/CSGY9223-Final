@@ -21,6 +21,11 @@ class RegisterView extends PolymerElement {
 
           <section>
             <h2>Register</h2>
+            <dom-if if="[[error]]">
+                <template>
+                    <p>[[error]]</p>
+                </template>
+            </dom-if>    
            
             <form action="/register" method="post">
               <div>
@@ -46,7 +51,8 @@ class RegisterView extends PolymerElement {
 
     static get properties() {
         return {
-            active: {type: Boolean, value: false}
+            active: {type: Boolean, value: false},
+            error: {type: String, value: false}
         };
     }
 }
