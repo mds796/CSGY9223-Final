@@ -1,13 +1,11 @@
 package web
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"context"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
-	"time"
 )
 
 type Follow struct {
@@ -16,84 +14,56 @@ type Follow struct {
 }
 
 type HttpService struct {
-	Host        string
-	Port        uint16
 	StaticPath  string
-	multiplexer *http.ServeMux
+	Multiplexer *http.ServeMux
+	Server      *http.Server
 }
 
 type Service interface {
 	Start()
+	Stop()
 }
 
 func (srv *HttpService) Start() {
-	multiplexer := http.NewServeMux()
+	srv.configureRoutes()
 
-	multiplexer.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/#/login", 307)
-	})
-	multiplexer.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		http.SetCookie(w, &http.Cookie{Name: "username", Value: "mds796", Expires: time.Now().Add(24 * time.Hour)})
-		http.Redirect(w, r, "/", 307)
-	})
-	multiplexer.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
-		http.SetCookie(w, &http.Cookie{Name: "username", Value: "", Expires: time.Unix(0, 0)})
-		http.Redirect(w, r, "/", 307)
-	})
-	multiplexer.HandleFunc("/feed", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			w.WriteHeader(200)
-			w.Write([]byte(`
-			{
-				"feed":[
-                	{"name": "fake123", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultrices leo sollicitudin nisl facilisis imperdiet. Nam a pellentesque enim. Donec sollicitudin placerat semper. Nam non neque quam. Suspendisse nec mauris rutrum dolor accumsan pellentesque nec vel tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras et quam viverra nunc vulputate euismod nec in nisi. In vehicula faucibus erat, id ullamcorper sapien. Maecenas eu tristique ligula, a tempus ipsum. Nam vel pretium sed."},
-                	{"name": "fake234", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultrices leo sollicitudin nisl facilisis imperdiet. Nam a pellentesque enim. Donec sollicitudin placerat semper. Nam non neque quam. Suspendisse nec mauris rutrum dolor accumsan pellentesque nec vel tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras et quam viverra nunc vulputate euismod nec in nisi. In vehicula faucibus erat, id ullamcorper sapien. Maecenas eu tristique ligula, a tempus ipsum. Nam vel pretium sed."}
-            	]
-			}
-			`))
-		}
-	})
-	multiplexer.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
-			if bytes, err := ioutil.ReadAll(r.Body); err == nil {
-				log.Println(string(bytes))
-			}
-		}
-	})
-	multiplexer.HandleFunc("/follow", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
-			if bytes, err := ioutil.ReadAll(r.Body); err == nil {
-				follow := new(Follow)
-				json.Unmarshal(bytes, follow)
-				log.Printf("%v", follow)
-			}
-		}
-	})
-	multiplexer.HandleFunc("/follows", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			w.WriteHeader(200)
-			w.Write([]byte(`
-			{ 
-				"follows":[
-                	{"name": "fake123", "followed": true},
-                	{"name": "fake234", "followed": false}
-            	]
-			}
-			`))
-		} else if r.Method == http.MethodPost {
+	go srv.listenAndServe()
+}
 
-		} else if r.Method == http.MethodDelete {
+func (srv *HttpService) configureRoutes() {
+	srv.Multiplexer.HandleFunc("/register", srv.RegisterUser())
+	srv.Multiplexer.HandleFunc("/login", srv.LogInUser())
+	srv.Multiplexer.HandleFunc("/logout", srv.LogOutUser())
+	srv.Multiplexer.HandleFunc("/feed", srv.FetchFeed())
+	srv.Multiplexer.HandleFunc("/post", srv.MakePost())
+	srv.Multiplexer.HandleFunc("/follow", srv.ListFollows())
+	srv.Multiplexer.HandleFunc("/follows", srv.ToggleFollow())
+	srv.Multiplexer.HandleFunc("/", srv.ServeStatic())
+}
 
-		}
-	})
-	multiplexer.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+func (srv *HttpService) ServeStatic() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, filepath.Join(srv.StaticPath, r.URL.Path))
-	})
+	}
+}
 
-	log.Printf("Now listening on %v port %v.\n", srv.Host, srv.Port)
-	log.Fatal(http.ListenAndServe(srv.Host+":"+strconv.Itoa(int(srv.Port)), multiplexer))
+func (srv *HttpService) Stop() {
+	if err := srv.Server.Shutdown(context.Background()); err != nil {
+		log.Printf("HTTP server Shutdown: %v", err)
+	}
+}
+
+func (srv *HttpService) listenAndServe() {
+	log.Printf("Now listening on %v.\n", srv.Server.Addr)
+	log.Fatal(srv.Server.ListenAndServe())
 }
 
 func New(host string, port uint16, staticPath string) Service {
-	return &HttpService{Host: host, Port: port, StaticPath: staticPath}
+	mux := http.NewServeMux()
+	address := host + ":" + strconv.Itoa(int(port))
+	server := &http.Server{Addr: address, Handler: mux}
+
+	service := &HttpService{StaticPath: staticPath, Multiplexer: mux, Server: server}
+
+	return service
 }
