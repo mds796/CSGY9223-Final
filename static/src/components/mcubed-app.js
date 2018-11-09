@@ -107,7 +107,7 @@ class McubedApp extends PolymerElement {
 
     parseCookie() {
         const cookie = {};
-        document.cookie.split(";").map(p=>p.split("=")).map(p=>cookie[p[0]]=p[1]);
+        document.cookie.split("; ").map(p=>p.split("=")).map(p=>cookie[p[0]]=p[1]);
         return cookie;
     }
 

@@ -46,7 +46,7 @@ func (s *StubService) Register(request RegisterAuthRequest) (RegisterAuthRespons
 	s.PasswordCache[createUserResponse.Uuid] = h.Sum(nil)
 	s.StatusCache[createUserResponse.Uuid] = LOGGED_IN
 	expiration := time.Now().Add(365 * 24 * time.Hour)
-	cookie := http.Cookie{Name: request.Username, Expires: expiration}
+	cookie := http.Cookie{Name: request.Username, Value: createUserResponse.Uuid, Expires: expiration}
 	s.CookieCache[request.Username] = cookie
 	return RegisterAuthResponse{Cookie: cookie}, nil
 }
