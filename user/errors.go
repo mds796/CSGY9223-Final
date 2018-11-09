@@ -9,7 +9,7 @@ type CreateUserError struct {
 }
 
 type ViewUserError struct {
-	Uuid string
+	Username string
 }
 
 func (e *CreateUserError) Error() string {
@@ -17,5 +17,5 @@ func (e *CreateUserError) Error() string {
 }
 
 func (e *ViewUserError) Error() string {
-	return fmt.Sprintf("[USER]: UUID %s does not exist.", e.Uuid)
+	return fmt.Sprintf("[USER]: User %s does not exist.", e.Username)
 }
