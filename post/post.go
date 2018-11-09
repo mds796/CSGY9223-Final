@@ -1,11 +1,7 @@
 package post
 
-import (
-	"github.com/google/uuid"
-)
-
 type Post struct {
-	PostID uuid.UUID
+	PostID string
 	User   string
 	Text   string
 }

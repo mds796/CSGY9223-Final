@@ -14,11 +14,11 @@ func CreateStub() Service {
 
 func (stub *StubService) Create(request CreatePostRequest) (CreatePostResponse, error) {
 	// Store in the stubbed cache
-	postID := uuid.New()
-	stub.PostCache[postID.String()] = Post{PostID: postID, User: request.UserID, Text: request.Text}
+	postID := uuid.New().String()
+	stub.PostCache[postID] = Post{PostID: postID, User: request.UserID, Text: request.Text}
 
 	// Create response
-	response := CreatePostResponse{PostID: postID.String()}
+	response := CreatePostResponse{PostID: postID}
 
 	return response, nil
 }
