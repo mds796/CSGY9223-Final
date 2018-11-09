@@ -2,8 +2,12 @@ package web
 
 import (
 	"context"
+	"github.com/mds796/CSGY9223-Final/auth"
+	"github.com/mds796/CSGY9223-Final/post"
+	"github.com/mds796/CSGY9223-Final/user"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 )
@@ -17,6 +21,9 @@ type HttpService struct {
 	StaticPath  string
 	Multiplexer *http.ServeMux
 	Server      *http.Server
+	UserService user.Service
+	AuthService auth.Service
+	PostService post.Service
 }
 
 type Service interface {
@@ -43,27 +50,42 @@ func (srv *HttpService) configureRoutes() {
 
 func (srv *HttpService) ServeStatic() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, filepath.Join(srv.StaticPath, r.URL.Path))
+		path := filepath.Join(srv.StaticPath, r.URL.Path)
+
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			http.Redirect(w, r, "/index.html", 307)
+		} else {
+			http.ServeFile(w, r, path)
+		}
 	}
 }
 
 func (srv *HttpService) Stop() {
 	if err := srv.Server.Shutdown(context.Background()); err != nil {
-		log.Printf("HTTP server Shutdown: %v", err)
+		log.Printf("HTTP server Shutdown: %v\n", err)
 	}
 }
 
 func (srv *HttpService) listenAndServe() {
 	log.Printf("Now listening on %v.\n", srv.Server.Addr)
-	log.Fatal(srv.Server.ListenAndServe())
+	srv.Server.ListenAndServe()
 }
 
 func New(host string, port uint16, staticPath string) Service {
 	mux := http.NewServeMux()
 	address := host + ":" + strconv.Itoa(int(port))
 	server := &http.Server{Addr: address, Handler: mux}
+	userService := user.CreateStub()
+	authService := auth.CreateStub(userService)
+	postService := post.CreateStub()
 
-	service := &HttpService{StaticPath: staticPath, Multiplexer: mux, Server: server}
+	service := &HttpService{
+		StaticPath:  staticPath,
+		Multiplexer: mux,
+		Server:      server,
+		UserService: userService,
+		AuthService: authService,
+		PostService: postService}
 
 	return service
 }

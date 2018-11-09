@@ -1,6 +1,7 @@
 package web
 
 import (
+	"github.com/mds796/CSGY9223-Final/auth"
 	"net/http"
 	"time"
 )
@@ -21,6 +22,7 @@ func (srv *HttpService) LogInUser() func(w http.ResponseWriter, r *http.Request)
 
 func (srv *HttpService) RegisterUser() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		srv.AuthService.Register(auth.RegisterAuthRequest{})
 		http.Redirect(w, r, "/#/login", 307)
 	}
 }
