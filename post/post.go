@@ -6,6 +6,6 @@ import (
 
 type Post struct {
 	postID uuid.UUID
-	userID uuid.UUID
-	text   string
+	User   string
+	Text   string
 }

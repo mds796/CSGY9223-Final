@@ -17,7 +17,7 @@ func (stub *StubService) Create(request CreatePostRequest) (CreatePostResponse, 
 
 	// Store in the stubbed cache
 	postID := uuid.New()
-	stub.Cache[postID.String()] = Post{postID: postID, userID: userID, text: request.Text}
+	stub.Cache[postID.String()] = Post{postID: postID, User: userID, Text: request.Text}
 
 	// Create response
 	response := CreatePostResponse{PostID: postID.String()}
