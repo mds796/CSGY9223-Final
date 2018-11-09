@@ -5,7 +5,6 @@ import (
 	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -92,11 +91,11 @@ func (srv *HttpService) LogInUser(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &response.Cookie)
 
 			http.Redirect(w, r, "/", 307)
+		} else {
+			setErrorCookie(w, "Invalid login request.")
+			http.Redirect(w, r, "/#/login", 307)
 		}
-	}
-
-	if err != nil {
-		log.Println(err)
+	} else {
 		setErrorCookie(w, "Invalid login request.")
 		http.Redirect(w, r, "/#/login", 307)
 	}
