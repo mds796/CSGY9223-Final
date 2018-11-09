@@ -9,13 +9,13 @@ type CreateUserError struct {
 }
 
 type ViewUserError struct {
-	Uuid string
+	Username string
 }
 
 func (e *CreateUserError) Error() string {
-	return fmt.Sprintf("[USER]: Username %s already exists.", e.Username)
+	return fmt.Sprintf("[USER]: Invalid username %s.", e.Username)
 }
 
 func (e *ViewUserError) Error() string {
-	return fmt.Sprintf("[USER]: UUID %s does not exist.", e.Uuid)
+	return fmt.Sprintf("[USER]: User %s does not exist.", e.Username)
 }

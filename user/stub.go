@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+const MIN_USERNAME = 6
+
 type StubService struct {
 	UuidCache     map[string]string // (UUID, username)
 	UsernameCache map[string]string // (username, UUID)
@@ -18,20 +20,25 @@ func CreateStub() Service {
 }
 
 func (s *StubService) Create(request CreateUserRequest) (CreateUserResponse, error) {
+	// ensure this username meets the minimum requirements
+	if len(request.Username) < MIN_USERNAME {
+		return CreateUserResponse{}, &CreateUserError{request.Username}
+	}
+
 	// ensure this username doesn't already exist
 	if _, ok := s.UsernameCache[request.Username]; ok {
 		return CreateUserResponse{}, &CreateUserError{request.Username}
 	}
 
 	// generate the uuid
-	new_uuid := uuid.New().String()
+	newUuid := uuid.New().String()
 
 	// add the user
-	s.UuidCache[new_uuid] = request.Username
-	s.UsernameCache[request.Username] = new_uuid
+	s.UuidCache[newUuid] = request.Username
+	s.UsernameCache[request.Username] = newUuid
 
 	// create the response
-	response := CreateUserResponse{Uuid: new_uuid}
+	response := CreateUserResponse{Uuid: newUuid}
 	return response, nil
 }
 

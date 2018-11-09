@@ -77,7 +77,7 @@ func (s *StubService) Login(request LoginAuthRequest) (LoginAuthResponse, error)
 }
 
 func (s *StubService) Verify(request VerifyAuthRequest) (VerifyAuthResponse, error) {
-	// check if there is a username assigned to that cookie
+	// check if cookie is assigned to a username
 	for username, cookie := range s.CookieCache {
 		if reflect.DeepEqual(cookie, request.Cookie) {
 			response := VerifyAuthResponse{Username: username}
@@ -101,6 +101,6 @@ func (s *StubService) Logout(request LogoutAuthRequest) (LogoutAuthResponse, err
 
 	// logout the user, their current status is irrelevant
 	s.StatusCache[viewUserResponse.Uuid] = LOGGED_OUT
-	delete(s.StatusCache, viewUserResponse.Uuid)
+	delete(s.CookieCache, request.Username)
 	return LogoutAuthResponse{}, nil
 }

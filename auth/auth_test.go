@@ -9,8 +9,8 @@ func TestAuthRegisterBasic(t *testing.T) {
 	userService := user.CreateStub()
 	authService := CreateStub(userService)
 
-	request := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
-	_, err := authService.Register(request)
+	registerRequest := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	_, err := authService.Register(registerRequest)
 
 	if err != nil {
 		t.Fail()
@@ -21,9 +21,10 @@ func TestAuthRegisterExists(t *testing.T) {
 	userService := user.CreateStub()
 	authService := CreateStub(userService)
 
-	request := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
-	authService.Register(request)
-	_, err := authService.Register(request)
+	registerRequest := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	authService.Register(registerRequest)
+
+	_, err := authService.Register(registerRequest)
 
 	if err == nil {
 		t.Fail()
@@ -40,10 +41,40 @@ func TestAuthLoginBasic(t *testing.T) {
 	logoutRequest := LogoutAuthRequest{Username: "mksavic"}
 	authService.Logout(logoutRequest)
 
-	request := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
-	_, err := authService.Login(request)
+	loginRequest := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
+	_, err := authService.Login(loginRequest)
 
 	if err != nil {
+		t.Fail()
+	}
+}
+
+func TestAuthLoginDoesNotExist(t *testing.T) {
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
+
+	registerRequest := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
+	_, err := authService.Login(registerRequest)
+
+	if err == nil {
+		t.Fail()
+	}
+}
+
+func TestAuthLoginPasswordIncorrect(t *testing.T) {
+	userService := user.CreateStub()
+	authService := CreateStub(userService)
+
+	registerRequest := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
+	authService.Register(registerRequest)
+
+	logoutRequest := LogoutAuthRequest{Username: "mksavic"}
+	authService.Logout(logoutRequest)
+
+	loginRequest := LoginAuthRequest{Username: "mksavic", Password: "123abc"}
+	_, err := authService.Login(loginRequest)
+
+	if err == nil {
 		t.Fail()
 	}
 }
@@ -55,27 +86,15 @@ func TestAuthLoginAlreadyLoggedIn(t *testing.T) {
 	registerRequest := RegisterAuthRequest{Username: "mksavic", Password: "abc123"}
 	authService.Register(registerRequest)
 
-	request := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
-	_, err := authService.Login(request)
+	loginRequest := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
+	_, err := authService.Login(loginRequest)
 
 	if err != nil {
 		t.Fail()
 	}
 }
 
-func TestAuthLoginDoesNotExist(t *testing.T) {
-	userService := user.CreateStub()
-	authService := CreateStub(userService)
-
-	request := LoginAuthRequest{Username: "mksavic", Password: "abc123"}
-	_, err := authService.Login(request)
-
-	if err == nil {
-		t.Fail()
-	}
-}
-
-func TestAuthLoginPasswordIncorrect(t *testing.T) {
+func TestAuthLoginAlreadyLoggedInIncorrectPassword(t *testing.T) {
 	userService := user.CreateStub()
 	authService := CreateStub(userService)
 
@@ -120,13 +139,9 @@ func TestAuthVerifyLoggedOut(t *testing.T) {
 	authService.Logout(logoutRequest)
 
 	verifyRequest := VerifyAuthRequest{Cookie: registerResponse.Cookie}
-	verifyResponse, err := authService.Verify(verifyRequest)
+	_, err := authService.Verify(verifyRequest)
 
-	if err != nil {
-		t.Fail()
-	}
-
-	if verifyResponse.Username != "mksavic" {
+	if err == nil {
 		t.Fail()
 	}
 }
@@ -183,7 +198,7 @@ func TestAuthLogoutDoesNotExist(t *testing.T) {
 	}
 }
 
-func TestAuthLogoutLoggedOut(t *testing.T) {
+func TestAuthLogoutAlreadyLoggedOut(t *testing.T) {
 	userService := user.CreateStub()
 	authService := CreateStub(userService)
 

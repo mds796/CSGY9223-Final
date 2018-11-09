@@ -13,7 +13,7 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func TestUserCreateStandard(t *testing.T) {
+func TestUserCreateBasic(t *testing.T) {
 	service := CreateStub()
 
 	request := CreateUserRequest{Username: "mksavic"}
@@ -37,11 +37,11 @@ func TestUserCreateExists(t *testing.T) {
 	}
 }
 
-func TestUserViewStandard(t *testing.T) {
+func TestUserViewBasic(t *testing.T) {
 	service := CreateStub()
 
-	create_request := CreateUserRequest{Username: "mksavic"}
-	service.Create(create_request)
+	createRequest := CreateUserRequest{Username: "mksavic"}
+	service.Create(createRequest)
 
 	request := ViewUserRequest{Username: "mksavic"}
 	_, err := service.View(request)
@@ -62,11 +62,11 @@ func TestUserViewDoesNotExist(t *testing.T) {
 	}
 }
 
-func TestUserSearchStandard(t *testing.T) {
+func TestUserSearchBasic(t *testing.T) {
 	service := CreateStub()
 
-	create_request := CreateUserRequest{Username: "mksavic"}
-	service.Create(create_request)
+	createRequest := CreateUserRequest{Username: "mksavic"}
+	service.Create(createRequest)
 
 	request := SearchUserRequest{Query: "sav"}
 	response, _ := service.Search(request)
@@ -94,14 +94,14 @@ func TestUserSearchDoesNotExist(t *testing.T) {
 func TestUserSearchMulti(t *testing.T) {
 	service := CreateStub()
 
-	create_request := CreateUserRequest{Username: "mksavic"}
-	service.Create(create_request)
+	createRequest := CreateUserRequest{Username: "mksavic"}
+	service.Create(createRequest)
 
-	create_request = CreateUserRequest{Username: "mds796"}
-	service.Create(create_request)
+	createRequest = CreateUserRequest{Username: "mds796"}
+	service.Create(createRequest)
 
-	create_request = CreateUserRequest{Username: "mvp307"}
-	service.Create(create_request)
+	createRequest = CreateUserRequest{Username: "mvp307"}
+	service.Create(createRequest)
 
 	request := SearchUserRequest{Query: "s"}
 	response, _ := service.Search(request)
