@@ -4,18 +4,27 @@ import "testing"
 
 import "github.com/google/uuid"
 
-func TestCreate(t *testing.T) {
+func TestCreatePostBasic(t *testing.T) {
 	service := CreateStub()
-	request := CreatePostRequest{UserID: uuid.New().String(), Text: "testing"}
-	response, err := service.Create(request)
+	response, err := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing"})
 
 	if err != nil {
-		t.Errorf("Error when creating post with user ID '%v' and data '%v'", request.UserID, request.Text)
+		t.Fail()
 	}
 
 	_, err = uuid.Parse(response.PostID)
 
 	if err != nil {
-		t.Errorf("Invalid post ID in post/create response")
+		t.Fail()
+	}
+}
+
+func TestCreatePostReturnsValidUUID(t *testing.T) {
+	service := CreateStub()
+	response, _ := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing"})
+	_, err := uuid.Parse(response.PostID)
+
+	if err != nil {
+		t.Fail()
 	}
 }

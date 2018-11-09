@@ -5,7 +5,7 @@ import (
 )
 
 type Post struct {
-	postID uuid.UUID
+	PostID uuid.UUID
 	User   string
 	Text   string
 }
