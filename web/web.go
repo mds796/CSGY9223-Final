@@ -68,6 +68,10 @@ func (srv *HttpService) listenAndServe() {
 }
 
 func New(host string, port uint16, staticPath string) Service {
+	return newService(host, port, staticPath)
+}
+
+func newService(host string, port uint16, staticPath string) *HttpService {
 	mux := http.NewServeMux()
 	address := host + ":" + strconv.Itoa(int(port))
 	server := &http.Server{Addr: address, Handler: mux}
@@ -75,13 +79,11 @@ func New(host string, port uint16, staticPath string) Service {
 	authService := auth.CreateStub(userService)
 	postService := post.CreateStub()
 
-	service := &HttpService{
+	return &HttpService{
 		StaticPath:  staticPath,
 		Multiplexer: mux,
 		Server:      server,
 		UserService: userService,
 		AuthService: authService,
 		PostService: postService}
-
-	return service
 }
