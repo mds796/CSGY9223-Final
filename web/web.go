@@ -15,7 +15,18 @@ type Follow struct {
 	Followed bool
 }
 
-func Start(host string, port uint16, staticPath string) {
+type HttpService struct {
+	Host        string
+	Port        uint16
+	StaticPath  string
+	multiplexer *http.ServeMux
+}
+
+type Service interface {
+	Start()
+}
+
+func (srv *HttpService) Start() {
 	multiplexer := http.NewServeMux()
 
 	multiplexer.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
@@ -76,9 +87,13 @@ func Start(host string, port uint16, staticPath string) {
 		}
 	})
 	multiplexer.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, filepath.Join(staticPath, r.URL.Path))
+		http.ServeFile(w, r, filepath.Join(srv.StaticPath, r.URL.Path))
 	})
 
-	log.Printf("Now listening on %v port %v.\n", host, port)
-	log.Fatal(http.ListenAndServe(host+":"+strconv.Itoa(int(port)), multiplexer))
+	log.Printf("Now listening on %v port %v.\n", srv.Host, srv.Port)
+	log.Fatal(http.ListenAndServe(srv.Host+":"+strconv.Itoa(int(srv.Port)), multiplexer))
+}
+
+func New(host string, port uint16, staticPath string) Service {
+	return &HttpService{Host: host, Port: port, StaticPath: staticPath}
 }

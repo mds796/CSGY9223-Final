@@ -48,7 +48,7 @@ var startWebCmd = &cobra.Command{
 	Long:  `Starts a web server process to serve the static and dynamic assets for our twitter clone.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		writePidFile()
-		web.Start(host, port, staticPath)
+		web.New(host, port, staticPath).Start()
 	},
 }
 
@@ -58,6 +58,16 @@ var stopWebCmd = &cobra.Command{
 	Long:  `Stops a web server process to serve the static and dynamic assets for our twitter clone.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		stopServer()
+	},
+}
+
+var restartWebCmd = &cobra.Command{
+	Use:   "restart",
+	Short: "Restarts the web server for our Twitter clone.",
+	Long:  `Restarts a web server process to serve the static and dynamic assets for our twitter clone.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		stopWebCmd.Run(stopWebCmd, args)
+		startWebCmd.Run(cmd, args)
 	},
 }
 
@@ -97,16 +107,6 @@ func panicOnError(err error) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-var restartWebCmd = &cobra.Command{
-	Use:   "restart",
-	Short: "Restarts the web server for our Twitter clone.",
-	Long:  `Restarts a web server process to serve the static and dynamic assets for our twitter clone.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		stopWebCmd.Run(stopWebCmd, args)
-		startWebCmd.Run(cmd, args)
-	},
 }
 
 func writePidFile() {
