@@ -9,15 +9,15 @@ type CreatePostResponse struct {
 	PostID string
 }
 
-type CreateViewRequest struct {
+type ViewPostRequest struct {
 	PostID string
 }
 
-type CreateViewResponse struct {
+type ViewPostResponse struct {
 	Text string
 }
 
 type Service interface {
 	Create(request CreatePostRequest) (CreatePostResponse, error)
-	View(request CreateViewRequest) (CreateViewResponse, error)
+	View(request ViewPostRequest) (ViewPostResponse, error)
 }
