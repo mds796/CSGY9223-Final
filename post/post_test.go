@@ -113,13 +113,16 @@ func TestListReturnsPostsFromCorrectUser(t *testing.T) {
 	}
 }
 
-func TestListReturnsErrorWithInvalidUserID(t *testing.T) {
+func TestListReturnsEmptyPostsListWithUnknownUserID(t *testing.T) {
 	service := CreateStub()
 	userID := uuid.New().String()
-	_, err := service.List(ListPostsRequest{UserID: userID})
-	_, ok := err.(*InvalidUserIDError)
+	listResponse, err := service.List(ListPostsRequest{UserID: userID})
 
-	if !ok {
+	if err != nil {
+		t.Fail()
+	}
+
+	if len(listResponse.PostIDs) != 0 {
 		t.Fail()
 	}
 }

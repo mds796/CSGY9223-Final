@@ -40,11 +40,6 @@ func (stub *StubService) View(request ViewPostRequest) (ViewPostResponse, error)
 }
 
 func (stub *StubService) List(request ListPostsRequest) (ListPostsResponse, error) {
-	postIDs, ok := stub.UserPostsCache[request.UserID]
-
-	if !ok {
-		return ListPostsResponse{}, &InvalidUserIDError{UserID: request.UserID}
-	}
-
+	postIDs, _ := stub.UserPostsCache[request.UserID]
 	return ListPostsResponse{PostIDs: postIDs}, nil
 }
