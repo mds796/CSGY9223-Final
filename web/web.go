@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/auth"
+	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/user"
 	"log"
@@ -17,12 +18,13 @@ type Follow struct {
 }
 
 type HttpService struct {
-	StaticPath  string
-	Multiplexer *http.ServeMux
-	Server      *http.Server
-	UserService user.Service
-	AuthService auth.Service
-	PostService post.Service
+	StaticPath    string
+	Multiplexer   *http.ServeMux
+	Server        *http.Server
+	UserService   user.Service
+	AuthService   auth.Service
+	PostService   post.Service
+	FollowService follow.Service
 }
 
 func (srv *HttpService) Address() string {

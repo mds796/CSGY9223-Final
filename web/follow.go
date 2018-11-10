@@ -20,8 +20,6 @@ func (srv *HttpService) ToggleFollow(w http.ResponseWriter, r *http.Request) {
 								`))
 	} else if r.Method == http.MethodPost {
 
-	} else if r.Method == http.MethodDelete {
-
 	}
 }
 

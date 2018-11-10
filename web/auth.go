@@ -4,9 +4,7 @@ import (
 	"github.com/mds796/CSGY9223-Final/auth"
 	"github.com/pkg/errors"
 	"io"
-	"io/ioutil"
 	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -32,14 +30,7 @@ func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func getUserAndPassword(reader io.ReadCloser, repeatPassword bool) (username string, password string, err error) {
-	bytes, err := ioutil.ReadAll(reader)
-
-	if err != nil {
-		return "", "", err
-	}
-
-	parameters := string(bytes)
-	values, err := url.ParseQuery(parameters)
+	values, err := getParameters(reader)
 
 	if err != nil {
 		return "", "", err
@@ -65,15 +56,6 @@ func getUserAndPassword(reader io.ReadCloser, repeatPassword bool) (username str
 	}
 
 	return username, password, nil
-}
-
-func getKey(parameters map[string][]string, key string) (string, error) {
-	values, ok := parameters[key]
-	if !ok || len(values) == 0 || len(values[0]) == 0 {
-		return "", errors.New("Please provide a " + key + ".")
-	}
-
-	return values[0], nil
 }
 
 func setErrorCookie(w http.ResponseWriter, message string) {
