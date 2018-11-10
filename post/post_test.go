@@ -29,6 +29,16 @@ func TestCreatePostReturnsValidUUID(t *testing.T) {
 	}
 }
 
+func TestCreatePostReturnsErrorWithEmptyText(t *testing.T) {
+	service := CreateStub()
+	_, err := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: ""})
+	_, ok := err.(*EmptyPostTextError)
+
+	if !ok {
+		t.Fail()
+	}
+}
+
 func TestViewReturnTextAfterCreatingPost(t *testing.T) {
 	service := CreateStub()
 	createResponse, _ := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing"})

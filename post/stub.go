@@ -13,6 +13,10 @@ func CreateStub() Service {
 }
 
 func (stub *StubService) Create(request CreatePostRequest) (CreatePostResponse, error) {
+	if request.Text == "" {
+		return CreatePostResponse{}, &EmptyPostTextError{Text: request.Text}
+	}
+
 	// Store in the stubbed cache
 	postID := uuid.New().String()
 	stub.PostCache[postID] = Post{PostID: postID, User: request.UserID, Text: request.Text}
