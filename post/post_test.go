@@ -69,3 +69,17 @@ func TestViewReturnErrorWithInvalidPostID(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestListReturnsAllPostsFromUser(t *testing.T) {
+	service := CreateStub()
+	userID := uuid.New().String()
+	service.Create(CreatePostRequest{UserID: userID, Text: "post 1"})
+	service.Create(CreatePostRequest{UserID: userID, Text: "post 2"})
+	service.Create(CreatePostRequest{UserID: userID, Text: "post 3"})
+	listResponse, _ := service.List(ListPostsRequest{UserID: userID})
+	viewResponse, _ := service.View(ViewPostRequest{PostID: listResponse.PostIDs[0]})
+
+	if viewResponse.Text != "post 1" {
+		t.Fail()
+	}
+}

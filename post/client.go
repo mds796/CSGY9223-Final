@@ -17,7 +17,16 @@ type ViewPostResponse struct {
 	Text string
 }
 
+type ListPostsRequest struct {
+	UserID string
+}
+
+type ListPostsResponse struct {
+	PostIDs []string
+}
+
 type Service interface {
 	Create(request CreatePostRequest) (CreatePostResponse, error)
 	View(request ViewPostRequest) (ViewPostResponse, error)
+	List(request ListPostsRequest) (ListPostsResponse, error)
 }

@@ -3,12 +3,14 @@ package post
 import "github.com/google/uuid"
 
 type StubService struct {
-	PostCache map[string]Post
+	PostCache      map[string]Post
+	UserPostsCache map[string][]string
 }
 
 func CreateStub() Service {
 	stub := new(StubService)
 	stub.PostCache = make(map[string]Post)
+	stub.UserPostsCache = make(map[string][]string)
 	return stub
 }
 
@@ -21,10 +23,10 @@ func (stub *StubService) Create(request CreatePostRequest) (CreatePostResponse, 
 	postID := uuid.New().String()
 	stub.PostCache[postID] = Post{PostID: postID, User: request.UserID, Text: request.Text}
 
-	// Create response
-	response := CreatePostResponse{PostID: postID}
+	// Store in user posts cache as well
+	stub.UserPostsCache[request.UserID] = append(stub.UserPostsCache[request.UserID], postID)
 
-	return response, nil
+	return CreatePostResponse{PostID: postID}, nil
 }
 
 func (stub *StubService) View(request ViewPostRequest) (ViewPostResponse, error) {
@@ -35,4 +37,9 @@ func (stub *StubService) View(request ViewPostRequest) (ViewPostResponse, error)
 	}
 
 	return ViewPostResponse{Text: post.Text}, nil
+}
+
+func (stub *StubService) List(request ListPostsRequest) (ListPostsResponse, error) {
+	postIDs := stub.UserPostsCache[request.UserID]
+	return ListPostsResponse{PostIDs: postIDs}, nil
 }
