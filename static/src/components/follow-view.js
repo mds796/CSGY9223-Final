@@ -30,7 +30,7 @@ class FollowView extends PolymerElement {
               <template>
                 <section>                  
                     <label for="[[item.name]]">
-                        <input type="checkbox" id="[[item.name]]" name="[[item.name]]" value="[[index]]" checked$="[[item.followed]]" on-change="toggleFollow">
+                        <input type="checkbox" id="[[item.name]]" name="[[item.name]]" value="[[index]]" checked$="[[item.follow]]" on-change="toggleFollow">
                         <user-card user="[[item.name]]"></user-card>
                     </label>
                 </section>
@@ -73,13 +73,13 @@ class FollowView extends PolymerElement {
 
     toggleFollow(e) {
         const index = e.target.value;
-        const path = 'follows.' + index + '.followed';
+        const path = 'follows.' + index + '.follow';
 
-        this.set(path, !this.follows[index].followed);
+        this.set(path, !this.follows[index].follow);
 
-        const body = JSON.stringify({name: e.target.name, followed: this.follows[index].followed});
+        const body = "name=" + e.target.name + "&follow=" + this.follows[index].follow;
 
-        fetch('/follow', {method: 'POST', body: body, headers:{'Content-Type': 'application/json'}}).catch(err => {
+        fetch('/follow', {method: 'POST', body: body, headers:{'Content-Type': 'application/x-www-form-urlencoded'}}).catch(err => {
             console.log("Unable to toggle follow: ", err);
         });
     }

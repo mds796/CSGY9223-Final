@@ -18,10 +18,7 @@ func TestHttpService_LogoutUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	registerCookies := registerRr.HeaderMap["Set-Cookie"]
-	for i := range registerCookies {
-		req.Header.Add("Cookie", registerCookies[i])
-	}
+	addCookies(registerRr, req)
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()

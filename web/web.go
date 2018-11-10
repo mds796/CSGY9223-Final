@@ -80,12 +80,14 @@ func newService(host string, port uint16, staticPath string) *HttpService {
 	userService := user.CreateStub()
 	authService := auth.CreateStub(userService)
 	postService := post.CreateStub()
+	followService := follow.CreateStub()
 
 	return &HttpService{
-		StaticPath:  staticPath,
-		Multiplexer: mux,
-		Server:      server,
-		UserService: userService,
-		AuthService: authService,
-		PostService: postService}
+		StaticPath:    staticPath,
+		Multiplexer:   mux,
+		Server:        server,
+		UserService:   userService,
+		AuthService:   authService,
+		PostService:   postService,
+		FollowService: followService}
 }

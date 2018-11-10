@@ -16,8 +16,12 @@ func TestHttpService_RegisterUser(t *testing.T) {
 }
 
 func registerUser(t *testing.T, service *HttpService) *httptest.ResponseRecorder {
+	return registerUserWithName(t, service, "fake123")
+}
+
+func registerUserWithName(t *testing.T, service *HttpService, username string) *httptest.ResponseRecorder {
 	// Create a request to pass to our handler.
-	req, err := http.NewRequest("POST", "/register", strings.NewReader("username=fake123&password=1234567890&password2=1234567890"))
+	req, err := http.NewRequest("POST", "/register", strings.NewReader("username="+username+"&password=1234567890&password2=1234567890"))
 	if err != nil {
 		t.Fatal(err)
 	}

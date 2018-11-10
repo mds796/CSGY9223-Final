@@ -19,10 +19,7 @@ func TestHttpService_MakePost(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	registerCookies := recorder.HeaderMap["Set-Cookie"]
-	for i := range registerCookies {
-		req.Header.Add("Cookie", registerCookies[i])
-	}
+	addCookies(recorder, req)
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
