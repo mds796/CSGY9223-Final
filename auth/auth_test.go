@@ -126,6 +126,10 @@ func TestAuthVerifyBasic(t *testing.T) {
 	if verifyResponse.Username != "mksavic" {
 		t.Fail()
 	}
+
+	if verifyResponse.UserID != registerResponse.Cookie.Value {
+		t.Fail()
+	}
 }
 
 func TestAuthVerifyLoggedOut(t *testing.T) {
@@ -167,6 +171,10 @@ func TestAuthVerifyLogOutLogIn(t *testing.T) {
 	}
 
 	if verifyResponse.Username != "mksavic" {
+		t.Fail()
+	}
+
+	if verifyResponse.UserID != loginResponse.Cookie.Value {
 		t.Fail()
 	}
 }

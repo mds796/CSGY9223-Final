@@ -9,7 +9,7 @@ import (
 
 func (srv *HttpService) ToggleFollow(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`
 								{ 
 									"follows":[

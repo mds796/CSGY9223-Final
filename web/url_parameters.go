@@ -19,6 +19,7 @@ func getParameters(reader io.ReadCloser) (url.Values, error) {
 
 	return values, err
 }
+
 func getKey(parameters map[string][]string, key string) (string, error) {
 	values, ok := parameters[key]
 	if !ok || len(values) == 0 || len(values[0]) == 0 {

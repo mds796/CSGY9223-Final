@@ -8,7 +8,7 @@ import (
 
 func (srv *HttpService) FetchFeed(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`
 				{
 					"feed":[
@@ -23,14 +23,14 @@ func (srv *HttpService) FetchFeed(w http.ResponseWriter, r *http.Request) {
 func (srv *HttpService) MakePost(w http.ResponseWriter, r *http.Request) {
 	err := srv.createPost(r)
 
-	if err != nil {
-		w.WriteHeader(400)
+	if err == nil {
+		w.WriteHeader(http.StatusOK)
 	} else {
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusBadRequest)
 	}
 }
 func (srv *HttpService) createPost(r *http.Request) error {
-	username, err := srv.verifyToken(r)
+	response, err := srv.verifyToken(r)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (srv *HttpService) createPost(r *http.Request) error {
 		return err
 	}
 
-	request := post.CreatePostRequest{UserID: username, Text: string(bytes)}
+	request := post.CreatePostRequest{UserID: response.UserID, Text: string(bytes)}
 
 	_, err = srv.PostService.Create(request)
 

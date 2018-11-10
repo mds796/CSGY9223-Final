@@ -28,6 +28,7 @@ type VerifyAuthRequest struct {
 
 type VerifyAuthResponse struct {
 	Username string
+	UserID   string
 }
 
 type LogoutAuthRequest struct {

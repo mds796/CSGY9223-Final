@@ -79,7 +79,7 @@ func (s *StubService) Verify(request VerifyAuthRequest) (VerifyAuthResponse, err
 	// check if cookie is assigned to a username
 	for username, cookie := range s.CookieCache {
 		if cookie.Name == request.Cookie.Name && cookie.Path == request.Cookie.Path && cookie.Value == request.Cookie.Value {
-			response := VerifyAuthResponse{Username: username}
+			response := VerifyAuthResponse{Username: username, UserID: cookie.Value}
 			return response, nil
 		}
 	}

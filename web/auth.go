@@ -18,14 +18,14 @@ func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
 			http.SetCookie(w, &response.Cookie)
 
-			http.Redirect(w, r, "/", 307)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		} else {
 			setErrorCookie(w, "Invalid register request.")
-			http.Redirect(w, r, "/#/register", 307)
+			http.Redirect(w, r, "/#/register", http.StatusTemporaryRedirect)
 		}
 	} else {
 		setErrorCookie(w, "Invalid register request.")
-		http.Redirect(w, r, "/#/register", 307)
+		http.Redirect(w, r, "/#/register", http.StatusTemporaryRedirect)
 	}
 }
 
@@ -72,14 +72,14 @@ func (srv *HttpService) LogInUser(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
 			http.SetCookie(w, &response.Cookie)
 
-			http.Redirect(w, r, "/", 307)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		} else {
 			setErrorCookie(w, "Invalid login request.")
-			http.Redirect(w, r, "/#/login", 307)
+			http.Redirect(w, r, "/#/login", http.StatusTemporaryRedirect)
 		}
 	} else {
 		setErrorCookie(w, "Invalid login request.")
-		http.Redirect(w, r, "/#/login", 307)
+		http.Redirect(w, r, "/#/login", http.StatusTemporaryRedirect)
 	}
 }
 
@@ -93,7 +93,7 @@ func (srv *HttpService) LogOutUser(w http.ResponseWriter, r *http.Request) {
 		setErrorCookie(w, "Invalid logout request.")
 	}
 
-	http.Redirect(w, r, "/", 307)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
 func (srv *HttpService) logout(r *http.Request) (string, error) {
@@ -128,16 +128,16 @@ func getUsernameAndToken(r *http.Request) (username string, token *http.Cookie, 
 	return usernameCookie.Value, tokenCookie, nil
 }
 
-func (srv *HttpService) verifyToken(r *http.Request) (string, error) {
+func (srv *HttpService) verifyToken(r *http.Request) (*auth.VerifyAuthResponse, error) {
 	_, token, err := getUsernameAndToken(r)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	response, err := srv.AuthService.Verify(auth.VerifyAuthRequest{Cookie: *token})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return response.Username, nil
+	return &response, nil
 }
