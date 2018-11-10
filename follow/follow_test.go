@@ -15,6 +15,20 @@ func TestFollowDoesNotReturnError(t *testing.T) {
 	}
 }
 
+func TestFollowDoesNotDuplicateConnections(t *testing.T) {
+	service := CreateStub()
+	follower := uuid.New().String()
+	followed := uuid.New().String()
+	service.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
+	service.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
+
+	viewResponse, _ := service.View(ViewRequest{UserID: follower})
+
+	if len(viewResponse.UserIDs) != 1 {
+		t.Fail()
+	}
+}
+
 func TestUnfollowAfterFollowing(t *testing.T) {
 	service := CreateStub()
 	follower := uuid.New().String()
