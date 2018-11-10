@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/user"
-	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -55,18 +53,71 @@ func (srv *HttpService) toggleFollowStatus(r *http.Request) error {
 }
 
 func (srv *HttpService) ListFollows(w http.ResponseWriter, r *http.Request) {
-	if bytes, err := ioutil.ReadAll(r.Body); err == nil {
-		follow := new(Follow)
-		json.Unmarshal(bytes, follow)
-		log.Printf("%v", follow)
+	follows, err := srv.listUsersWithFollowStatus(r)
+
+	if err == nil {
+		w.Write(follows)
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`
-								{ 
-									"follows":[
-					                	{"name": "fake123", "followed": true},
-					                	{"name": "fake234", "followed": false}
-					            	]
-								}
-								`))
+}
+
+func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, error) {
+	response, err := srv.verifyToken(r)
+	if err != nil {
+		return nil, err
+	}
+
+	values, err := getParameters(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	query, err := getKey(values, "query")
+	if err != nil {
+		return nil, err
+	}
+
+	userResponse, err := srv.UserService.Search(user.SearchUserRequest{Query: query})
+	if err != nil {
+		return nil, err
+	}
+
+	viewResponse, err := srv.FollowService.View(follow.ViewRequest{UserID: response.UserID})
+	if err != nil {
+		return nil, err
+	}
+
+	followsCache := make(map[string]Follow, len(userResponse.UserIDs))
+	follows := make([]Follow, 0, len(userResponse.UserIDs))
+
+	for i := range userResponse.UserIDs {
+		id := userResponse.UserIDs[i]
+		name := userResponse.Usernames[i]
+		data := Follow{name: name, follow: false}
+
+		followsCache[id] = data
+		follows = append(follows, data)
+	}
+
+	for i := range viewResponse.UserIDs {
+		data, ok := followsCache[viewResponse.UserIDs[i]]
+		if ok {
+			data.follow = true
+		}
+	}
+
+	bytes, err := json.Marshal(follows)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes, nil
+}
+
+// Follow is a data transfer object
+type Follow struct {
+	name   string
+	follow bool
 }

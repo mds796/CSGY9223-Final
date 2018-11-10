@@ -55,13 +55,15 @@ func (s *StubService) View(request ViewUserRequest) (ViewUserResponse, error) {
 func (s *StubService) Search(request SearchUserRequest) (SearchUserResponse, error) {
 	// find uuids that match given query
 	var usernames []string
-	for username, _ := range s.UsernameCache {
+	var userIds []string
+	for username, userId := range s.UsernameCache {
 		if strings.Contains(username, request.Query) {
 			usernames = append(usernames, username)
+			userIds = append(userIds, userId)
 		}
 	}
 
 	// create the response
-	response := SearchUserResponse{Usernames: usernames}
+	response := SearchUserResponse{Usernames: usernames, UserIDs: userIds}
 	return response, nil
 }

@@ -12,11 +12,6 @@ import (
 	"strconv"
 )
 
-type Follow struct {
-	Name     string
-	Followed bool
-}
-
 type HttpService struct {
 	StaticPath    string
 	Multiplexer   *http.ServeMux

@@ -22,6 +22,7 @@ type SearchUserRequest struct {
 
 type SearchUserResponse struct {
 	Usernames []string
+	UserIDs   []string
 }
 
 type Service interface {
