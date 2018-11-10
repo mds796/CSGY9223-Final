@@ -4,7 +4,7 @@ import "testing"
 
 import "github.com/google/uuid"
 
-func TestCreatePostBasic(t *testing.T) {
+func TestValidCreatePostDoesNotReturnsError(t *testing.T) {
 	service := CreateStub()
 	response, err := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing"})
 
@@ -39,7 +39,7 @@ func TestCreatePostReturnsErrorWithEmptyText(t *testing.T) {
 	}
 }
 
-func TestViewReturnTextAfterCreatingPost(t *testing.T) {
+func TestViewReturnsTextAfterCreatingPost(t *testing.T) {
 	service := CreateStub()
 	createResponse, _ := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing"})
 	viewResponse, _ := service.View(ViewPostRequest{PostID: createResponse.PostID})
@@ -49,7 +49,7 @@ func TestViewReturnTextAfterCreatingPost(t *testing.T) {
 	}
 }
 
-func TestViewReturnTextFromCorrectPost(t *testing.T) {
+func TestViewReturnsTextFromCorrectPost(t *testing.T) {
 	service := CreateStub()
 	service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing"})
 	createResponse, _ := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "testing more"})
@@ -60,7 +60,7 @@ func TestViewReturnTextFromCorrectPost(t *testing.T) {
 	}
 }
 
-func TestViewReturnErrorWithInvalidPostID(t *testing.T) {
+func TestViewReturnsErrorWithInvalidPostID(t *testing.T) {
 	service := CreateStub()
 	_, err := service.View(ViewPostRequest{PostID: "123"})
 	_, ok := err.(*InvalidPostIDError)
@@ -77,9 +77,49 @@ func TestListReturnsAllPostsFromUser(t *testing.T) {
 	service.Create(CreatePostRequest{UserID: userID, Text: "post 2"})
 	service.Create(CreatePostRequest{UserID: userID, Text: "post 3"})
 	listResponse, _ := service.List(ListPostsRequest{UserID: userID})
-	viewResponse, _ := service.View(ViewPostRequest{PostID: listResponse.PostIDs[0]})
 
+	viewResponse, _ := service.View(ViewPostRequest{PostID: listResponse.PostIDs[0]})
 	if viewResponse.Text != "post 1" {
+		t.Fail()
+	}
+
+	viewResponse, _ = service.View(ViewPostRequest{PostID: listResponse.PostIDs[1]})
+	if viewResponse.Text != "post 2" {
+		t.Fail()
+	}
+
+	viewResponse, _ = service.View(ViewPostRequest{PostID: listResponse.PostIDs[2]})
+	if viewResponse.Text != "post 3" {
+		t.Fail()
+	}
+}
+
+func TestListReturnsPostsFromCorrectUser(t *testing.T) {
+	service := CreateStub()
+	userID := uuid.New().String()
+	service.Create(CreatePostRequest{UserID: userID, Text: "post 1"})
+	service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "post 2"})
+	service.Create(CreatePostRequest{UserID: userID, Text: "post 3"})
+	listResponse, _ := service.List(ListPostsRequest{UserID: userID})
+
+	viewResponse, _ := service.View(ViewPostRequest{PostID: listResponse.PostIDs[0]})
+	if viewResponse.Text != "post 1" {
+		t.Fail()
+	}
+
+	viewResponse, _ = service.View(ViewPostRequest{PostID: listResponse.PostIDs[1]})
+	if viewResponse.Text != "post 3" {
+		t.Fail()
+	}
+}
+
+func TestListReturnsErrorWithInvalidUserID(t *testing.T) {
+	service := CreateStub()
+	userID := uuid.New().String()
+	_, err := service.List(ListPostsRequest{UserID: userID})
+	_, ok := err.(*InvalidUserIDError)
+
+	if !ok {
 		t.Fail()
 	}
 }
