@@ -59,11 +59,15 @@ class FollowView extends PolymerElement {
         };
     }
 
-    fetchFollows(query, _) {
+    fetchFollows(query) {
         const provider = this;
 
         fetch('/follows?query=' + query).then(response => {
-            return response.json();
+            if (response.ok) {
+                return response.json();
+            } else {
+                return {};
+            }
         }).then(data => {
             provider.follows = data.follows;
         }).catch(err => {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/user"
+	"log"
 	"net/http"
 )
 
@@ -15,6 +16,7 @@ func (srv *HttpService) ToggleFollow(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		w.WriteHeader(http.StatusOK)
 	} else {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
@@ -61,6 +63,7 @@ func (srv *HttpService) ListFollows(w http.ResponseWriter, r *http.Request) {
 		w.Write(follows)
 		w.WriteHeader(http.StatusOK)
 	} else {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
@@ -71,13 +74,9 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	query, err := getKey(r.URL.Query(), "query")
 	if err != nil {
-		return nil, err
+		return []byte("[]"), nil
 	}
 
 	userResponse, err := srv.UserService.Search(user.SearchUserRequest{Query: query})
@@ -118,16 +117,6 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 	}
 
 	return bytes, nil
-}
-
-func containsUser(username string, response user.SearchUserResponse) bool {
-	for i := range response.Usernames {
-		if response.Usernames[i] == username {
-			return true
-		}
-	}
-
-	return false
 }
 
 // Follow is a data transfer object

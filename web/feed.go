@@ -3,6 +3,7 @@ package web
 import (
 	"github.com/mds796/CSGY9223-Final/post"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -28,9 +29,11 @@ func (srv *HttpService) MakePost(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		w.WriteHeader(http.StatusOK)
 	} else {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
+
 func (srv *HttpService) createPost(r *http.Request) error {
 	response, err := srv.verifyToken(r)
 	if err != nil {

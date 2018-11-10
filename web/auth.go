@@ -4,6 +4,7 @@ import (
 	"github.com/mds796/CSGY9223-Final/auth"
 	"github.com/pkg/errors"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -27,6 +28,7 @@ func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/#/register", http.StatusTemporaryRedirect)
 		}
 	} else {
+		log.Println(err)
 		setErrorCookie(w, "Invalid register request.")
 		http.Redirect(w, r, "/#/register", http.StatusTemporaryRedirect)
 	}
@@ -84,6 +86,7 @@ func (srv *HttpService) LogInUser(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/#/login", http.StatusTemporaryRedirect)
 		}
 	} else {
+		log.Println(err)
 		setErrorCookie(w, "Invalid login request.")
 		http.Redirect(w, r, "/#/login", http.StatusTemporaryRedirect)
 	}
@@ -96,6 +99,7 @@ func (srv *HttpService) LogOutUser(w http.ResponseWriter, r *http.Request) {
 		expireCookie(w, "username")
 		expireCookie(w, "error")
 	} else {
+		log.Println(err)
 		setErrorCookie(w, "Invalid logout request.")
 	}
 
