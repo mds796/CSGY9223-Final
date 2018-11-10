@@ -43,8 +43,8 @@ func (srv *HttpService) configureRoutes() {
 	srv.Multiplexer.HandleFunc("/logout", srv.LogOutUser)
 	srv.Multiplexer.HandleFunc("/feed", srv.FetchFeed)
 	srv.Multiplexer.HandleFunc("/post", srv.MakePost)
-	srv.Multiplexer.HandleFunc("/follow", srv.ListFollows)
-	srv.Multiplexer.HandleFunc("/follows", srv.ToggleFollow)
+	srv.Multiplexer.HandleFunc("/follow", srv.ToggleFollow)
+	srv.Multiplexer.HandleFunc("/follows", srv.ListFollows)
 	srv.Multiplexer.HandleFunc("/", srv.ServeStatic)
 }
 

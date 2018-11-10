@@ -31,7 +31,7 @@ class FollowView extends PolymerElement {
                 <section>                  
                     <label for="[[item.Name]]">
                         <input type="checkbox" id="[[item.Name]]" name="[[item.Name]]" value="[[index]]" checked$="[[item.Follow]]" on-change="toggleFollow">
-                        <user-card user="[[item.name]]"></user-card>
+                        <user-card user="[[item.Name]]"></user-card>
                     </label>
                 </section>
               </template>
@@ -60,6 +60,10 @@ class FollowView extends PolymerElement {
     }
 
     fetchFollows(query) {
+        if (!this.active) {
+            return
+        }
+
         const provider = this;
 
         fetch('/follows?query=' + query).then(response => {
@@ -69,7 +73,7 @@ class FollowView extends PolymerElement {
                 return {};
             }
         }).then(data => {
-            provider.follows = data.follows;
+            provider.follows = data.Follows;
         }).catch(err => {
             console.log("Unable to fetch follows: ", err);
         });

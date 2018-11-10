@@ -30,11 +30,10 @@ func TestHttpService_ListFollows(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v\n", status, http.StatusOK)
 	}
 
-	follows := make([]Follow, 1)
-	follows[0].Name = "fake123"
-	follows[0].Follow = true
+	follows := make([]*Follow, 1)
+	follows[0] = &Follow{Name: "fake123", Follow: true}
 
-	bytes, err := json.Marshal(follows)
+	bytes, err := json.Marshal(Follows{Follows: follows})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,10 +65,10 @@ func TestHttpService_ListFollows_NotFollowing(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v\n", status, http.StatusOK)
 	}
 
-	follows := make([]Follow, 1)
-	follows[0].Name = "fake123"
+	follows := make([]*Follow, 1)
+	follows[0] = &Follow{Name: "fake123"}
 
-	bytes, err := json.Marshal(follows)
+	bytes, err := json.Marshal(Follows{Follows: follows})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,7 +9,6 @@ import (
 
 func (srv *HttpService) FetchFeed(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`
 				{
 					"feed":[
@@ -26,9 +25,7 @@ func (srv *HttpService) MakePost(w http.ResponseWriter, r *http.Request) {
 
 	err := srv.createPost(r)
 
-	if err == nil {
-		w.WriteHeader(http.StatusOK)
-	} else {
+	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 	}

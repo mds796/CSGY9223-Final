@@ -13,9 +13,7 @@ func (srv *HttpService) ToggleFollow(w http.ResponseWriter, r *http.Request) {
 
 	err := srv.toggleFollowStatus(r)
 
-	if err == nil {
-		w.WriteHeader(http.StatusOK)
-	} else {
+	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -61,7 +59,6 @@ func (srv *HttpService) ListFollows(w http.ResponseWriter, r *http.Request) {
 
 	if err == nil {
 		w.Write(follows)
-		w.WriteHeader(http.StatusOK)
 	} else {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -90,7 +87,7 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 	}
 
 	followsCache := make(map[string]*Follow, len(userResponse.UserIDs))
-	follows := make([]*Follow, 0, len(userResponse.UserIDs))
+	follows := Follows{Follows: make([]*Follow, 0, len(userResponse.UserIDs))}
 
 	for i := range userResponse.UserIDs {
 		id := userResponse.UserIDs[i]
@@ -100,7 +97,7 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 			data := &Follow{Name: name, Follow: false}
 
 			followsCache[id] = data
-			follows = append(follows, data)
+			follows.Follows = append(follows.Follows, data)
 		}
 	}
 
@@ -123,4 +120,9 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 type Follow struct {
 	Name   string
 	Follow bool
+}
+
+// Follow is a data transfer object
+type Follows struct {
+	Follows []*Follow
 }
