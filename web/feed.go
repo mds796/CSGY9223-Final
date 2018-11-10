@@ -21,6 +21,8 @@ func (srv *HttpService) FetchFeed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (srv *HttpService) MakePost(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	err := srv.createPost(r)
 
 	if err == nil {

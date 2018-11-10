@@ -37,18 +37,18 @@ func verifyLogin(rr *httptest.ResponseRecorder, t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v\n", status, http.StatusOK)
 	}
 	// Check the response body is what we expect.
-	cookies := rr.HeaderMap["Set-Cookie"]
+	cookies := rr.Header()["Set-Cookie"]
 	if len(cookies) != 3 {
-		t.Errorf("Handler did not set the auth cookies correctly %v\n", rr.HeaderMap)
+		t.Errorf("Handler did not set the auth cookies correctly %v\n", rr.Header())
 	}
 	if !contains("error=; Expires=Thu, 01 Jan 1970 00:00:00 GMT", cookies) {
-		t.Errorf("Handler did not remove the error cookie correctly %v\n", rr.HeaderMap)
+		t.Errorf("Handler did not remove the error cookie correctly %v\n", rr.Header())
 	}
 	if !match("username=fake123; Expires=", cookies) {
-		t.Errorf("Handler did not set the username cookie correctly %v\n", rr.HeaderMap)
+		t.Errorf("Handler did not set the username cookie correctly %v\n", rr.Header())
 	}
 	if !match("fake123=", cookies) {
-		t.Errorf("Handler did not set the auth token cookie correctly %v\n", rr.HeaderMap)
+		t.Errorf("Handler did not set the auth token cookie correctly %v\n", rr.Header())
 	}
 }
 
@@ -63,8 +63,8 @@ func TestHttpService_LoginUser_DoesNotExist(t *testing.T) {
 	}
 
 	// Check the response cookie is what we expect.
-	cookies := rr.HeaderMap["Set-Cookie"]
+	cookies := rr.Header()["Set-Cookie"]
 	if len(cookies) != 1 || !match("error=\"Invalid login request.\"; Expires=", cookies) {
-		t.Errorf("Handler did not set the error cookie correctly %v\n", rr.HeaderMap)
+		t.Errorf("Handler did not set the error cookie correctly %v\n", rr.Header())
 	}
 }

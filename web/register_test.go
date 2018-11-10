@@ -58,8 +58,8 @@ func TestHttpService_RegisterUser_InvalidPassword(t *testing.T) {
 	}
 
 	// Check the response cookie is what we expect.
-	cookies := rr.HeaderMap["Set-Cookie"]
+	cookies := rr.Header()["Set-Cookie"]
 	if len(cookies) != 1 || !match("error=\"Invalid register request.\"; Expires=", cookies) {
-		t.Errorf("Handler did not set the error cookie correctly %v\n", rr.HeaderMap)
+		t.Errorf("Handler did not set the error cookie correctly %v\n", rr.Header())
 	}
 }

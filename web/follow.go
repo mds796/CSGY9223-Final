@@ -8,6 +8,8 @@ import (
 )
 
 func (srv *HttpService) ToggleFollow(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	err := srv.toggleFollowStatus(r)
 
 	if err == nil {
@@ -69,12 +71,11 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 		return nil, err
 	}
 
-	values, err := getParameters(r.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	query, err := getKey(values, "query")
+	query, err := getKey(r.URL.Query(), "query")
 	if err != nil {
 		return nil, err
 	}
@@ -89,22 +90,25 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 		return nil, err
 	}
 
-	followsCache := make(map[string]Follow, len(userResponse.UserIDs))
-	follows := make([]Follow, 0, len(userResponse.UserIDs))
+	followsCache := make(map[string]*Follow, len(userResponse.UserIDs))
+	follows := make([]*Follow, 0, len(userResponse.UserIDs))
 
 	for i := range userResponse.UserIDs {
 		id := userResponse.UserIDs[i]
 		name := userResponse.Usernames[i]
-		data := Follow{name: name, follow: false}
 
-		followsCache[id] = data
-		follows = append(follows, data)
+		if name != response.Username {
+			data := &Follow{Name: name, Follow: false}
+
+			followsCache[id] = data
+			follows = append(follows, data)
+		}
 	}
 
 	for i := range viewResponse.UserIDs {
 		data, ok := followsCache[viewResponse.UserIDs[i]]
 		if ok {
-			data.follow = true
+			data.Follow = true
 		}
 	}
 
@@ -116,8 +120,18 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 	return bytes, nil
 }
 
+func containsUser(username string, response user.SearchUserResponse) bool {
+	for i := range response.Usernames {
+		if response.Usernames[i] == username {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Follow is a data transfer object
 type Follow struct {
-	name   string
-	follow bool
+	Name   string
+	Follow bool
 }

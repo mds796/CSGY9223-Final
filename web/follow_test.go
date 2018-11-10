@@ -11,7 +11,9 @@ func TestHttpService_ToggleFollow(t *testing.T) {
 	service := CreateService()
 
 	registerUserWithName(t, service, "fake123")
-	rr := followUser(t, service)
+	recorder := registerUserWithName(t, service, "fake234")
+
+	rr := followUser(t, service, recorder)
 
 	// Check the status code is what we expect.
 	if status := rr.Code; status != http.StatusOK {
@@ -19,25 +21,27 @@ func TestHttpService_ToggleFollow(t *testing.T) {
 	}
 }
 
-func followUser(t *testing.T, service *HttpService) *httptest.ResponseRecorder {
-	recorder := registerUserWithName(t, service, "fake234")
+func followUser(t *testing.T, service *HttpService, recorder *httptest.ResponseRecorder) *httptest.ResponseRecorder {
 	// Create a request to pass to our handler.
 	req, err := http.NewRequest("POST", "/follow", strings.NewReader("name=fake123&follow=true"))
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	addCookies(recorder, req)
+
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(service.ToggleFollow)
 	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 	// directly and pass in our Request and ResponseRecorder.
 	handler.ServeHTTP(rr, req)
+
 	return rr
 }
 
 func addCookies(recorder *httptest.ResponseRecorder, req *http.Request) {
-	registerCookies := recorder.HeaderMap["Set-Cookie"]
+	registerCookies := recorder.Header()["Set-Cookie"]
 
 	for i := range registerCookies {
 		req.Header.Add("Cookie", registerCookies[i])
@@ -74,7 +78,8 @@ func TestHttpService_ToggleFollow_NotFollowed(t *testing.T) {
 func TestHttpService_ToggleFollow_UserNotValid(t *testing.T) {
 	service := CreateService()
 
-	rr := followUser(t, service)
+	recorder := registerUserWithName(t, service, "fake234")
+	rr := followUser(t, service, recorder)
 
 	// Check the status code is what we expect.
 	if status := rr.Code; status != http.StatusBadRequest {

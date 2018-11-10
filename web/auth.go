@@ -9,7 +9,10 @@ import (
 )
 
 func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	username, password, err := getUserAndPassword(r.Body, true)
+
 	if err == nil {
 		response, err := srv.AuthService.Register(auth.RegisterAuthRequest{Username: username, Password: password})
 
@@ -63,7 +66,10 @@ func setErrorCookie(w http.ResponseWriter, message string) {
 }
 
 func (srv *HttpService) LogInUser(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	username, password, err := getUserAndPassword(r.Body, false)
+
 	if err == nil {
 		response, err := srv.AuthService.Login(auth.LoginAuthRequest{Username: username, Password: password})
 

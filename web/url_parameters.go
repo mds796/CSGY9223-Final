@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-func getParameters(reader io.ReadCloser) (url.Values, error) {
+func getParameters(reader io.Reader) (url.Values, error) {
 	bytes, err := ioutil.ReadAll(reader)
 
 	if err != nil {
