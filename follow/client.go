@@ -8,6 +8,14 @@ type FollowRequest struct {
 type FollowResponse struct {
 }
 
+type UnfollowRequest struct {
+	FollowerUserID string
+	FollowedUserID string
+}
+
+type UnfollowResponse struct {
+}
+
 type ViewRequest struct {
 	UserID string
 }
@@ -18,5 +26,6 @@ type ViewResponse struct {
 
 type Service interface {
 	Follow(request FollowRequest) (FollowResponse, error)
+	Unfollow(request UnfollowRequest) (UnfollowResponse, error)
 	View(request ViewRequest) (ViewResponse, error)
 }
