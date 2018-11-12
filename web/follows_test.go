@@ -108,3 +108,22 @@ func TestHttpService_ListFollows_EmptyQuery(t *testing.T) {
 		t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", rr.Body.String(), expected)
 	}
 }
+
+func TestHttpService_ListFollows_InvalidUser(t *testing.T) {
+	service := CreateService()
+
+	registerUserWithName(t, service, "fake123")
+
+	req, err := http.NewRequest("GET", "/follows?query=", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(service.ListFollows)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code: got %v want %v\n", status, http.StatusBadRequest)
+	}
+}
