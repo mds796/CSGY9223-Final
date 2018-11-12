@@ -10,10 +10,10 @@ import (
 )
 
 func (srv *HttpService) FetchFeed(w http.ResponseWriter, r *http.Request) {
-	feed, err := srv.listFeedPosts(r)
+	posts, err := srv.listFeedPosts(r)
 
 	if err == nil {
-		w.Write(feed)
+		w.Write(posts)
 	} else {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)

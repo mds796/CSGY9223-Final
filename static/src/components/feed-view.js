@@ -24,7 +24,7 @@ class FeedView extends PolymerElement {
           <dom-repeat items="[[feed]]">
             <template>
               <section>
-                <post-card user="[[item.name]]" text="[[item.text]]"></post-card>
+                <post-card user="[[item.From]]" text="[[item.Text]]"></post-card>
               </section>
             </template>
           </dom-repeat>
@@ -35,10 +35,14 @@ class FeedView extends PolymerElement {
 
     static get properties() {
         return {
-            active: {type: Boolean, value: false},
+            active: {type: Boolean, value: false, observer: 'fetchFeed'},
             post: {type: String, value: ""},
             feed: {type: Array, value: []}
         };
+    }
+
+    ready() {
+        super.ready();
     }
 
     submitPost(e) {
@@ -46,13 +50,37 @@ class FeedView extends PolymerElement {
 
         e.target.disabled = true;
 
-        fetch('/post', {method: 'POST', body: provider.post, headers:{'Content-Type': 'text/plain'}})
-            .then(response => {
+        fetch('/post', {method: 'POST', body: provider.post, headers: {'Content-Type': 'text/plain'}})
+            .then(_ => {
                 provider.post = "";
                 e.target.disabled = false;
+                provider.fetchFeed();
             })
             .catch(err => {
-            console.log("Unable to post new message: ", err);
+                e.target.disabled = false;
+                provider.fetchFeed();
+                console.log("Unable to post new message: ", err);
+            });
+    }
+
+    fetchFeed() {
+        const provider = this;
+
+        if (!provider.active) {
+            return;
+        }
+
+        fetch('/feed').then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return {};
+            }
+        }).then(data => {
+            provider.feed = data.Posts;
+            console.log(provider.feed, data);
+        }).catch(err => {
+            console.log("Unable to fetch follows: ", err);
         });
     }
 }

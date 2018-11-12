@@ -62,7 +62,7 @@ class McubedApp extends PolymerElement {
                 <register-view class="page" active$="[[_isRegisterView]]"></register-view>
                 <login-view class="page" active$="[[_isLoginView]]"></login-view>
                 
-                <feed-view class="page" active$="[[_isFeedView]]" feed="[[feed]]"></feed-view>
+                <feed-view class="page" active$="[[_isFeedView]]"></feed-view>
                 <follow-view class="page" active$="[[_isFollowView]]"></follow-view>
                 <about-view class="page" active$="[[_isAboutView]]"></about-view>
                 
@@ -94,7 +94,6 @@ class McubedApp extends PolymerElement {
             cookies: {type: Object, computed: 'parseCookie()'},
             user: {type: Object, computed: 'fetchUser(cookies)'},
             error: {type: String, computed: 'fetchError(cookies)'},
-            feed: {type: Array, value: []},
 
             _errorMessage: {type: String, computed: 'errorMessage(error)'},
             _page: {type: String, value: "about", observer: "_pageChanged"},
@@ -132,16 +131,6 @@ class McubedApp extends PolymerElement {
 
     fetchError(cookie) {
         return cookie.error;
-    }
-
-    fetchFeed(provider) {
-        fetch('/feed').then(response => {
-            return response.json();
-        }).then(data => {
-            provider.feed = data.feed;
-        }).catch(err => {
-            console.log("Unable to fetch feed: ", err);
-        });
     }
 
     _isActive(page, expected) {
