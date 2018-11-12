@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/auth"
+	"github.com/mds796/CSGY9223-Final/feed"
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/user"
@@ -20,6 +21,7 @@ type HttpService struct {
 	AuthService   auth.Service
 	PostService   post.Service
 	FollowService follow.Service
+	FeedService   feed.Service
 }
 
 func (srv *HttpService) Address() string {
@@ -76,6 +78,7 @@ func newService(host string, port uint16, staticPath string) *HttpService {
 	authService := auth.CreateStub(userService)
 	postService := post.CreateStub()
 	followService := follow.CreateStub()
+	feedService := feed.CreateStub()
 
 	return &HttpService{
 		StaticPath:    staticPath,
@@ -84,5 +87,6 @@ func newService(host string, port uint16, staticPath string) *HttpService {
 		UserService:   userService,
 		AuthService:   authService,
 		PostService:   postService,
-		FollowService: followService}
+		FollowService: followService,
+		FeedService:   feedService}
 }

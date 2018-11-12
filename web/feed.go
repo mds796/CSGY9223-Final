@@ -1,6 +1,8 @@
 package web
 
 import (
+	"encoding/json"
+	"github.com/mds796/CSGY9223-Final/feed"
 	"github.com/mds796/CSGY9223-Final/post"
 	"io/ioutil"
 	"log"
@@ -8,16 +10,33 @@ import (
 )
 
 func (srv *HttpService) FetchFeed(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		w.Write([]byte(`
-				{
-					"feed":[
-	                	{"name": "fake123", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultrices leo sollicitudin nisl facilisis imperdiet. Nam a pellentesque enim. Donec sollicitudin placerat semper. Nam non neque quam. Suspendisse nec mauris rutrum dolor accumsan pellentesque nec vel tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras et quam viverra nunc vulputate euismod nec in nisi. In vehicula faucibus erat, id ullamcorper sapien. Maecenas eu tristique ligula, a tempus ipsum. Nam vel pretium sed."},
-	                	{"name": "fake234", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultrices leo sollicitudin nisl facilisis imperdiet. Nam a pellentesque enim. Donec sollicitudin placerat semper. Nam non neque quam. Suspendisse nec mauris rutrum dolor accumsan pellentesque nec vel tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras et quam viverra nunc vulputate euismod nec in nisi. In vehicula faucibus erat, id ullamcorper sapien. Maecenas eu tristique ligula, a tempus ipsum. Nam vel pretium sed."}
-	            	]
-				}
-				`))
+	feed, err := srv.listFeedPosts(r)
+
+	if err == nil {
+		w.Write(feed)
+	} else {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
 	}
+}
+
+func (srv *HttpService) listFeedPosts(r *http.Request) ([]byte, error) {
+	response, err := srv.verifyToken(r)
+	if err != nil {
+		return nil, err
+	}
+
+	viewResponse, err := srv.FeedService.View(&feed.ViewRequest{UserID: response.UserID, Username: response.Username})
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := json.Marshal(viewResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes, nil
 }
 
 func (srv *HttpService) MakePost(w http.ResponseWriter, r *http.Request) {

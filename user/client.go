@@ -10,10 +10,12 @@ type CreateUserResponse struct {
 
 type ViewUserRequest struct {
 	Username string
+	UserID   string
 }
 
 type ViewUserResponse struct {
-	Uuid string
+	Username string
+	Uuid     string
 }
 
 type SearchUserRequest struct {
