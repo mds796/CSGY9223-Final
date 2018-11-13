@@ -1,5 +1,5 @@
 import {html, PolymerElement} from '@polymer/polymer';
-
+import { logoutIcon } from './icons.js';
 import './user-card.js'
 
 /**
@@ -28,37 +28,38 @@ class ProfileCard extends PolymerElement {
             [hidden] {
                 display: none;
             }
-                        
+
             user-card {
                 cursor: pointer;
                 display: inline-block;
             }
-        
+
             a {
                 color: var(--app-header-text-color);
                 text-decoration: none;
                 line-height: 30px;
             }
         </style>
-        
+
         <dom-if if="[[_canLogin]]">
             <template>
-                <a href="#/login">Log In</a>        
+                <a href="#/login">Log In</a>
             </template>
         </dom-if>
-        
+
         <dom-if if="[[_hasUser]]">
-            <template>       
+            <template>
                 <form action="/logout" method="post" id="logout" hidden>
-                    <input type="submit" value="Log Out"/>       
+                    <input type="submit" value="Log Out"/>
                 </form>
                 <user-card title="Log out" user="[[user.name]]" on-click="_userProfileClicked">
-                </user-card>        
+                    ${logoutIcon}
+                </user-card>
             </template>
         </dom-if>
         <dom-if if="[[offline]]">
             <template>
-                <span>(Offline)</span>    
+                <span>(Offline)</span>
             </template>
         </dom-if>
     `;
