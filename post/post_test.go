@@ -1,8 +1,9 @@
 package post
 
-import "testing"
-
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"testing"
+)
 
 func TestValidCreatePostDoesNotReturnsError(t *testing.T) {
 	service := CreateStub()
@@ -56,6 +57,19 @@ func TestViewReturnsTextFromCorrectPost(t *testing.T) {
 	viewResponse, _ := service.View(ViewPostRequest{PostID: createResponse.PostID})
 
 	if viewResponse.Text != "testing more" {
+		t.Fail()
+	}
+}
+
+func TestCreatePostsHaveIncreasingTimestamps(t *testing.T) {
+	service := CreateStub()
+	createResponse1, _ := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "post 1"})
+	createResponse2, _ := service.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "post 2"})
+
+	viewResponse1, _ := service.View(ViewPostRequest{PostID: createResponse1.PostID})
+	viewResponse2, _ := service.View(ViewPostRequest{PostID: createResponse2.PostID})
+
+	if viewResponse2.Timestamp.Before(viewResponse1.Timestamp) || viewResponse2.Timestamp.Equal(viewResponse1.Timestamp) {
 		t.Fail()
 	}
 }

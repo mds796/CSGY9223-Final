@@ -1,5 +1,7 @@
 package post
 
+import "time"
+
 type CreatePostRequest struct {
 	UserID string
 	Text   string
@@ -14,7 +16,8 @@ type ViewPostRequest struct {
 }
 
 type ViewPostResponse struct {
-	Text string
+	Text      string
+	Timestamp time.Time
 }
 
 type ListPostsRequest struct {
