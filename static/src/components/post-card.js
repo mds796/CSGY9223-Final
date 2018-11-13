@@ -1,5 +1,6 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import './user-card.js';
+import './timestamp-card.js';
 
 /**
  * @customElement
@@ -25,11 +26,16 @@ class PostCard extends PolymerElement {
 
       <user-card user="[[user]]"></user-card>
       <p>[[text]]</p>
+      <timestamp-card timestamp="[[timestamp]]"></timestamp-card>
     `;
   }
   static get properties() {
     return {
       user: {
+        type: String,
+        value: ""
+      },
+      timestamp: {
         type: String,
         value: ""
       },
