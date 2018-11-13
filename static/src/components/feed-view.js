@@ -15,7 +15,13 @@ class FeedView extends PolymerElement {
         <template>
           ${ViewStyle}
 
-          <section>
+          <style>
+            :host .post-input {
+              text-align: center;
+            }
+          </style>
+
+          <section class="post-input">
             <textarea value="{{post::change}}" rows="7" cols="80">
             </textarea>
             <input type="submit" value="Post" on-click="submitPost"/>
