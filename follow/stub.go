@@ -24,10 +24,21 @@ func CreateStub(userService user.Service) Service {
 }
 
 func (stub *StubService) Follow(request FollowRequest) (FollowResponse, error) {
+	// Validate user IDs
+	ok := stub.validateUserID(request.FollowerUserID)
+	if !ok {
+		return FollowResponse{}, &InvalidUserIDError{UserID: request.FollowerUserID}
+	}
+
+	ok = stub.validateUserID(request.FollowedUserID)
+	if !ok {
+		return FollowResponse{}, &InvalidUserIDError{UserID: request.FollowedUserID}
+	}
+
+	// Add followed user from follow graph
 	followed := stub.FollowingGraph[request.FollowerUserID]
 
-	// Avoid duplicated connections
-	newConnection := true
+	newConnection := true // Avoid duplicated connections
 	for i := 0; i < len(followed); i++ {
 		if followed[i] == request.FollowedUserID {
 			newConnection = false
@@ -42,6 +53,18 @@ func (stub *StubService) Follow(request FollowRequest) (FollowResponse, error) {
 }
 
 func (stub *StubService) Unfollow(request UnfollowRequest) (UnfollowResponse, error) {
+	// Validate user IDs
+	ok := stub.validateUserID(request.FollowerUserID)
+	if !ok {
+		return UnfollowResponse{}, &InvalidUserIDError{UserID: request.FollowerUserID}
+	}
+
+	ok = stub.validateUserID(request.FollowedUserID)
+	if !ok {
+		return UnfollowResponse{}, &InvalidUserIDError{UserID: request.FollowedUserID}
+	}
+
+	// Remove followed user from follow graph
 	followed := stub.FollowingGraph[request.FollowerUserID]
 	for i := 0; i < len(followed); i++ {
 		if followed[i] == request.FollowedUserID {
@@ -53,12 +76,21 @@ func (stub *StubService) Unfollow(request UnfollowRequest) (UnfollowResponse, er
 }
 
 func (stub *StubService) View(request ViewRequest) (ViewResponse, error) {
-	_, err := stub.UserService.View(user.ViewUserRequest{UserID: request.UserID})
-
-	if err != nil {
+	// Validate user ID
+	ok := stub.validateUserID(request.UserID)
+	if !ok {
 		return ViewResponse{}, &InvalidUserIDError{UserID: request.UserID}
 	}
 
+	// Return user's adjacency list
 	userIDs := stub.FollowingGraph[request.UserID]
 	return ViewResponse{UserIDs: userIDs}, nil
+}
+
+func (stub *StubService) validateUserID(userID string) bool {
+	_, err := stub.UserService.View(user.ViewUserRequest{UserID: userID})
+	if err != nil {
+		return false
+	}
+	return true
 }

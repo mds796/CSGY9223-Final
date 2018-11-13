@@ -8,8 +8,8 @@ import (
 
 func TestFollowDoesNotReturnError(t *testing.T) {
 	followService := createFeed()
-	follower := uuid.New().String()
-	followed := uuid.New().String()
+	follower := createUser(followService, "fake123")
+	followed := createUser(followService, "fake234")
 	_, err := followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
 
 	if err != nil {
@@ -20,7 +20,7 @@ func TestFollowDoesNotReturnError(t *testing.T) {
 func TestFollowDoesNotDuplicateConnections(t *testing.T) {
 	followService := createFeed()
 	follower := createUser(followService, "fake123")
-	followed := uuid.New().String()
+	followed := createUser(followService, "fake234")
 	followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
 	followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
 
@@ -32,8 +32,8 @@ func TestFollowDoesNotDuplicateConnections(t *testing.T) {
 
 func TestUnfollowAfterFollowing(t *testing.T) {
 	followService := createFeed()
-	follower := uuid.New().String()
-	followed := uuid.New().String()
+	follower := createUser(followService, "fake123")
+	followed := createUser(followService, "fake234")
 	followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
 	_, err := followService.Unfollow(UnfollowRequest{FollowerUserID: follower, FollowedUserID: followed})
 
@@ -42,30 +42,10 @@ func TestUnfollowAfterFollowing(t *testing.T) {
 	}
 }
 
-func TestViewReturnsEmptyListForUnknownUserID(t *testing.T) {
-	followService := createFeed()
-	follower := uuid.New().String()
-	viewResponse, _ := followService.View(ViewRequest{UserID: follower})
-	if len(viewResponse.UserIDs) > 0 {
-		t.Fatal()
-	}
-}
-
-func TestViewReturnsErrorForUnknownUserID(t *testing.T) {
-	followService := createFeed()
-	follower := uuid.New().String()
-	_, err := followService.View(ViewRequest{UserID: follower})
-	_, ok := err.(*InvalidUserIDError)
-
-	if !ok {
-		t.Fatal()
-	}
-}
-
 func TestViewReturnsFollowedUsers(t *testing.T) {
 	followService := createFeed()
 	follower := createUser(followService, "fake123")
-	followed := []string{uuid.New().String(), uuid.New().String(), uuid.New().String()}
+	followed := createUsers(followService, "fake234", "fake345", "fake456")
 
 	for i := 0; i < len(followed); i++ {
 		followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed[i]})
@@ -86,9 +66,10 @@ func TestViewReturnsFollowedUsers(t *testing.T) {
 func TestViewReturnsCorrectFollowedUsers(t *testing.T) {
 	followService := createFeed()
 	follower := createUser(followService, "fake123")
-	followed := []string{uuid.New().String(), uuid.New().String()}
+	followed := createUsers(followService, "fake234", "fake345")
+	notFollowed := createUser(followService, "fake456") // should not appear in response
+
 	followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed[0]})
-	followService.Follow(FollowRequest{FollowerUserID: uuid.New().String(), FollowedUserID: uuid.New().String()}) // should not appear in response
 	followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed[1]})
 
 	viewResponse, err := followService.View(ViewRequest{UserID: follower})
@@ -96,8 +77,14 @@ func TestViewReturnsCorrectFollowedUsers(t *testing.T) {
 		t.Fatal()
 	}
 
-	for i := 0; i < len(followed); i++ {
+	for i := range followed {
 		if viewResponse.UserIDs[i] != followed[i] {
+			t.Fatal()
+		}
+	}
+
+	for _, uuid := range viewResponse.UserIDs {
+		if uuid == notFollowed {
 			t.Fatal()
 		}
 	}
@@ -106,7 +93,7 @@ func TestViewReturnsCorrectFollowedUsers(t *testing.T) {
 func TestViewDoesNotReturnUnfollowedUsers(t *testing.T) {
 	followService := createFeed()
 	follower := createUser(followService, "fake123")
-	followed := uuid.New().String()
+	followed := createUser(followService, "fake234")
 	followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
 	followService.Unfollow(UnfollowRequest{FollowerUserID: follower, FollowedUserID: followed})
 
@@ -119,7 +106,7 @@ func TestViewDoesNotReturnUnfollowedUsers(t *testing.T) {
 func TestUnfollowRemovesCorrectConnection(t *testing.T) {
 	followService := createFeed()
 	follower := createUser(followService, "fake123")
-	followed := []string{uuid.New().String(), uuid.New().String(), uuid.New().String()}
+	followed := createUsers(followService, "fake234", "fake345", "fake456")
 
 	for i := 0; i < len(followed); i++ {
 		followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed[i]})
@@ -141,8 +128,75 @@ func TestUnfollowRemovesCorrectConnection(t *testing.T) {
 	}
 }
 
+func TestFollowReturnsErrorForUnknownFollowerUserID(t *testing.T) {
+	followService := createFeed()
+	follower := uuid.New().String()
+	followed := createUser(followService, "fake234")
+	_, err := followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
+	_, ok := err.(*InvalidUserIDError)
+
+	if !ok {
+		t.Fatal()
+	}
+}
+
+func TestFollowReturnsErrorForUnknownFollowedUserID(t *testing.T) {
+	followService := createFeed()
+	follower := createUser(followService, "fake123")
+	followed := uuid.New().String()
+	_, err := followService.Follow(FollowRequest{FollowerUserID: follower, FollowedUserID: followed})
+	_, ok := err.(*InvalidUserIDError)
+
+	if !ok {
+		t.Fatal()
+	}
+}
+
+func TestUnfollowReturnsErrorForUnknownFollowerUserID(t *testing.T) {
+	followService := createFeed()
+	follower := uuid.New().String()
+	followed := createUser(followService, "fake234")
+	_, err := followService.Unfollow(UnfollowRequest{FollowerUserID: follower, FollowedUserID: followed})
+	_, ok := err.(*InvalidUserIDError)
+
+	if !ok {
+		t.Fatal()
+	}
+}
+
+func TestUnfollowReturnsErrorForUnknownFollowedUserID(t *testing.T) {
+	followService := createFeed()
+	follower := createUser(followService, "fake123")
+	followed := uuid.New().String()
+	_, err := followService.Unfollow(UnfollowRequest{FollowerUserID: follower, FollowedUserID: followed})
+	_, ok := err.(*InvalidUserIDError)
+
+	if !ok {
+		t.Fatal()
+	}
+}
+
+func TestViewReturnsErrorForUnknownUserID(t *testing.T) {
+	followService := createFeed()
+	follower := uuid.New().String()
+	_, err := followService.View(ViewRequest{UserID: follower})
+	_, ok := err.(*InvalidUserIDError)
+
+	if !ok {
+		t.Fatal()
+	}
+}
+
 func createFeed() *StubService {
 	return &StubService{UserService: user.CreateStub(), FollowingGraph: make(map[string][]string)}
+}
+
+func createUsers(followService *StubService, usernames ...string) []string {
+	uuids := []string{}
+	for _, username := range usernames {
+		uuids = append(uuids, createUser(followService, username))
+	}
+	return uuids
 }
 
 func createUser(followService *StubService, username string) string {
