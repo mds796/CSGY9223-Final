@@ -77,7 +77,7 @@ func newService(host string, port uint16, staticPath string) *HttpService {
 	userService := user.CreateStub()
 	authService := auth.CreateStub(userService)
 	postService := post.CreateStub()
-	followService := follow.CreateStub()
+	followService := follow.CreateStub(userService)
 	feedService := feed.CreateStub(postService, userService, followService)
 
 	return &HttpService{

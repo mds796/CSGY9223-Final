@@ -7,12 +7,12 @@ import (
 	"testing"
 )
 
-func TestStubService_View(t *testing.T) {
+func TestStubService_View_WithNonExistingUser(t *testing.T) {
 	service := createFeed()
-	_, err := service.View(&ViewRequest{UserID: "does-not-exit"})
+	response, err := service.View(&ViewRequest{UserID: "does-not-exit"})
 
-	if err != nil {
-		t.Fatalf("Expected to receive an empty response, instead got '%v' as an error.\n", err)
+	if err == nil {
+		t.Fatalf("Expected to receive an error, instead got '%v' as response.\n", response)
 	}
 }
 
@@ -135,5 +135,8 @@ func TestStubService_View_ListPostsByReverseCreateOrder(t *testing.T) {
 }
 
 func createFeed() *StubService {
-	return &StubService{User: user.CreateStub(), Post: post.CreateStub(), Follow: follow.CreateStub()}
+	userService := user.CreateStub()
+	postService := post.CreateStub()
+	followService := follow.CreateStub(userService)
+	return &StubService{User: userService, Post: postService, Follow: followService}
 }
