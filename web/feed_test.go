@@ -34,15 +34,21 @@ func TestHttpService_FetchFeed(t *testing.T) {
 
 	posts := make([]*feed.Post, 1)
 	posts[0] = &feed.Post{Text: "Hello, World!", From: "fake234"}
+	expected := feed.ViewResponse{Posts: posts}
 
-	bytes, err := json.Marshal(feed.ViewResponse{Posts: posts})
-	if err != nil {
-		t.Fatal(err)
+	data := rr.Body.Bytes()
+	var received feed.ViewResponse
+	json.Unmarshal(data, &received)
+
+	if len(received.Posts) != len(expected.Posts) {
+		t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received, expected)
 	}
-	expected := string(bytes)
 
-	if rr.Body.String() != expected {
-		t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", rr.Body.String(), expected)
+	for i := range received.Posts {
+		if received.Posts[i].Text != expected.Posts[i].Text ||
+			received.Posts[i].From != expected.Posts[i].From {
+			t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received.Posts[i], expected.Posts[i])
+		}
 	}
 }
 
@@ -105,15 +111,21 @@ func TestHttpService_FetchFeed_OtherUserPosts(t *testing.T) {
 
 	posts := make([]*feed.Post, 1)
 	posts[0] = &feed.Post{Text: "Hello, World!", From: "fake123"}
+	expected := feed.ViewResponse{Posts: posts}
 
-	bytes, err := json.Marshal(feed.ViewResponse{Posts: posts})
-	if err != nil {
-		t.Fatal(err)
+	data := rr.Body.Bytes()
+	var received feed.ViewResponse
+	json.Unmarshal(data, &received)
+
+	if len(received.Posts) != len(expected.Posts) {
+		t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received, expected)
 	}
-	expected := string(bytes)
 
-	if rr.Body.String() != expected {
-		t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", rr.Body.String(), expected)
+	for i := range received.Posts {
+		if received.Posts[i].Text != expected.Posts[i].Text ||
+			received.Posts[i].From != expected.Posts[i].From {
+			t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received.Posts[i], expected.Posts[i])
+		}
 	}
 }
 
