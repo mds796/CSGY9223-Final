@@ -35,16 +35,16 @@ func (stub *StubService) Follow(request FollowRequest) (FollowResponse, error) {
 		return FollowResponse{}, &InvalidUserIDError{UserID: request.FollowedUserID}
 	}
 
-	// Add followed user from follow graph
+	// Avoid duplicated connections
 	followed := stub.FollowingGraph[request.FollowerUserID]
-
-	newConnection := true // Avoid duplicated connections
-	for i := 0; i < len(followed); i++ {
-		if followed[i] == request.FollowedUserID {
+	newConnection := true
+	for _, f := range followed {
+		if f == request.FollowedUserID {
 			newConnection = false
 		}
 	}
 
+	// Add followed user from follow graph
 	if newConnection {
 		stub.FollowingGraph[request.FollowerUserID] = append(stub.FollowingGraph[request.FollowerUserID], request.FollowedUserID)
 	}
