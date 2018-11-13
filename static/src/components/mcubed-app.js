@@ -84,8 +84,6 @@ class McubedApp extends PolymerElement {
 
         installRouter((location) => this._locationChanged(location));
         installOfflineWatcher((offline) => this._offlineChanged(offline));
-
-        this.fetchFeed(this);
     }
 
     static get properties() {

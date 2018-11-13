@@ -84,7 +84,6 @@ class FeedView extends PolymerElement {
             }
         }).then(data => {
             provider.feed = data.Posts;
-            console.log(provider.feed, data);
         }).catch(err => {
             console.log("Unable to fetch follows: ", err);
         });
