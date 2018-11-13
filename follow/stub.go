@@ -46,6 +46,10 @@ func (stub *StubService) Unfollow(request UnfollowRequest) (UnfollowResponse, er
 }
 
 func (stub *StubService) View(request ViewRequest) (ViewResponse, error) {
-	userIDs := stub.FollowingGraph[request.UserID]
+	userIDs, ok := stub.FollowingGraph[request.UserID]
+	if !ok {
+		return ViewResponse{}, &InvalidUserIDError{UserID: request.UserID}
+	}
+
 	return ViewResponse{UserIDs: userIDs}, nil
 }

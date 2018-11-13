@@ -1,8 +1,9 @@
 package follow
 
-import "testing"
-
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"testing"
+)
 
 func TestFollowDoesNotReturnError(t *testing.T) {
 	service := CreateStub()
@@ -130,5 +131,16 @@ func TestUnfollowRemovesCorrectConnection(t *testing.T) {
 		if viewResponse.UserIDs[i] != expectedFollowed[i] {
 			t.Fail()
 		}
+	}
+}
+
+func TestViewReturnsEmptyUsersListWithUnknownUserID(t *testing.T) {
+	service := CreateStub()
+	follower := uuid.New().String()
+	_, err := service.View(ViewRequest{UserID: follower})
+	_, ok := err.(*InvalidUserIDError)
+
+	if !ok {
+		t.Fail()
 	}
 }
