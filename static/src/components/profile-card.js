@@ -31,7 +31,6 @@ class ProfileCard extends PolymerElement {
 
             user-card {
                 cursor: pointer;
-                display: inline-block;
             }
 
             a {

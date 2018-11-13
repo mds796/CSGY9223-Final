@@ -1,6 +1,12 @@
 package follow
 
+import (
+	"github.com/mds796/CSGY9223-Final/user"
+)
+
 type StubService struct {
+	UserService user.Service
+
 	// Storing connections in adjacency list allows to follow and unfollow in
 	// O(n) time and retrieve list of followers in O(1).
 	//
@@ -10,8 +16,9 @@ type StubService struct {
 	FollowingGraph map[string][]string
 }
 
-func CreateStub() Service {
+func CreateStub(userService user.Service) Service {
 	stub := new(StubService)
+	stub.UserService = userService
 	stub.FollowingGraph = make(map[string][]string)
 	return stub
 }
@@ -46,10 +53,12 @@ func (stub *StubService) Unfollow(request UnfollowRequest) (UnfollowResponse, er
 }
 
 func (stub *StubService) View(request ViewRequest) (ViewResponse, error) {
-	userIDs, ok := stub.FollowingGraph[request.UserID]
-	if !ok {
+	_, err := stub.UserService.View(user.ViewUserRequest{UserID: request.UserID})
+
+	if err != nil {
 		return ViewResponse{}, &InvalidUserIDError{UserID: request.UserID}
 	}
 
+	userIDs := stub.FollowingGraph[request.UserID]
 	return ViewResponse{UserIDs: userIDs}, nil
 }
