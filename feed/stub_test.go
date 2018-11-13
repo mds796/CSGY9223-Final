@@ -79,7 +79,7 @@ func TestStubService_View_WithUserFollowedPost(t *testing.T) {
 		t.Fatalf("Expected to receive a response, instead got '%v' as an error.\n", err)
 	}
 
-	if len(response.Posts) != 1 || response.Posts[0].From != "fake123" || response.Posts[0].Text != message {
+	if len(response.Posts) != 1 || response.Posts[0].From != "fake234" || response.Posts[0].Text != message {
 		t.Fatalf("Received unexpected feed response: %v.\n", response)
 	}
 }
