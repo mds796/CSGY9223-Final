@@ -5,6 +5,7 @@ import (
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/user"
 	"log"
+	"sort"
 )
 
 type StubService struct {
@@ -26,6 +27,15 @@ func (s StubService) View(request *ViewRequest) (*ViewResponse, error) {
 
 	postsForUser := s.PostsForUser(request.UserID, request.Username)
 	posts = append(posts, postsForUser...)
+
+	// Sort posts by timestamp
+	// Caution: using timestamps depending on the computer's clock for ordering
+	// posts won't work in a distributed system.
+	// Must use a Lamport clock (monotonically increasing integer with consensus protocol)
+	// to safely provide total ordering even with distributed processing.
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[j].Timestamp.Before(posts[i].Timestamp)
+	})
 
 	return &ViewResponse{Posts: posts}, nil
 }
@@ -56,7 +66,7 @@ func (s StubService) PostsForUser(userId string, username string) []*Post {
 		if err != nil {
 			log.Printf("Encountered an error viewing post %v.\n", response.PostIDs[j])
 		} else {
-			posts = append(posts, &Post{From: username, Text: postResponse.Text})
+			posts = append(posts, &Post{From: username, Text: postResponse.Text, Timestamp: postResponse.Timestamp})
 		}
 	}
 

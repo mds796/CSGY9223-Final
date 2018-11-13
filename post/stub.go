@@ -24,11 +24,6 @@ func (stub *StubService) Create(request CreatePostRequest) (CreatePostResponse, 
 
 	// Store in the stubbed cache
 	postID := uuid.New().String()
-
-	// Caution: using timestamps depending on the computer's clock for ordering
-	// posts won't work in a distributed system.
-	// Must use a Lamport clock (monotonically increasing integer with consensus protocol)
-	// to safely provide total ordering even with distributed processing.
 	stub.PostCache[postID] = Post{PostID: postID, User: request.UserID, Text: request.Text, Timestamp: getTimestamp()}
 
 	// Store in user posts cache as well

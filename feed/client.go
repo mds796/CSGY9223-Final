@@ -4,11 +4,13 @@ import (
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/user"
+	"time"
 )
 
 type Post struct {
-	From string
-	Text string
+	From      string
+	Text      string
+	Timestamp time.Time
 }
 
 type ViewRequest struct {
