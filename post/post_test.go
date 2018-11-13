@@ -70,7 +70,7 @@ func TestViewReturnsErrorWithInvalidPostID(t *testing.T) {
 	}
 }
 
-func TestListReturnsAllPostsFromUser(t *testing.T) {
+func TestListReturnsAllPostsFromUserInReverseOrder(t *testing.T) {
 	service := CreateStub()
 	userID := uuid.New().String()
 	service.Create(CreatePostRequest{UserID: userID, Text: "post 1"})
@@ -79,7 +79,7 @@ func TestListReturnsAllPostsFromUser(t *testing.T) {
 	listResponse, _ := service.List(ListPostsRequest{UserID: userID})
 
 	viewResponse, _ := service.View(ViewPostRequest{PostID: listResponse.PostIDs[0]})
-	if viewResponse.Text != "post 1" {
+	if viewResponse.Text != "post 3" {
 		t.Fail()
 	}
 
@@ -89,7 +89,7 @@ func TestListReturnsAllPostsFromUser(t *testing.T) {
 	}
 
 	viewResponse, _ = service.View(ViewPostRequest{PostID: listResponse.PostIDs[2]})
-	if viewResponse.Text != "post 3" {
+	if viewResponse.Text != "post 1" {
 		t.Fail()
 	}
 }
@@ -103,12 +103,12 @@ func TestListReturnsPostsFromCorrectUser(t *testing.T) {
 	listResponse, _ := service.List(ListPostsRequest{UserID: userID})
 
 	viewResponse, _ := service.View(ViewPostRequest{PostID: listResponse.PostIDs[0]})
-	if viewResponse.Text != "post 1" {
+	if viewResponse.Text != "post 3" {
 		t.Fail()
 	}
 
 	viewResponse, _ = service.View(ViewPostRequest{PostID: listResponse.PostIDs[1]})
-	if viewResponse.Text != "post 3" {
+	if viewResponse.Text != "post 1" {
 		t.Fail()
 	}
 }

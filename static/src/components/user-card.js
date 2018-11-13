@@ -15,7 +15,7 @@ class UserCard extends PolymerElement {
           padding: 5px;
         }
       </style>
-      
+
       <span>[[user]]@</span>
       <slot></slot>
     `;

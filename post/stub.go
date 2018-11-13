@@ -24,9 +24,13 @@ func (stub *StubService) Create(request CreatePostRequest) (CreatePostResponse, 
 	stub.PostCache[postID] = Post{PostID: postID, User: request.UserID, Text: request.Text}
 
 	// Store in user posts cache as well
-	stub.UserPostsCache[request.UserID] = append(stub.UserPostsCache[request.UserID], postID)
+	stub.UserPostsCache[request.UserID] = prepend(stub.UserPostsCache[request.UserID], postID)
 
 	return CreatePostResponse{PostID: postID}, nil
+}
+
+func prepend(slice []string, obj string) []string {
+	return append([]string{obj}, slice...)
 }
 
 func (stub *StubService) View(request ViewPostRequest) (ViewPostResponse, error) {
