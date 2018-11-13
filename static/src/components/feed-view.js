@@ -24,7 +24,7 @@ class FeedView extends PolymerElement {
           <section class="post-input">
             <textarea value="{{post::change}}" rows="7" cols="80">
             </textarea>
-            <input type="submit" value="Post" on-click="submitPost"/>
+            <input id="post-button" type="submit" value="Post" on-click="submitPost"/>
           </section>
 
           <dom-repeat items="[[feed]]">
@@ -51,19 +51,23 @@ class FeedView extends PolymerElement {
         super.ready();
     }
 
-    submitPost(e) {
+    submitPost() {
         const provider = this;
+        const submitButton = this.shadowRoot.getElementById('post-button');
 
-        e.target.disabled = true;
+        submitButton.disabled = true;
 
         fetch('/post', {method: 'POST', body: provider.post, headers: {'Content-Type': 'text/plain'}})
-            .then(_ => {
-                provider.post = "";
-                e.target.disabled = false;
+            .then(response => {
+                if (response.ok) {
+                    provider.post = "";
+                }
+
+                submitButton.disabled = false;
                 provider.fetchFeed();
             })
             .catch(err => {
-                e.target.disabled = false;
+                this.shadowRoot.getElementById('post-button').disabled = false;
                 provider.fetchFeed();
                 console.log("Unable to post new message: ", err);
             });
