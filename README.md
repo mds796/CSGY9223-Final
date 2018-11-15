@@ -87,15 +87,26 @@ $ npm install
 ```
 
 ### How to run
-Once you do, run `./run` from the root of the repository.
-That command will execute `npm run build:static` from the `static` directory, execute `go build`, and finally run the Web Server. This allows the web server to serve updates to the static files.
 
-If you prefer to run the commands yourself, run the following from the root of the repository:
-1. cd static
-1. npm run build:static
-1. cd ../
-1. go build
-1. ./CSGY9223-Final web start&
+#### Start
+```bash
+$ cd CSGY9223-Final/static/
+$ npm run build:static
+$ cd ../
+$ go build
+$ ./CSGY9223-Final web start&
+```
 
-To stop the web server:
-1. ./CSGY9223-Final web stop
+Alternatively, you can just do:
+```bash
+$ cd CSGY9223-Final/
+$ ./run
+```
+
+This command will execute all of the above steps. It allows the web server to serve updates to the static files.
+
+#### Stop
+```bash
+$ cd CSGY9223-Final/
+$ ./CSGY9223-Final web stop
+```
