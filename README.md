@@ -69,9 +69,22 @@
 
 
 ## Web
+
 ### Prerequisites
-* Make sure you have node.js and npm installed.
-* Run `npm install` from the `static` directory.
+
+#### Node.js v11.x
+```bash
+$ sudo apt-get install -y curl
+$ curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
+$ sudo apt-get install -y nodejs
+```
+
+### Build
+```bash
+$ git clone git@github.com:mds796/CSGY9223-Final.git
+$ cd CSGY9223-Final/static/
+$ npm install
+```
 
 ### How to run
 Once you do, run `./run` from the root of the repository.
