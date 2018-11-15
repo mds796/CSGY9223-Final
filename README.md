@@ -14,6 +14,7 @@ $ sudo apt-get install -y nodejs
 $ git clone git@github.com:mds796/CSGY9223-Final.git
 $ cd CSGY9223-Final/static/
 $ npm install
+$ go get github.com/google/uuid github.com/pkg/errors github.com/spf13/cobra
 ```
 
 ## Run
