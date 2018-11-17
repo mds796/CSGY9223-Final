@@ -9,12 +9,22 @@ $ curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
 $ sudo apt-get install -y nodejs
 ```
 
+### gRPC
+```bash
+$ go get -u google.golang.org/grpc
+$ wget https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protoc-3.6.1-linux-x86_64.zip
+$ unzip protoc-3.6.1-linux-x86_64.zip -d protoc-3.6.1-linux-x86_64/ # Update the environment variable PATH to include the path to the protoc binary file.
+$ go get -u github.com/golang/protobuf/protoc-gen-go
+$ export PATH=$PATH:$GOPATH/bin
+```
+
 ## Build
 ```bash
 $ git clone git@github.com:mds796/CSGY9223-Final.git
 $ cd CSGY9223-Final/static/
 $ npm install
 $ go get github.com/google/uuid github.com/pkg/errors github.com/spf13/cobra
+$ go get -u google.golang.org/grpc
 ```
 
 ## Run
