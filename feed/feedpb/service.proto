@@ -1,0 +1,19 @@
+syntax="proto3";
+
+package feed.service;
+
+option go_package= "feedpb";
+
+import "feed.proto";
+
+service Feed {
+  rpc View(ViewRequest) returns (ViewResponse);
+}
+
+message ViewRequest {
+  feed.model.User User = 1;
+}
+
+message ViewResponse {
+  feed.model.Feed Feed = 1;
+}

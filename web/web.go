@@ -3,7 +3,7 @@ package web
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/auth"
-	"github.com/mds796/CSGY9223-Final/feed"
+	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/user"
@@ -21,7 +21,7 @@ type HttpService struct {
 	AuthService   auth.Service
 	PostService   post.Service
 	FollowService follow.Service
-	FeedService   feed.Service
+	FeedService   feedpd.Service
 }
 
 func (srv *HttpService) Address() string {

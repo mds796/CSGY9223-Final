@@ -1,0 +1,26 @@
+syntax="proto3";
+
+package feed.model;
+
+option go_package= "feedpb";
+
+message Feed {
+  User User = 1;
+  repeated Post Posts = 2;
+}
+
+message User {
+  string ID = 1;
+  string Name = 2;
+}
+
+message Post {
+  string PostID = 1;
+  string Text = 2;
+  User User = 3;
+  Timestamp Timestamp = 4;
+}
+
+message Timestamp {
+  int64 EpochSeconds = 1;
+}
