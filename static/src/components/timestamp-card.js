@@ -18,7 +18,7 @@ class TimestampCard extends PolymerElement {
         }
       </style>
 
-      <span>[[timestamp]]@</span>
+      <span>Posted [[date]]</span>
       <slot></slot>
     `;
   }
@@ -26,10 +26,20 @@ class TimestampCard extends PolymerElement {
   static get properties() {
     return {
       timestamp: {
+        type: Number,
+        value: 0
+      },
+      date: {
         type: String,
-        value: ""
+        computed: "dateString(timestamp)"
       }
     };
+  }
+
+  dateString(timestamp) {
+    const date = new Date(0);
+    date.setUTCSeconds(timestamp);
+    return date
   }
 }
 

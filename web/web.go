@@ -63,30 +63,41 @@ func (srv *HttpService) Stop() {
 }
 
 func (srv *HttpService) listenAndServe() {
-	log.Printf("Now listening on %v.\n", srv.Address())
+	log.Printf("Web now listening on %v.\n", srv.Address())
 	err := srv.Server.ListenAndServe()
 	log.Println(err)
 }
 
 // New creates a new Web service with nil dependencies.
-func New(host string, port uint16, staticPath string) Service {
-	mux := http.NewServeMux()
-	address := host + ":" + strconv.Itoa(int(port))
-	server := &http.Server{Addr: address, Handler: mux}
+func New(config *Config) Service {
+	service := newService(config.Target(), config.StaticPath)
 
-	return &HttpService{StaticPath: staticPath, Multiplexer: mux, Server: server}
+	service.UserService = user.CreateStub()
+	service.AuthService = auth.CreateStub(service.UserService)
+	service.PostService = post.CreateStub()
+	service.FollowService = follow.CreateStub(service.UserService)
+
+	// Use this value once the feed service is updated to use thew gRPC user, post, and follow clients
+	_, err := feed.NewClient(config.FeedTarget())
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	service.FeedService = feed.NewStubClient(feed.NewStubServer(service.PostService, service.UserService, service.FollowService))
+
+	return service
 }
 
-func newService(host string, port uint16, staticPath string) *HttpService {
+func newService(target string, staticPath string) *HttpService {
 	mux := http.NewServeMux()
-	address := host + ":" + strconv.Itoa(int(port))
-	server := &http.Server{Addr: address, Handler: mux}
+	server := &http.Server{Addr: target, Handler: mux}
 
 	return &HttpService{StaticPath: staticPath, Multiplexer: mux, Server: server}
 }
 
 func newStubService(host string, port uint16, staticPath string) *HttpService {
-	service := newService(host, port, staticPath)
+	service := newService(host+":"+strconv.Itoa(int(port)), staticPath)
 
 	userService := user.CreateStub()
 	authService := auth.CreateStub(userService)

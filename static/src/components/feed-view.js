@@ -30,7 +30,7 @@ class FeedView extends PolymerElement {
           <dom-repeat items="[[feed]]">
             <template>
               <section>
-                <post-card user="[[item.From]]" timestamp="[[item.Timestamp]]" text="[[item.Text]]"></post-card>
+                <post-card user="[[item.User.Name]]" timestamp="[[item.Timestamp.EpochSeconds]]" text="[[item.Text]]"></post-card>
               </section>
             </template>
           </dom-repeat>
