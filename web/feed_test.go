@@ -2,7 +2,8 @@ package web
 
 import (
 	"encoding/json"
-	"github.com/mds796/CSGY9223-Final/feed"
+	"github.com/mds796/CSGY9223-Final/feed/feedpb"
+	"github.com/mds796/CSGY9223-Final/user"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,6 +17,7 @@ func TestHttpService_FetchFeed(t *testing.T) {
 
 	followUser(t, service, recorder)
 	makePost(t, recorder, service)
+	response, _ := service.UserService.View(user.ViewUserRequest{Username: "fake234"})
 
 	req, err := http.NewRequest("GET", "/feed", nil)
 	if err != nil {
@@ -32,22 +34,22 @@ func TestHttpService_FetchFeed(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v\n", status, http.StatusOK)
 	}
 
-	posts := make([]*feed.Post, 1)
-	posts[0] = &feed.Post{Text: "Hello, World!", From: "fake234"}
-	expected := feed.ViewResponse{Posts: posts}
+	posts := make([]*feedpb.Post, 1)
+	posts[0] = &feedpb.Post{Text: "Hello, World!", User: &feedpb.User{Name: "fake234", ID: response.Uuid}}
+	expected := feedpb.ViewResponse{Feed: &feedpb.Feed{Posts: posts}}
 
 	data := rr.Body.Bytes()
-	var received feed.ViewResponse
-	json.Unmarshal(data, &received)
+	var received feedpb.Feed
+	_ = json.Unmarshal(data, &received)
 
-	if len(received.Posts) != len(expected.Posts) {
+	if len(received.Posts) != len(expected.Feed.Posts) {
 		t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received, expected)
 	}
 
 	for i := range received.Posts {
-		if received.Posts[i].Text != expected.Posts[i].Text ||
-			received.Posts[i].From != expected.Posts[i].From {
-			t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received.Posts[i], expected.Posts[i])
+		if received.Posts[i].Text != expected.Feed.Posts[i].Text ||
+			received.Posts[i].User.Name != expected.Feed.Posts[i].User.Name {
+			t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received.Posts[i], expected.Feed.Posts[i])
 		}
 	}
 }
@@ -72,9 +74,9 @@ func TestHttpService_FetchFeedEmpty(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v\n", status, http.StatusOK)
 	}
 
-	posts := make([]*feed.Post, 0)
+	posts := make([]*feedpb.Post, 0)
 
-	bytes, err := json.Marshal(feed.ViewResponse{Posts: posts})
+	bytes, err := json.Marshal(feedpb.Feed{Posts: posts})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,6 +95,7 @@ func TestHttpService_FetchFeed_OtherUserPosts(t *testing.T) {
 
 	followUser(t, service, recorder)
 	makePost(t, otherUserRecorder, service)
+	response, _ := service.UserService.View(user.ViewUserRequest{Username: "fake123"})
 
 	req, err := http.NewRequest("GET", "/feed", nil)
 	if err != nil {
@@ -109,13 +112,13 @@ func TestHttpService_FetchFeed_OtherUserPosts(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v\n", status, http.StatusOK)
 	}
 
-	posts := make([]*feed.Post, 1)
-	posts[0] = &feed.Post{Text: "Hello, World!", From: "fake123"}
-	expected := feed.ViewResponse{Posts: posts}
+	posts := make([]*feedpb.Post, 1)
+	posts[0] = &feedpb.Post{Text: "Hello, World!", User: &feedpb.User{Name: "fake123", ID: response.Uuid}}
+	expected := &feedpb.Feed{Posts: posts}
 
 	data := rr.Body.Bytes()
-	var received feed.ViewResponse
-	json.Unmarshal(data, &received)
+	var received feedpb.Feed
+	_ = json.Unmarshal(data, &received)
 
 	if len(received.Posts) != len(expected.Posts) {
 		t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received, expected)
@@ -123,7 +126,7 @@ func TestHttpService_FetchFeed_OtherUserPosts(t *testing.T) {
 
 	for i := range received.Posts {
 		if received.Posts[i].Text != expected.Posts[i].Text ||
-			received.Posts[i].From != expected.Posts[i].From {
+			received.Posts[i].User.Name != expected.Posts[i].User.Name {
 			t.Errorf("Handler returned unexpected body: got '%v' want '%v'\n", received.Posts[i], expected.Posts[i])
 		}
 	}

@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/auth"
+	"github.com/mds796/CSGY9223-Final/feed"
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/post"
@@ -21,7 +22,7 @@ type HttpService struct {
 	AuthService   auth.Service
 	PostService   post.Service
 	FollowService follow.Service
-	FeedService   feedpd.Service
+	FeedService   feedpb.FeedClient
 }
 
 func (srv *HttpService) Address() string {
@@ -63,30 +64,41 @@ func (srv *HttpService) Stop() {
 
 func (srv *HttpService) listenAndServe() {
 	log.Printf("Now listening on %v.\n", srv.Address())
-	srv.Server.ListenAndServe()
+	err := srv.Server.ListenAndServe()
+	log.Println(err)
 }
 
+// New creates a new Web service with nil dependencies.
 func New(host string, port uint16, staticPath string) Service {
-	return newService(host, port, staticPath)
+	mux := http.NewServeMux()
+	address := host + ":" + strconv.Itoa(int(port))
+	server := &http.Server{Addr: address, Handler: mux}
+
+	return &HttpService{StaticPath: staticPath, Multiplexer: mux, Server: server}
 }
 
 func newService(host string, port uint16, staticPath string) *HttpService {
 	mux := http.NewServeMux()
 	address := host + ":" + strconv.Itoa(int(port))
 	server := &http.Server{Addr: address, Handler: mux}
+
+	return &HttpService{StaticPath: staticPath, Multiplexer: mux, Server: server}
+}
+
+func newStubService(host string, port uint16, staticPath string) *HttpService {
+	service := newService(host, port, staticPath)
+
 	userService := user.CreateStub()
 	authService := auth.CreateStub(userService)
 	postService := post.CreateStub()
 	followService := follow.CreateStub(userService)
-	feedService := feed.CreateStub(postService, userService, followService)
+	feedService := feed.NewStubClient(feed.NewStubServer(postService, userService, followService))
 
-	return &HttpService{
-		StaticPath:    staticPath,
-		Multiplexer:   mux,
-		Server:        server,
-		UserService:   userService,
-		AuthService:   authService,
-		PostService:   postService,
-		FollowService: followService,
-		FeedService:   feedService}
+	service.UserService = userService
+	service.AuthService = authService
+	service.PostService = postService
+	service.FollowService = followService
+	service.FeedService = feedService
+
+	return service
 }

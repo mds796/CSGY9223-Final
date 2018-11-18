@@ -25,5 +25,5 @@ func match(value string, values []string) bool {
 }
 
 func CreateService() *HttpService {
-	return newService("localhost", 9999, "../static")
+	return newStubService("localhost", 9999, "../static")
 }
