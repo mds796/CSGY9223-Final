@@ -75,7 +75,7 @@ func New(config *Config) Service {
 
 	service.UserService = user.CreateStub()
 	service.AuthService = auth.CreateStub(service.UserService)
-	service.PostService = post.NewStubClient(post.NewStubServer())
+	service.PostService = post.NewStubClient(post.CreateStub())
 	service.FollowService = follow.CreateStub(service.UserService)
 
 	// Use this value once the feed service is updated to use thew gRPC user, post, and follow clients
@@ -102,7 +102,7 @@ func newStubService(host string, port uint16, staticPath string) *HttpService {
 
 	userService := user.CreateStub()
 	authService := auth.CreateStub(userService)
-	postService := post.NewStubClient(post.NewStubServer())
+	postService := post.NewStubClient(post.CreateStub())
 	followService := follow.CreateStub(userService)
 	feedService := feed.NewStubClient(feed.NewStubServer(postService, userService, followService))
 
