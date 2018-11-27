@@ -5,14 +5,15 @@ import (
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/post"
+	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
 	"strconv"
 	"testing"
 )
 
-func createFeed() (*StubClient, user.Service, post.Service, follow.Service) {
+func createFeed() (*StubClient, user.Service, postpb.PostClient, follow.Service) {
 	userService := user.CreateStub()
-	postService := post.CreateStub()
+	postService := post.NewStubClient(post.CreateStub())
 	followService := follow.CreateStub(userService)
 
 	return &StubClient{service: &StubService{User: userService, Post: postService, Follow: followService}}, userService, postService, followService
@@ -45,7 +46,7 @@ func TestStubService_View_WithUserSelfPost(t *testing.T) {
 	_, _ = u.Create(user.CreateUserRequest{Username: "fake234"})
 
 	message := "Hello, World!"
-	_, _ = p.Create(post.CreatePostRequest{Text: message, UserID: userResponse.Uuid})
+	_, _ = p.Create(context.Background(), &postpb.CreateRequest{User: &postpb.User{ID: userResponse.Uuid}, Post: &postpb.Post{Text: message}})
 
 	response, err := client.View(context.Background(), &feedpb.ViewRequest{User: &feedpb.User{ID: userResponse.Uuid, Name: "fake123"}})
 
@@ -63,7 +64,7 @@ func TestStubService_View_WithUserPostNoFollow(t *testing.T) {
 	userResponse, _ := u.Create(user.CreateUserRequest{Username: "fake123"})
 	otherUserResponse, _ := u.Create(user.CreateUserRequest{Username: "fake234"})
 
-	_, _ = p.Create(post.CreatePostRequest{Text: "Hello, World!", UserID: otherUserResponse.Uuid})
+	_, _ = p.Create(context.Background(), &postpb.CreateRequest{User: &postpb.User{ID: otherUserResponse.Uuid}, Post: &postpb.Post{Text: "Hello, World!"}})
 
 	response, err := client.View(context.Background(), &feedpb.ViewRequest{User: &feedpb.User{ID: userResponse.Uuid, Name: "fake123"}})
 
@@ -87,7 +88,7 @@ func TestStubService_View_WithUserFollowedPost(t *testing.T) {
 	}
 
 	message := "Hello, World!"
-	_, _ = p.Create(post.CreatePostRequest{Text: message, UserID: otherUserResponse.Uuid})
+	_, _ = p.Create(context.Background(), &postpb.CreateRequest{User: &postpb.User{ID: otherUserResponse.Uuid}, Post: &postpb.Post{Text: message}})
 
 	response, err := client.View(context.Background(), &feedpb.ViewRequest{User: &feedpb.User{ID: userResponse.Uuid, Name: "fake123"}})
 
@@ -137,10 +138,10 @@ func TestStubService_View_ListPostsByReverseCreateOrder(t *testing.T) {
 		t.Fatalf("Unable to follow other user.")
 	}
 
-	_, _ = p.Create(post.CreatePostRequest{Text: "post 1", UserID: userResponse.Uuid})
-	_, _ = p.Create(post.CreatePostRequest{Text: "post 2", UserID: otherUserResponse.Uuid})
-	_, _ = p.Create(post.CreatePostRequest{Text: "post 3", UserID: userResponse.Uuid})
-	_, _ = p.Create(post.CreatePostRequest{Text: "post 4", UserID: otherUserResponse.Uuid})
+	_, _ = p.Create(context.Background(), &postpb.CreateRequest{User: &postpb.User{ID: userResponse.Uuid}, Post: &postpb.Post{Text: "post 1"}})
+	_, _ = p.Create(context.Background(), &postpb.CreateRequest{User: &postpb.User{ID: otherUserResponse.Uuid}, Post: &postpb.Post{Text: "post 2"}})
+	_, _ = p.Create(context.Background(), &postpb.CreateRequest{User: &postpb.User{ID: userResponse.Uuid}, Post: &postpb.Post{Text: "post 3"}})
+	_, _ = p.Create(context.Background(), &postpb.CreateRequest{User: &postpb.User{ID: otherUserResponse.Uuid}, Post: &postpb.Post{Text: "post 4"}})
 
 	response, err := client.View(context.Background(), &feedpb.ViewRequest{User: &feedpb.User{ID: userResponse.Uuid, Name: "fake123"}})
 

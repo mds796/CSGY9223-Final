@@ -32,7 +32,6 @@ func New(config *Config) *RpcService {
 
 func NewStubServer() *StubService {
 	return &StubService{}
-
 }
 
 func NewClient(target string) (postpb.PostClient, error) {

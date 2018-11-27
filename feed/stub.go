@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
-	"github.com/mds796/CSGY9223-Final/post"
+	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
 	"google.golang.org/grpc"
 	"log"
@@ -13,7 +13,7 @@ import (
 )
 
 type StubService struct {
-	Post   post.Service
+	Post   postpb.PostClient
 	Follow follow.Service
 	User   user.Service
 }
@@ -38,9 +38,10 @@ func (s StubService) View(ctx context.Context, request *feedpb.ViewRequest) (*fe
 	// Must use a Lamport clock (monotonically increasing integer with consensus protocol)
 	// to safely provide total ordering even with distributed processing.
 	sort.Slice(posts, func(i, j int) bool {
+		return posts[j].Timestamp.EpochNanoseconds < posts[i].Timestamp.EpochNanoseconds
+
 		postI := time.Unix(posts[i].Timestamp.EpochNanoseconds, 0)
 		postJ := time.Unix(posts[j].Timestamp.EpochNanoseconds, 0)
-
 		return postJ.Before(postI)
 	})
 
@@ -60,22 +61,22 @@ func (s StubService) ListPosts(followed []*user.ViewUserResponse) ([]*feedpb.Pos
 
 func (s StubService) PostsForUser(userId string, username string) []*feedpb.Post {
 
-	response, err := s.Post.List(post.ListPostsRequest{UserID: userId})
+	response, err := s.Post.List(context.Background(), &postpb.ListRequest{User: &postpb.User{ID: userId}})
 	if err != nil {
 		log.Printf("Encountered an error listing posts for user %v.\n", userId)
 		return nil
 	}
 
-	posts := make([]*feedpb.Post, 0, len(response.PostIDs))
+	posts := make([]*feedpb.Post, 0, len(response.Posts))
 
-	for j := range response.PostIDs {
-		postResponse, err := s.Post.View(post.ViewPostRequest{PostID: response.PostIDs[j]})
+	for j := range response.Posts {
+		postResponse, err := s.Post.View(context.Background(), &postpb.ViewRequest{Post: &postpb.Post{ID: response.Posts[j].ID}})
 		if err != nil {
-			log.Printf("Encountered an error viewing post %v.\n", response.PostIDs[j])
+			log.Printf("Encountered an error viewing post %v.\n", response.Posts[j].ID)
 		} else {
 			postedBy := &feedpb.User{Name: username, ID: userId}
-			postedAt := &feedpb.Timestamp{EpochNanoseconds: postResponse.Timestamp.UnixNano()}
-			posts = append(posts, &feedpb.Post{User: postedBy, Text: postResponse.Text, Timestamp: postedAt})
+			postedAt := &feedpb.Timestamp{EpochNanoseconds: postResponse.Post.Timestamp.EpochNanoseconds}
+			posts = append(posts, &feedpb.Post{User: postedBy, Text: postResponse.Post.Text, Timestamp: postedAt})
 		}
 	}
 

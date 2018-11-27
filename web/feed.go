@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
-	"github.com/mds796/CSGY9223-Final/post"
+	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -65,9 +65,8 @@ func (srv *HttpService) createPost(r *http.Request) error {
 		return err
 	}
 
-	request := post.CreatePostRequest{UserID: response.UserID, Text: string(bytes)}
-
-	_, err = srv.PostService.Create(request)
+	request := &postpb.CreateRequest{User: &postpb.User{ID: response.UserID}, Post: &postpb.Post{Text: string(bytes)}}
+	_, err = srv.PostService.Create(context.Background(), request)
 
 	return err
 }
