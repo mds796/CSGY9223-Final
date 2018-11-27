@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Generating code from protobuf files...\n"
+echo "Generating code from protobuf files..."
 
 count=0
 total=(`find . -name *pb -type d`)

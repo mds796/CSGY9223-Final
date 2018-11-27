@@ -29,7 +29,7 @@ type ListPostsResponse struct {
 }
 
 type Service interface {
-	Create(request CreatePostRequest) (CreatePostResponse, error)
-	View(request ViewPostRequest) (ViewPostResponse, error)
-	List(request ListPostsRequest) (ListPostsResponse, error)
+	// Create(request CreatePostRequest) (CreatePostResponse, error)
+	// View(request ViewPostRequest) (ViewPostResponse, error)
+	// List(request ListPostsRequest) (ListPostsResponse, error)
 }

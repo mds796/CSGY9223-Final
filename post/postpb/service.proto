@@ -1,0 +1,19 @@
+syntax="proto3";
+package post.service;
+
+option go_package= "postpb";
+
+import "post.proto";
+
+service Post {
+  rpc Create(CreateRequest) returns (CreateResponse);
+}
+
+message CreateRequest {
+  post.model.User User = 1;
+  post.model.Post Post = 2;
+}
+
+message CreateResponse {
+  post.model.Post Post = 1;
+}
