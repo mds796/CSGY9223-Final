@@ -2,6 +2,9 @@
 
 ## Prerequisites
 
+### Go 1.11
+Follow these instructions: https://medium.com/@RidhamTarpara/install-go-1-11-on-ubuntu-18-04-16-04-lts-8c098c503c5f
+
 ### Node.js v11.x
 ```bash
 $ sudo apt-get install -y curl
@@ -20,7 +23,8 @@ $ export PATH=$PATH:$GOPATH/bin
 
 ## Build
 ```bash
-$ git clone git@github.com:mds796/CSGY9223-Final.git
+$ mkdir ~/go/src/github.com/mds796
+$ git clone git@github.com:mds796/CSGY9223-Final.git ~/go/src/github.com/mds796/CSGY9223-Final
 $ cd CSGY9223-Final/static/
 $ npm install
 $ go get github.com/google/uuid github.com/pkg/errors github.com/spf13/cobra
