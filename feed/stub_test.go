@@ -7,7 +7,6 @@ import (
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
-	"strconv"
 	"testing"
 )
 
@@ -149,16 +148,12 @@ func TestStubService_View_ListPostsByReverseCreateOrder(t *testing.T) {
 		t.Fatalf("Expected to receive a response, instead got '%v' as an error.\n", err)
 	}
 
-	order := [4]int{4, 2, 3, 1}
-	for i, actual := range response.Feed.Posts {
-		expectedText := "post " + strconv.Itoa(order[i])
-		expectedUser := "fake234"
-		if i >= 2 {
-			expectedUser = "fake123"
-		}
+	expectedUsers := []string{"fake234", "fake123", "fake234", "fake123"}
+	expectedTexts := []string{"post 4", "post 3", "post 2", "post 1"}
 
-		if response.Feed.Posts[i].User.Name != expectedUser || response.Feed.Posts[i].Text != expectedText {
-			t.Errorf("Received unexpected post response, '%v' != '%v' user and '%v' != '%v' text.\n", actual.User.Name, expectedUser, actual.Text, expectedText)
+	for i, post := range response.Feed.Posts {
+		if post.User.Name != expectedUsers[i] || post.Text != expectedTexts[i] {
+			t.Errorf("Received unexpected post response, <'%v', '%v'> instead of <'%v', '%v'>\n", post.User.Name, post.Text, expectedUsers[i], expectedTexts[i])
 		}
 	}
 }

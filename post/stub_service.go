@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
-	"log"
 	"time"
 )
 
@@ -31,8 +30,6 @@ func (stub *StubService) Create(ctx context.Context, request *postpb.CreateReque
 	// Cache it in posts and user cache
 	stub.PostCache[post.ID] = post
 	stub.UserPostsCache[request.User.ID] = prepend(stub.UserPostsCache[request.User.ID], post)
-
-	log.Println(stub.PostCache)
 
 	return &postpb.CreateResponse{Post: post}, nil
 }

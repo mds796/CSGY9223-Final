@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"sort"
-	"time"
 )
 
 type StubService struct {
@@ -39,10 +38,6 @@ func (s StubService) View(ctx context.Context, request *feedpb.ViewRequest) (*fe
 	// to safely provide total ordering even with distributed processing.
 	sort.Slice(posts, func(i, j int) bool {
 		return posts[j].Timestamp.EpochNanoseconds < posts[i].Timestamp.EpochNanoseconds
-
-		postI := time.Unix(posts[i].Timestamp.EpochNanoseconds, 0)
-		postJ := time.Unix(posts[j].Timestamp.EpochNanoseconds, 0)
-		return postJ.Before(postI)
 	})
 
 	return &feedpb.ViewResponse{Feed: &feedpb.Feed{Posts: posts}}, nil
