@@ -3,6 +3,6 @@ static/node_modules/
 .DS_Store
 profile.prof
 CSGY9223-Final
-.web.pid
+*.pid
 static/build/
 static/package-lock.json

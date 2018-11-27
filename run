@@ -9,5 +9,6 @@ go build
 
 ./CSGY9223-Final web restart -H 0.0.0.0 &
 ./CSGY9223-Final feed restart -H 0.0.0.0 &
+./CSGY9223-Final post restart -H 0.0.0.0 &
 
 sleep 5 && ./warmup
