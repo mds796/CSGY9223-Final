@@ -11,22 +11,39 @@ func createPostService() *StubClient {
 	return &StubClient{service: CreateStub()}
 }
 
-func TestValidCreatePostDoesNotReturnsError(t *testing.T) {
-	client := createPostService()
-
-	response, err := client.Create(
+func doCreateRequest(client *StubClient, userID string, text string) (*postpb.CreateResponse, error) {
+	return client.Create(
 		context.Background(),
 		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: "testing"},
+			User: &postpb.User{ID: userID},
+			Post: &postpb.Post{Text: text},
 		})
+}
 
+func doViewRequest(client *StubClient, postID string) (*postpb.ViewResponse, error) {
+	return client.View(
+		context.Background(),
+		&postpb.ViewRequest{
+			Post: &postpb.Post{ID: postID},
+		})
+}
+
+func doListRequest(client *StubClient, userID string) (*postpb.ListResponse, error) {
+	return client.List(
+		context.Background(),
+		&postpb.ListRequest{
+			User: &postpb.User{ID: userID},
+		})
+}
+
+func TestValidCreatePostDoesNotReturnsError(t *testing.T) {
+	client := createPostService()
+	response, err := doCreateRequest(client, uuid.New().String(), "testing")
 	if err != nil {
 		t.Fail()
 	}
 
 	_, err = uuid.Parse(response.Post.ID)
-
 	if err != nil {
 		t.Fail()
 	}
@@ -34,15 +51,8 @@ func TestValidCreatePostDoesNotReturnsError(t *testing.T) {
 
 func TestCreatePostReturnsValidUUID(t *testing.T) {
 	client := createPostService()
-
-	response, _ := client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: "testing"},
-		})
+	response, _ := doCreateRequest(client, uuid.New().String(), "testing")
 	_, err := uuid.Parse(response.Post.ID)
-
 	if err != nil {
 		t.Fail()
 	}
@@ -50,15 +60,8 @@ func TestCreatePostReturnsValidUUID(t *testing.T) {
 
 func TestCreatePostReturnsErrorWithEmptyText(t *testing.T) {
 	client := createPostService()
-
-	_, err := client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: ""},
-		})
+	_, err := doCreateRequest(client, uuid.New().String(), "")
 	_, ok := err.(*EmptyPostTextError)
-
 	if !ok {
 		t.Fail()
 	}
@@ -66,20 +69,8 @@ func TestCreatePostReturnsErrorWithEmptyText(t *testing.T) {
 
 func TestViewReturnsTextAfterCreatingPost(t *testing.T) {
 	client := createPostService()
-
-	createResponse, _ := client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: "testing"},
-		})
-
-	viewResponse, _ := client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: createResponse.Post.ID},
-		})
-
+	createResponse, _ := doCreateRequest(client, uuid.New().String(), "testing")
+	viewResponse, _ := doViewRequest(client, createResponse.Post.ID)
 	if viewResponse.Post.Text != "testing" {
 		t.Fail()
 	}
@@ -87,26 +78,9 @@ func TestViewReturnsTextAfterCreatingPost(t *testing.T) {
 
 func TestViewReturnsTextFromCorrectPost(t *testing.T) {
 	client := createPostService()
-
-	client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: "testing"},
-		})
-	createResponse, _ := client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: "testing more"},
-		})
-
-	viewResponse, _ := client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: createResponse.Post.ID},
-		})
-
+	doCreateRequest(client, uuid.New().String(), "testing")
+	createResponse, _ := doCreateRequest(client, uuid.New().String(), "testing more")
+	viewResponse, _ := doViewRequest(client, createResponse.Post.ID)
 	if viewResponse.Post.Text != "testing more" {
 		t.Fail()
 	}
@@ -114,30 +88,10 @@ func TestViewReturnsTextFromCorrectPost(t *testing.T) {
 
 func TestCreatedPostsHaveIncreasingTimestamps(t *testing.T) {
 	client := createPostService()
-	createResponse1, _ := client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: "post 1"},
-		})
-	createResponse2, _ := client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: "post 2"},
-		})
-
-	viewResponse1, _ := client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: createResponse1.Post.ID},
-		})
-	viewResponse2, _ := client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: createResponse2.Post.ID},
-		})
-
+	createResponse1, _ := doCreateRequest(client, uuid.New().String(), "post 1")
+	createResponse2, _ := doCreateRequest(client, uuid.New().String(), "post 2")
+	viewResponse1, _ := doViewRequest(client, createResponse1.Post.ID)
+	viewResponse2, _ := doViewRequest(client, createResponse2.Post.ID)
 	if viewResponse1.Post.Timestamp.EpochNanoseconds >= viewResponse2.Post.Timestamp.EpochNanoseconds {
 		t.Fail()
 	}
@@ -145,13 +99,8 @@ func TestCreatedPostsHaveIncreasingTimestamps(t *testing.T) {
 
 func TestViewReturnsErrorWithInvalidPostID(t *testing.T) {
 	client := createPostService()
-	_, err := client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: "123"},
-		})
+	_, err := doViewRequest(client, "123")
 	_, ok := err.(*InvalidPostIDError)
-
 	if !ok {
 		t.Fail()
 	}
@@ -161,54 +110,22 @@ func TestListReturnsAllPostsFromUserInReverseOrder(t *testing.T) {
 	client := createPostService()
 
 	userID := uuid.New().String()
-	client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: userID},
-			Post: &postpb.Post{Text: "post 1"},
-		})
-	client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: userID},
-			Post: &postpb.Post{Text: "post 2"},
-		})
-	client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: userID},
-			Post: &postpb.Post{Text: "post 3"},
-		})
+	doCreateRequest(client, userID, "post 1")
+	doCreateRequest(client, userID, "post 2")
+	doCreateRequest(client, userID, "post 3")
+	listResponse, _ := doListRequest(client, userID)
 
-	listResponse, _ := client.List(
-		context.Background(),
-		&postpb.ListRequest{
-			User: &postpb.User{ID: userID},
-		})
-
-	viewResponse, _ := client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: listResponse.Posts[0].ID},
-		})
+	viewResponse, _ := doViewRequest(client, listResponse.Posts[0].ID)
 	if viewResponse.Post.Text != "post 3" {
 		t.Fail()
 	}
 
-	viewResponse, _ = client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: listResponse.Posts[1].ID},
-		})
+	viewResponse, _ = doViewRequest(client, listResponse.Posts[1].ID)
 	if viewResponse.Post.Text != "post 2" {
 		t.Fail()
 	}
 
-	viewResponse, _ = client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: listResponse.Posts[2].ID},
-		})
+	viewResponse, _ = doViewRequest(client, listResponse.Posts[2].ID)
 	if viewResponse.Post.Text != "post 1" {
 		t.Fail()
 	}
@@ -218,45 +135,17 @@ func TestListReturnsPostsFromCorrectUser(t *testing.T) {
 	client := createPostService()
 	userID := uuid.New().String()
 
-	client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: userID},
-			Post: &postpb.Post{Text: "post 1"},
-		})
-	client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: uuid.New().String()},
-			Post: &postpb.Post{Text: "post 2"},
-		})
-	client.Create(
-		context.Background(),
-		&postpb.CreateRequest{
-			User: &postpb.User{ID: userID},
-			Post: &postpb.Post{Text: "post 3"},
-		})
+	doCreateRequest(client, userID, "post 1")
+	doCreateRequest(client, uuid.New().String(), "post 2")
+	doCreateRequest(client, userID, "post 3")
+	listResponse, _ := doListRequest(client, userID)
 
-	listResponse, _ := client.List(
-		context.Background(),
-		&postpb.ListRequest{
-			User: &postpb.User{ID: userID},
-		})
-
-	viewResponse, _ := client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: listResponse.Posts[0].ID},
-		})
+	viewResponse, _ := doViewRequest(client, listResponse.Posts[0].ID)
 	if viewResponse.Post.Text != "post 3" {
 		t.Fail()
 	}
 
-	viewResponse, _ = client.View(
-		context.Background(),
-		&postpb.ViewRequest{
-			Post: &postpb.Post{ID: listResponse.Posts[1].ID},
-		})
+	viewResponse, _ = doViewRequest(client, listResponse.Posts[1].ID)
 	if viewResponse.Post.Text != "post 1" {
 		t.Fail()
 	}
@@ -264,12 +153,7 @@ func TestListReturnsPostsFromCorrectUser(t *testing.T) {
 
 func TestListReturnsEmptyPostsListWithUnknownUserID(t *testing.T) {
 	client := createPostService()
-	userID := uuid.New().String()
-	listResponse, err := client.List(
-		context.Background(),
-		&postpb.ListRequest{
-			User: &postpb.User{ID: userID},
-		})
+	listResponse, err := doListRequest(client, uuid.New().String())
 
 	if err != nil {
 		t.Fail()
