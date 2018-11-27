@@ -13,3 +13,7 @@ type StubClient struct {
 func (s StubClient) Create(ctx context.Context, in *postpb.CreateRequest, opts ...grpc.CallOption) (*postpb.CreateResponse, error) {
 	return s.service.Create(ctx, in)
 }
+
+func (s StubClient) View(ctx context.Context, in *postpb.ViewRequest, opts ...grpc.CallOption) (*postpb.ViewResponse, error) {
+	return s.service.View(ctx, in)
+}

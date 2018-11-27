@@ -35,22 +35,22 @@ func (stub *StubService) Create(ctx context.Context, request *postpb.CreateReque
 }
 
 func generateTimestamp() *postpb.Timestamp {
-	return &postpb.Timestamp{EpochSeconds: time.Now().Unix()}
+	return &postpb.Timestamp{EpochNanoseconds: time.Now().UnixNano()}
 }
 
 func prepend(slice []*postpb.Post, obj *postpb.Post) []*postpb.Post {
 	return append([]*postpb.Post{obj}, slice...)
 }
 
-// func (stub *StubService) View(ctx context.Context, request *postpb.ViewRequest) (*postpb.ViewResponse, error) {
-// 	post, ok := stub.PostCache[request.Post.ID]
+func (stub *StubService) View(ctx context.Context, request *postpb.ViewRequest) (*postpb.ViewResponse, error) {
+	post, ok := stub.PostCache[request.Post.ID]
 
-// 	if !ok {
-// 		return ViewPostResponse{}, &InvalidPostIDError{PostID: request.Post.ID}
-// 	}
+	if !ok {
+		return nil, &InvalidPostIDError{PostID: request.Post.ID}
+	}
 
-// 	return ViewPostResponse{Text: post.Text, Timestamp: post.Timestamp}, nil
-// }
+	return &postpb.ViewResponse{Post: post}, nil
+}
 
 // func (stub *StubService) List(request ListPostsRequest) (ListPostsResponse, error) {
 // 	postIDs, _ := stub.UserPostsCache[request.UserID]

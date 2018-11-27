@@ -22,5 +22,5 @@ message Post {
 }
 
 message Timestamp {
-  int64 EpochSeconds = 1;
+  int64 EpochNanoseconds = 1;
 }

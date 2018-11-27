@@ -7,6 +7,7 @@ import "post.proto";
 
 service Post {
   rpc Create(CreateRequest) returns (CreateResponse);
+  rpc View(ViewRequest) returns (ViewResponse);
 }
 
 message CreateRequest {
@@ -15,5 +16,13 @@ message CreateRequest {
 }
 
 message CreateResponse {
+  post.model.Post Post = 1;
+}
+
+message ViewRequest {
+  post.model.Post Post = 1;
+}
+
+message ViewResponse {
   post.model.Post Post = 1;
 }

@@ -38,8 +38,8 @@ func (s StubService) View(ctx context.Context, request *feedpb.ViewRequest) (*fe
 	// Must use a Lamport clock (monotonically increasing integer with consensus protocol)
 	// to safely provide total ordering even with distributed processing.
 	sort.Slice(posts, func(i, j int) bool {
-		postI := time.Unix(posts[i].Timestamp.EpochSeconds, 0)
-		postJ := time.Unix(posts[j].Timestamp.EpochSeconds, 0)
+		postI := time.Unix(posts[i].Timestamp.EpochNanoseconds, 0)
+		postJ := time.Unix(posts[j].Timestamp.EpochNanoseconds, 0)
 
 		return postJ.Before(postI)
 	})
@@ -74,7 +74,7 @@ func (s StubService) PostsForUser(userId string, username string) []*feedpb.Post
 			log.Printf("Encountered an error viewing post %v.\n", response.PostIDs[j])
 		} else {
 			postedBy := &feedpb.User{Name: username, ID: userId}
-			postedAt := &feedpb.Timestamp{EpochSeconds: postResponse.Timestamp.Unix()}
+			postedAt := &feedpb.Timestamp{EpochNanoseconds: postResponse.Timestamp.UnixNano()}
 			posts = append(posts, &feedpb.Post{User: postedBy, Text: postResponse.Text, Timestamp: postedAt})
 		}
 	}
