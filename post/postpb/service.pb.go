@@ -186,17 +186,97 @@ func (m *ViewResponse) GetPost() *Post {
 	return nil
 }
 
+type ListRequest struct {
+	User                 *User    `protobuf:"bytes,1,opt,name=User,proto3" json:"User,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ListRequest) Reset()         { *m = ListRequest{} }
+func (m *ListRequest) String() string { return proto.CompactTextString(m) }
+func (*ListRequest) ProtoMessage()    {}
+func (*ListRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{4}
+}
+
+func (m *ListRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListRequest.Unmarshal(m, b)
+}
+func (m *ListRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListRequest.Marshal(b, m, deterministic)
+}
+func (m *ListRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListRequest.Merge(m, src)
+}
+func (m *ListRequest) XXX_Size() int {
+	return xxx_messageInfo_ListRequest.Size(m)
+}
+func (m *ListRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListRequest proto.InternalMessageInfo
+
+func (m *ListRequest) GetUser() *User {
+	if m != nil {
+		return m.User
+	}
+	return nil
+}
+
+type ListResponse struct {
+	Posts                []*Post  `protobuf:"bytes,1,rep,name=Posts,proto3" json:"Posts,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ListResponse) Reset()         { *m = ListResponse{} }
+func (m *ListResponse) String() string { return proto.CompactTextString(m) }
+func (*ListResponse) ProtoMessage()    {}
+func (*ListResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{5}
+}
+
+func (m *ListResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListResponse.Unmarshal(m, b)
+}
+func (m *ListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListResponse.Marshal(b, m, deterministic)
+}
+func (m *ListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListResponse.Merge(m, src)
+}
+func (m *ListResponse) XXX_Size() int {
+	return xxx_messageInfo_ListResponse.Size(m)
+}
+func (m *ListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListResponse proto.InternalMessageInfo
+
+func (m *ListResponse) GetPosts() []*Post {
+	if m != nil {
+		return m.Posts
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*CreateRequest)(nil), "post.service.CreateRequest")
 	proto.RegisterType((*CreateResponse)(nil), "post.service.CreateResponse")
 	proto.RegisterType((*ViewRequest)(nil), "post.service.ViewRequest")
 	proto.RegisterType((*ViewResponse)(nil), "post.service.ViewResponse")
+	proto.RegisterType((*ListRequest)(nil), "post.service.ListRequest")
+	proto.RegisterType((*ListResponse)(nil), "post.service.ListResponse")
 }
 
 func init() { proto.RegisterFile("service.proto", fileDescriptor_a0b84a42fa06f626) }
 
 var fileDescriptor_a0b84a42fa06f626 = []byte{
-	// 209 bytes of a gzipped FileDescriptorProto
+	// 251 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2d, 0x4e, 0x2d, 0x2a,
 	0xcb, 0x4c, 0x4e, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x29, 0xc8, 0x2f, 0x2e, 0xd1,
 	0x83, 0x8a, 0x49, 0x71, 0x81, 0x79, 0x60, 0x19, 0xa5, 0x68, 0x2e, 0x5e, 0xe7, 0xa2, 0xd4, 0xc4,
@@ -205,12 +285,14 @@ var fileDescriptor_a0b84a42fa06f626 = []byte{
 	0x1c, 0x3d, 0x90, 0x78, 0x10, 0x58, 0x16, 0xa4, 0x2a, 0x20, 0xbf, 0xb8, 0x44, 0x82, 0x09, 0x53,
 	0x15, 0x48, 0x3c, 0x08, 0x2c, 0xab, 0x64, 0xc6, 0xc5, 0x07, 0x33, 0xbc, 0xb8, 0x20, 0x3f, 0xaf,
 	0x38, 0x15, 0xae, 0x8f, 0x11, 0xaf, 0x3e, 0x63, 0x2e, 0xee, 0xb0, 0xcc, 0xd4, 0x72, 0x24, 0x27,
-	0x11, 0xa1, 0xc9, 0x84, 0x8b, 0x07, 0xa2, 0x89, 0x14, 0xab, 0x8c, 0xba, 0x18, 0x21, 0xca, 0x84,
-	0x9c, 0xb9, 0xd8, 0x20, 0x6e, 0x15, 0x92, 0xd6, 0x43, 0x0e, 0x2d, 0x3d, 0x94, 0xe0, 0x91, 0x92,
-	0xc1, 0x2e, 0x09, 0xb5, 0xd3, 0x96, 0x8b, 0x05, 0xe4, 0x06, 0x21, 0x49, 0x54, 0x55, 0x48, 0x9e,
-	0x91, 0x92, 0xc2, 0x26, 0x05, 0xd1, 0xee, 0xc4, 0x11, 0xc5, 0x06, 0x92, 0x2c, 0x48, 0x4a, 0x62,
-	0x03, 0xc7, 0x8e, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x24, 0x40, 0xff, 0xe6, 0xc8, 0x01, 0x00,
-	0x00,
+	0x11, 0xa1, 0xc9, 0x84, 0x8b, 0x07, 0xa2, 0x89, 0x54, 0xab, 0x7c, 0x32, 0x8b, 0x4b, 0x48, 0xf2,
+	0xbd, 0x92, 0x19, 0x17, 0x0f, 0x44, 0x13, 0xd4, 0x2a, 0x35, 0x2e, 0x56, 0x90, 0x61, 0xc5, 0x12,
+	0x8c, 0x0a, 0xcc, 0x58, 0xed, 0x82, 0x48, 0x1b, 0x9d, 0x64, 0x84, 0xb8, 0x49, 0xc8, 0x99, 0x8b,
+	0x0d, 0x12, 0x30, 0x42, 0xd2, 0x7a, 0xc8, 0x51, 0xa3, 0x87, 0x12, 0x17, 0x52, 0x32, 0xd8, 0x25,
+	0xa1, 0xb6, 0xda, 0x72, 0xb1, 0x80, 0x3c, 0x2c, 0x24, 0x89, 0xaa, 0x0a, 0x29, 0xe4, 0xa4, 0xa4,
+	0xb0, 0x49, 0x21, 0xb4, 0x83, 0x3c, 0x81, 0xae, 0x1d, 0x29, 0x34, 0xd0, 0xb5, 0x23, 0xfb, 0xd9,
+	0x89, 0x23, 0x8a, 0x0d, 0x24, 0x59, 0x90, 0x94, 0xc4, 0x06, 0x4e, 0x49, 0xc6, 0x80, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0xbc, 0x58, 0xbb, 0x2c, 0x74, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -227,6 +309,7 @@ const _ = grpc.SupportPackageIsVersion4
 type PostClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
 	View(ctx context.Context, in *ViewRequest, opts ...grpc.CallOption) (*ViewResponse, error)
+	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
 }
 
 type postClient struct {
@@ -255,10 +338,20 @@ func (c *postClient) View(ctx context.Context, in *ViewRequest, opts ...grpc.Cal
 	return out, nil
 }
 
+func (c *postClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
+	out := new(ListResponse)
+	err := c.cc.Invoke(ctx, "/post.service.Post/List", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostServer is the server API for Post service.
 type PostServer interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
 	View(context.Context, *ViewRequest) (*ViewResponse, error)
+	List(context.Context, *ListRequest) (*ListResponse, error)
 }
 
 func RegisterPostServer(s *grpc.Server, srv PostServer) {
@@ -301,6 +394,24 @@ func _Post_View_Handler(srv interface{}, ctx context.Context, dec func(interface
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Post_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.service.Post/List",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServer).List(ctx, req.(*ListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Post_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "post.service.Post",
 	HandlerType: (*PostServer)(nil),
@@ -312,6 +423,10 @@ var _Post_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "View",
 			Handler:    _Post_View_Handler,
+		},
+		{
+			MethodName: "List",
+			Handler:    _Post_List_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

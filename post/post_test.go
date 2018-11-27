@@ -157,59 +157,125 @@ func TestViewReturnsErrorWithInvalidPostID(t *testing.T) {
 	}
 }
 
-// func TestListReturnsAllPostsFromUserInReverseOrder(t *testing.T) {
-// 	client := createPostService()
-// 	userID := uuid.New().String()
-// 	client.Create(CreatePostRequest{UserID: userID, Text: "post 1"})
-// 	client.Create(CreatePostRequest{UserID: userID, Text: "post 2"})
-// 	client.Create(CreatePostRequest{UserID: userID, Text: "post 3"})
-// 	listResponse, _ := client.List(ListPostsRequest{UserID: userID})
+func TestListReturnsAllPostsFromUserInReverseOrder(t *testing.T) {
+	client := createPostService()
 
-// 	viewResponse, _ := client.View(ViewPostRequest{PostID: listResponse.PostIDs[0]})
-// 	if viewResponse.Post.Text != "post 3" {
-// 		t.Fail()
-// 	}
+	userID := uuid.New().String()
+	client.Create(
+		context.Background(),
+		&postpb.CreateRequest{
+			User: &postpb.User{ID: userID},
+			Post: &postpb.Post{Text: "post 1"},
+		})
+	client.Create(
+		context.Background(),
+		&postpb.CreateRequest{
+			User: &postpb.User{ID: userID},
+			Post: &postpb.Post{Text: "post 2"},
+		})
+	client.Create(
+		context.Background(),
+		&postpb.CreateRequest{
+			User: &postpb.User{ID: userID},
+			Post: &postpb.Post{Text: "post 3"},
+		})
 
-// 	viewResponse, _ = client.View(ViewPostRequest{PostID: listResponse.PostIDs[1]})
-// 	if viewResponse.Post.Text != "post 2" {
-// 		t.Fail()
-// 	}
+	listResponse, _ := client.List(
+		context.Background(),
+		&postpb.ListRequest{
+			User: &postpb.User{ID: userID},
+		})
 
-// 	viewResponse, _ = client.View(ViewPostRequest{PostID: listResponse.PostIDs[2]})
-// 	if viewResponse.Post.Text != "post 1" {
-// 		t.Fail()
-// 	}
-// }
+	viewResponse, _ := client.View(
+		context.Background(),
+		&postpb.ViewRequest{
+			Post: &postpb.Post{ID: listResponse.Posts[0].ID},
+		})
+	if viewResponse.Post.Text != "post 3" {
+		t.Fail()
+	}
 
-// func TestListReturnsPostsFromCorrectUser(t *testing.T) {
-// 	client := createPostService()
-// 	userID := uuid.New().String()
-// 	client.Create(CreatePostRequest{UserID: userID, Text: "post 1"})
-// 	client.Create(CreatePostRequest{UserID: uuid.New().String(), Text: "post 2"})
-// 	client.Create(CreatePostRequest{UserID: userID, Text: "post 3"})
-// 	listResponse, _ := client.List(ListPostsRequest{UserID: userID})
+	viewResponse, _ = client.View(
+		context.Background(),
+		&postpb.ViewRequest{
+			Post: &postpb.Post{ID: listResponse.Posts[1].ID},
+		})
+	if viewResponse.Post.Text != "post 2" {
+		t.Fail()
+	}
 
-// 	viewResponse, _ := client.View(ViewPostRequest{PostID: listResponse.PostIDs[0]})
-// 	if viewResponse.Post.Text != "post 3" {
-// 		t.Fail()
-// 	}
+	viewResponse, _ = client.View(
+		context.Background(),
+		&postpb.ViewRequest{
+			Post: &postpb.Post{ID: listResponse.Posts[2].ID},
+		})
+	if viewResponse.Post.Text != "post 1" {
+		t.Fail()
+	}
+}
 
-// 	viewResponse, _ = client.View(ViewPostRequest{PostID: listResponse.PostIDs[1]})
-// 	if viewResponse.Post.Text != "post 1" {
-// 		t.Fail()
-// 	}
-// }
+func TestListReturnsPostsFromCorrectUser(t *testing.T) {
+	client := createPostService()
+	userID := uuid.New().String()
 
-// func TestListReturnsEmptyPostsListWithUnknownUserID(t *testing.T) {
-// 	client := createPostService()
-// 	userID := uuid.New().String()
-// 	listResponse, err := client.List(ListPostsRequest{UserID: userID})
+	client.Create(
+		context.Background(),
+		&postpb.CreateRequest{
+			User: &postpb.User{ID: userID},
+			Post: &postpb.Post{Text: "post 1"},
+		})
+	client.Create(
+		context.Background(),
+		&postpb.CreateRequest{
+			User: &postpb.User{ID: uuid.New().String()},
+			Post: &postpb.Post{Text: "post 2"},
+		})
+	client.Create(
+		context.Background(),
+		&postpb.CreateRequest{
+			User: &postpb.User{ID: userID},
+			Post: &postpb.Post{Text: "post 3"},
+		})
 
-// 	if err != nil {
-// 		t.Fail()
-// 	}
+	listResponse, _ := client.List(
+		context.Background(),
+		&postpb.ListRequest{
+			User: &postpb.User{ID: userID},
+		})
 
-// 	if len(listResponse.PostIDs) != 0 {
-// 		t.Fail()
-// 	}
-// }
+	viewResponse, _ := client.View(
+		context.Background(),
+		&postpb.ViewRequest{
+			Post: &postpb.Post{ID: listResponse.Posts[0].ID},
+		})
+	if viewResponse.Post.Text != "post 3" {
+		t.Fail()
+	}
+
+	viewResponse, _ = client.View(
+		context.Background(),
+		&postpb.ViewRequest{
+			Post: &postpb.Post{ID: listResponse.Posts[1].ID},
+		})
+	if viewResponse.Post.Text != "post 1" {
+		t.Fail()
+	}
+}
+
+func TestListReturnsEmptyPostsListWithUnknownUserID(t *testing.T) {
+	client := createPostService()
+	userID := uuid.New().String()
+	listResponse, err := client.List(
+		context.Background(),
+		&postpb.ListRequest{
+			User: &postpb.User{ID: userID},
+		})
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if len(listResponse.Posts) != 0 {
+		t.Fail()
+	}
+}

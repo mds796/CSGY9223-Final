@@ -52,7 +52,7 @@ func (stub *StubService) View(ctx context.Context, request *postpb.ViewRequest) 
 	return &postpb.ViewResponse{Post: post}, nil
 }
 
-// func (stub *StubService) List(request ListPostsRequest) (ListPostsResponse, error) {
-// 	postIDs, _ := stub.UserPostsCache[request.UserID]
-// 	return ListPostsResponse{PostIDs: postIDs}, nil
-// }
+func (stub *StubService) List(ctx context.Context, request *postpb.ListRequest) (*postpb.ListResponse, error) {
+	posts, _ := stub.UserPostsCache[request.User.ID]
+	return &postpb.ListResponse{Posts: posts}, nil
+}

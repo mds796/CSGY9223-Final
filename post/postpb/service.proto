@@ -8,6 +8,7 @@ import "post.proto";
 service Post {
   rpc Create(CreateRequest) returns (CreateResponse);
   rpc View(ViewRequest) returns (ViewResponse);
+  rpc List(ListRequest) returns (ListResponse);
 }
 
 message CreateRequest {
@@ -25,4 +26,12 @@ message ViewRequest {
 
 message ViewResponse {
   post.model.Post Post = 1;
+}
+
+message ListRequest {
+  post.model.User User = 1;
+}
+
+message ListResponse {
+  repeated post.model.Post Posts = 1;
 }

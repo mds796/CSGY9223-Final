@@ -17,3 +17,7 @@ func (s StubClient) Create(ctx context.Context, in *postpb.CreateRequest, opts .
 func (s StubClient) View(ctx context.Context, in *postpb.ViewRequest, opts ...grpc.CallOption) (*postpb.ViewResponse, error) {
 	return s.service.View(ctx, in)
 }
+
+func (s StubClient) List(ctx context.Context, in *postpb.ListRequest, opts ...grpc.CallOption) (*postpb.ListResponse, error) {
+	return s.service.List(ctx, in)
+}
