@@ -23,7 +23,8 @@ $ export PATH=$PATH:$GOPATH/bin
 
 ## Build
 ```bash
-$ git clone git@github.com:mds796/CSGY9223-Final.git ~/go
+$ mkdir ~/go/src/github.com/mds796
+$ git clone git@github.com:mds796/CSGY9223-Final.git ~/go/src/github.com/mds796/CSGY9223-Final
 $ cd CSGY9223-Final/static/
 $ npm install
 $ go get github.com/google/uuid github.com/pkg/errors github.com/spf13/cobra
