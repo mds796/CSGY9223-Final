@@ -38,7 +38,7 @@ class TimestampCard extends PolymerElement {
 
   dateString(timestamp) {
     const date = new Date(0);
-    date.setUTCSeconds(timestamp);
+    date.setUTCMilliseconds(timestamp/1e6);
     return date
   }
 }
