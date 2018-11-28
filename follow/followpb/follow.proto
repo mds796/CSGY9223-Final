@@ -1,0 +1,9 @@
+syntax="proto3";
+package follow.model;
+
+option go_package= "followpb";
+
+message User {
+  string ID = 1;
+  string Name = 2;
+}

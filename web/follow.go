@@ -1,8 +1,9 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/mds796/CSGY9223-Final/follow"
+	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/user"
 	"log"
 	"net/http"
@@ -46,9 +47,19 @@ func (srv *HttpService) toggleFollowStatus(r *http.Request) error {
 	}
 
 	if followStatus == "true" {
-		_, err = srv.FollowService.Follow(follow.FollowRequest{FollowerUserID: response.UserID, FollowedUserID: userResponse.Uuid})
+		_, err = srv.FollowService.Follow(
+			context.Background(),
+			&followpb.FollowRequest{
+				FollowerUser: &followpb.User{ID: response.UserID},
+				FollowedUser: &followpb.User{ID: userResponse.Uuid},
+			})
 	} else {
-		_, err = srv.FollowService.Unfollow(follow.UnfollowRequest{FollowerUserID: response.UserID, FollowedUserID: userResponse.Uuid})
+		_, err = srv.FollowService.Unfollow(
+			context.Background(),
+			&followpb.UnfollowRequest{
+				FollowerUser: &followpb.User{ID: response.UserID},
+				FollowedUser: &followpb.User{ID: userResponse.Uuid},
+			})
 	}
 
 	return err
@@ -81,7 +92,11 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 		return nil, err
 	}
 
-	viewResponse, err := srv.FollowService.View(follow.ViewRequest{UserID: response.UserID})
+	viewResponse, err := srv.FollowService.View(
+		context.Background(),
+		&followpb.ViewRequest{
+			User: &followpb.User{ID: response.UserID},
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +116,8 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 		}
 	}
 
-	for i := range viewResponse.UserIDs {
-		data, ok := followsCache[viewResponse.UserIDs[i]]
+	for _, user := range viewResponse.Users {
+		data, ok := followsCache[user.ID]
 		if ok {
 			data.Follow = true
 		}

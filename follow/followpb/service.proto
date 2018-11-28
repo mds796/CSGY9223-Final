@@ -1,0 +1,36 @@
+syntax="proto3";
+package follow.service;
+
+option go_package= "followpb";
+
+import "follow.proto";
+
+service Follow {
+  rpc Follow(FollowRequest) returns (FollowResponse);
+  rpc Unfollow(UnfollowRequest) returns (UnfollowResponse);
+  rpc View(ViewRequest) returns (ViewResponse);
+}
+
+message FollowRequest {
+  follow.model.User FollowerUser = 1;
+  follow.model.User FollowedUser = 2;
+}
+
+message FollowResponse {
+}
+
+message UnfollowRequest {
+  follow.model.User FollowerUser = 1;
+  follow.model.User FollowedUser = 2;
+}
+
+message UnfollowResponse {
+}
+
+message ViewRequest {
+  follow.model.User User = 1;
+}
+
+message ViewResponse {
+  repeated follow.model.User Users = 1;
+}

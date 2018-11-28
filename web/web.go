@@ -6,6 +6,7 @@ import (
 	"github.com/mds796/CSGY9223-Final/feed"
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
+	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
@@ -22,7 +23,7 @@ type HttpService struct {
 	UserService   user.Service
 	AuthService   auth.Service
 	PostService   postpb.PostClient
-	FollowService follow.Service
+	FollowService followpb.FollowClient
 	FeedService   feedpb.FeedClient
 }
 
@@ -76,7 +77,7 @@ func New(config *Config) Service {
 	service.UserService = user.CreateStub()
 	service.AuthService = auth.CreateStub(service.UserService)
 	service.PostService = post.NewStubClient(post.CreateStub())
-	service.FollowService = follow.CreateStub(service.UserService)
+	service.FollowService = follow.NewStubClient(follow.CreateStub(service.UserService))
 
 	// Use this value once the feed service is updated to use thew gRPC user, post, and follow clients
 	_, err := feed.NewClient(config.FeedTarget())
@@ -103,7 +104,7 @@ func newStubService(host string, port uint16, staticPath string) *HttpService {
 	userService := user.CreateStub()
 	authService := auth.CreateStub(userService)
 	postService := post.NewStubClient(post.CreateStub())
-	followService := follow.CreateStub(userService)
+	followService := follow.NewStubClient(follow.CreateStub(userService))
 	feedService := feed.NewStubClient(feed.NewStubServer(postService, userService, followService))
 
 	service.UserService = userService

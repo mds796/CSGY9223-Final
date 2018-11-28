@@ -4,16 +4,17 @@ import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
+	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
 	"testing"
 )
 
-func createFeed() (*StubClient, user.Service, postpb.PostClient, follow.Service) {
+func createFeed() (*StubClient, user.Service, postpb.PostClient, followpb.FollowClient) {
 	userService := user.CreateStub()
 	postService := post.NewStubClient(post.CreateStub())
-	followService := follow.CreateStub(userService)
+	followService := follow.NewStubClient(follow.CreateStub(userService))
 
 	return &StubClient{service: &StubService{User: userService, Post: postService, Follow: followService}}, userService, postService, followService
 }
@@ -81,7 +82,7 @@ func TestStubService_View_WithUserFollowedPost(t *testing.T) {
 
 	userResponse, _ := u.Create(user.CreateUserRequest{Username: "fake123"})
 	otherUserResponse, _ := u.Create(user.CreateUserRequest{Username: "fake234"})
-	_, err := f.Follow(follow.FollowRequest{FollowerUserID: userResponse.Uuid, FollowedUserID: otherUserResponse.Uuid})
+	_, err := f.Follow(context.Background(), &followpb.FollowRequest{FollowerUser: &followpb.User{ID: userResponse.Uuid}, FollowedUser: &followpb.User{ID: otherUserResponse.Uuid}})
 	if err != nil {
 		t.Fatalf("Unable to follow other user.")
 	}
@@ -112,6 +113,8 @@ func TestStubService_View_WithUsersFollowedNoPost(t *testing.T) {
 	userResponse, _ := u.Create(user.CreateUserRequest{Username: "fake123"})
 	otherUserResponse, _ := u.Create(user.CreateUserRequest{Username: "fake234"})
 	_, err := f.Follow(follow.FollowRequest{FollowerUserID: userResponse.Uuid, FollowedUserID: otherUserResponse.Uuid})
+
+	_, err := f.Follow(context.Background(), &followpb.FollowRequest{FollowerUser: &followpb.User{ID: userResponse.Uuid}, FollowedUser: &followpb.User{ID: otherUserResponse.Uuid}})
 	if err != nil {
 		t.Fatalf("Unable to follow other user.")
 	}

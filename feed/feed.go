@@ -3,6 +3,7 @@ package feed
 import (
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
+	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
@@ -33,12 +34,12 @@ func (s *RpcService) Start() error {
 func New(config *Config) *RpcService {
 	userService := user.CreateStub()
 	postService := post.NewStubClient(post.NewStubServer())
-	followService := follow.CreateStub(userService)
+	followService := follow.NewStubClient(follow.NewStubServer(userService))
 
 	return &RpcService{config: config, service: NewStubServer(postService, userService, followService)}
 }
 
-func NewStubServer(postService postpb.PostClient, userService user.Service, followService follow.Service) *StubService {
+func NewStubServer(postService postpb.PostClient, userService user.Service, followService followpb.FollowClient) *StubService {
 	return &StubService{Post: postService, Follow: followService, User: userService}
 }
 

@@ -3,7 +3,7 @@ package feed
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
-	"github.com/mds796/CSGY9223-Final/follow"
+	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
 	"google.golang.org/grpc"
@@ -13,7 +13,7 @@ import (
 
 type StubService struct {
 	Post   postpb.PostClient
-	Follow follow.Service
+	Follow followpb.FollowClient
 	User   user.Service
 }
 
@@ -79,18 +79,18 @@ func (s StubService) PostsForUser(userId string, username string) []*feedpb.Post
 }
 
 func (s StubService) ListFollowed(userId string) ([]*user.ViewUserResponse, error) {
-	viewResponse, err := s.Follow.View(follow.ViewRequest{UserID: userId})
+	viewResponse, err := s.Follow.View(context.Background(), &followpb.ViewRequest{User: &followpb.User{ID: userId}})
 	if err != nil {
 		return nil, err
 	}
 
-	userIds := make([]*user.ViewUserResponse, 0, len(viewResponse.UserIDs))
+	userIds := make([]*user.ViewUserResponse, 0, len(viewResponse.Users))
 
-	for i := range viewResponse.UserIDs {
-		response, err := s.User.View(user.ViewUserRequest{UserID: viewResponse.UserIDs[i]})
+	for i := range viewResponse.Users {
+		response, err := s.User.View(user.ViewUserRequest{UserID: viewResponse.Users[i].ID})
 
 		if err != nil {
-			log.Printf("Encountered an error viewing user %v.\n", viewResponse.UserIDs[i])
+			log.Printf("Encountered an error viewing user %v.\n", viewResponse.Users[i].ID)
 		} else {
 			userIds = append(userIds, &response)
 		}
