@@ -112,8 +112,6 @@ func TestStubService_View_WithUsersFollowedNoPost(t *testing.T) {
 
 	userResponse, _ := u.Create(user.CreateUserRequest{Username: "fake123"})
 	otherUserResponse, _ := u.Create(user.CreateUserRequest{Username: "fake234"})
-	_, err := f.Follow(follow.FollowRequest{FollowerUserID: userResponse.Uuid, FollowedUserID: otherUserResponse.Uuid})
-
 	_, err := f.Follow(context.Background(), &followpb.FollowRequest{FollowerUser: &followpb.User{ID: userResponse.Uuid}, FollowedUser: &followpb.User{ID: otherUserResponse.Uuid}})
 	if err != nil {
 		t.Fatalf("Unable to follow other user.")
@@ -135,7 +133,7 @@ func TestStubService_View_ListPostsByReverseCreateOrder(t *testing.T) {
 
 	userResponse, _ := u.Create(user.CreateUserRequest{Username: "fake123"})
 	otherUserResponse, _ := u.Create(user.CreateUserRequest{Username: "fake234"})
-	_, err := f.Follow(follow.FollowRequest{FollowerUserID: userResponse.Uuid, FollowedUserID: otherUserResponse.Uuid})
+	_, err := f.Follow(context.Background(), &followpb.FollowRequest{FollowerUser: &followpb.User{ID: userResponse.Uuid}, FollowedUser: &followpb.User{ID: otherUserResponse.Uuid}})
 	if err != nil {
 		t.Fatalf("Unable to follow other user.")
 	}
