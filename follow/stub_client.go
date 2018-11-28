@@ -21,3 +21,7 @@ func (s StubClient) Unfollow(ctx context.Context, in *followpb.UnfollowRequest, 
 func (s StubClient) View(ctx context.Context, in *followpb.ViewRequest, opts ...grpc.CallOption) (*followpb.ViewResponse, error) {
 	return s.service.View(ctx, in)
 }
+
+func (s StubClient) Search(ctx context.Context, in *followpb.SearchRequest, opts ...grpc.CallOption) (*followpb.SearchResponse, error) {
+	return s.service.Search(ctx, in)
+}

@@ -87,40 +87,21 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 		return []byte("[]"), nil
 	}
 
-	userResponse, err := srv.UserService.Search(user.SearchUserRequest{Query: query})
-	if err != nil {
-		return nil, err
-	}
-
-	viewResponse, err := srv.FollowService.View(
+	searchResponse, err := srv.FollowService.Search(
 		context.Background(),
-		&followpb.ViewRequest{
-			User: &followpb.User{ID: response.UserID},
+		&followpb.SearchRequest{
+			User:  &followpb.User{ID: response.UserID},
+			Query: query,
 		})
 	if err != nil {
 		return nil, err
 	}
 
-	followsCache := make(map[string]*Follow, len(userResponse.UserIDs))
-	follows := Follows{Follows: make([]*Follow, 0, len(userResponse.UserIDs))}
-
-	for i := range userResponse.UserIDs {
-		id := userResponse.UserIDs[i]
-		name := userResponse.Usernames[i]
-
-		if name != response.Username {
-			data := &Follow{Name: name, Follow: false}
-
-			followsCache[id] = data
-			follows.Follows = append(follows.Follows, data)
-		}
-	}
-
-	for _, user := range viewResponse.Users {
-		data, ok := followsCache[user.ID]
-		if ok {
-			data.Follow = true
-		}
+	follows := Follows{Follows: make([]*Follow, 0, len(searchResponse.Users))}
+	for _, followedUser := range searchResponse.Users {
+		userResponse, _ := srv.UserService.View(user.ViewUserRequest{UserID: followedUser.ID})
+		data := &Follow{Name: userResponse.Username, Follow: followedUser.Followed}
+		follows.Follows = append(follows.Follows, data)
 	}
 
 	bytes, err := json.Marshal(follows)

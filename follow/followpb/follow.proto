@@ -5,5 +5,5 @@ option go_package= "followpb";
 
 message User {
   string ID = 1;
-  string Name = 2;
+  bool Followed = 2;
 }
