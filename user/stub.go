@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/google/uuid"
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"strings"
 )
 
@@ -19,7 +20,7 @@ func CreateStub() Service {
 	return stub
 }
 
-func (s *StubService) Create(request CreateUserRequest) (CreateUserResponse, error) {
+func (s *StubService) Create(ctx context.Context, request *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
 	// ensure this username meets the minimum requirements
 	if len(request.Username) < MIN_USERNAME {
 		return CreateUserResponse{}, &CreateUserError{request.Username}
@@ -42,7 +43,7 @@ func (s *StubService) Create(request CreateUserRequest) (CreateUserResponse, err
 	return response, nil
 }
 
-func (s *StubService) View(request ViewUserRequest) (ViewUserResponse, error) {
+func (s *StubService) View(request *userpb.ViewUserRequest) (*userpb.ViewUserResponse, error) {
 	if id, ok := s.UsernameCache[request.Username]; ok {
 		// username exists
 		return ViewUserResponse{Uuid: id, Username: request.Username}, nil
@@ -54,7 +55,7 @@ func (s *StubService) View(request ViewUserRequest) (ViewUserResponse, error) {
 	}
 }
 
-func (s *StubService) Search(request SearchUserRequest) (SearchUserResponse, error) {
+func (s *StubService) Search(request *userpb.SearchUserRequest) (*userpb.SearchUserResponse, error) {
 	// find uuids that match given query
 	var usernames []string
 	var userIds []string

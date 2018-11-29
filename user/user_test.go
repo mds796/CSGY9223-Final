@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"testing"
 )
 
@@ -14,7 +15,7 @@ func contains(s []string, e string) bool {
 }
 
 func TestUserCreateBasic(t *testing.T) {
-	service := CreateStub()
+	service := &StubClient{service: CreateStub()}
 
 	request := CreateUserRequest{Username: "mksavic"}
 	_, err := service.Create(request)

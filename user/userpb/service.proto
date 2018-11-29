@@ -1,0 +1,38 @@
+syntax="proto3";
+
+package user.service;
+
+option go_package = "userpb";
+
+service User {
+	rpc Create(CreateUserRequest) returns (CreateUserResponse);
+	rpc View(ViewUserRequest) returns (ViewUserResponse);
+	rpc Search(SearchUserRequest) returns (SearchUserResponse);
+}
+
+message CreateUserRequest {
+	string Username = 1;
+}
+
+message CreateUserRequest {
+	string UID =1;
+}
+
+message ViewUserRequest {
+	string Username = 1;
+	string UID = 2;
+}
+
+message ViewUserResponse {
+	string Username = 1;
+	string UID = 2;
+}
+
+message SearchUserRequest {
+	string Query = 1;
+}
+
+message SearchUserResponse{
+	repeated string Usernames = 1;
+	repeated string UIDs = 2;
+}
