@@ -14,7 +14,7 @@ message CreateUserRequest {
 	string Username = 1;
 }
 
-message CreateUserRequest {
+message CreateUserResponse {
 	string UID =1;
 }
 

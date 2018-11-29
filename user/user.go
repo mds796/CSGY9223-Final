@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/mds796/CSGY9223-Final/user"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"google.golang.org/grpc"
 	"log"
