@@ -1,6 +1,8 @@
 package user
 
 import (
+	"context"
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"testing"
 )
 
@@ -13,11 +15,27 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func TestUserCreateBasic(t *testing.T) {
-	service := CreateStub()
+func createUserService() *StubClient {
+	return &StubClient{service: CreateStub()}
+}
 
-	request := CreateUserRequest{Username: "mksavic"}
-	_, err := service.Create(request)
+func sendCreateUserRequest(client *StubClient, request *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
+	return client.Create(context.Background(), request)
+}
+
+func sendViewUserRequest(client *StubClient, request *userpb.ViewUserRequest) (*userpb.ViewUserResponse, error) {
+	return client.View(context.Background(), request)
+}
+
+func sendSearchUserRequest(client *StubClient, request *userpb.SearchUserRequest) (*userpb.SearchUserResponse, error) {
+	return client.Search(context.Background(), request)
+}
+
+func TestUserCreateBasic(t *testing.T) {
+	client := createUserService()
+
+	request := &userpb.CreateUserRequest{Username: "mksavic"}
+	_, err := sendCreateUserRequest(client, request)
 
 	if err != nil {
 		t.Fail()
@@ -25,12 +43,12 @@ func TestUserCreateBasic(t *testing.T) {
 }
 
 func TestUserCreateExists(t *testing.T) {
-	service := CreateStub()
+	client := createUserService()
 
-	request := CreateUserRequest{Username: "mksavic"}
-	service.Create(request)
+	request := &userpb.CreateUserRequest{Username: "mksavic"}
+	sendCreateUserRequest(client, request)
 
-	_, err := service.Create(request)
+	_, err := sendCreateUserRequest(client, request)
 
 	if err == nil {
 		t.Fail()
@@ -38,13 +56,13 @@ func TestUserCreateExists(t *testing.T) {
 }
 
 func TestUserViewBasic(t *testing.T) {
-	service := CreateStub()
+	client := createUserService()
 
-	createRequest := CreateUserRequest{Username: "mksavic"}
-	service.Create(createRequest)
+	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
+	sendCreateUserRequest(client, createRequest)
 
-	request := ViewUserRequest{Username: "mksavic"}
-	_, err := service.View(request)
+	request := &userpb.ViewUserRequest{Username: "mksavic"}
+	_, err := sendViewUserRequest(client, request)
 
 	if err != nil {
 		t.Fail()
@@ -52,10 +70,10 @@ func TestUserViewBasic(t *testing.T) {
 }
 
 func TestUserViewDoesNotExist(t *testing.T) {
-	service := CreateStub()
+	client := createUserService()
 
-	request := ViewUserRequest{Username: "mksavic"}
-	_, err := service.View(request)
+	request := &userpb.ViewUserRequest{Username: "mksavic"}
+	_, err := sendViewUserRequest(client, request)
 
 	if err == nil {
 		t.Fail()
@@ -63,13 +81,13 @@ func TestUserViewDoesNotExist(t *testing.T) {
 }
 
 func TestUserSearchBasic(t *testing.T) {
-	service := CreateStub()
+	client := createUserService()
 
-	createRequest := CreateUserRequest{Username: "mksavic"}
-	service.Create(createRequest)
+	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
+	sendCreateUserRequest(client, createRequest)
 
-	request := SearchUserRequest{Query: "sav"}
-	response, _ := service.Search(request)
+	request := &userpb.SearchUserRequest{Query: "sav"}
+	response, _ := sendSearchUserRequest(client, request)
 
 	if len(response.Usernames) != 1 {
 		t.Fail()
@@ -81,10 +99,10 @@ func TestUserSearchBasic(t *testing.T) {
 }
 
 func TestUserSearchDoesNotExist(t *testing.T) {
-	service := CreateStub()
+	client := createUserService()
 
-	request := SearchUserRequest{Query: "sav"}
-	response, _ := service.Search(request)
+	request := &userpb.SearchUserRequest{Query: "sav"}
+	response, _ := sendSearchUserRequest(client, request)
 
 	if len(response.Usernames) > 0 {
 		t.Fail()
@@ -92,19 +110,19 @@ func TestUserSearchDoesNotExist(t *testing.T) {
 }
 
 func TestUserSearchMulti(t *testing.T) {
-	service := CreateStub()
+	client := createUserService()
 
-	createRequest := CreateUserRequest{Username: "mksavic"}
-	service.Create(createRequest)
+	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
+	sendCreateUserRequest(client, createRequest)
 
-	createRequest = CreateUserRequest{Username: "mds796"}
-	service.Create(createRequest)
+	createRequest = &userpb.CreateUserRequest{Username: "mds796"}
+	sendCreateUserRequest(client, createRequest)
 
-	createRequest = CreateUserRequest{Username: "mvp307"}
-	service.Create(createRequest)
+	createRequest = &userpb.CreateUserRequest{Username: "mvp307"}
+	sendCreateUserRequest(client, createRequest)
 
-	request := SearchUserRequest{Query: "s"}
-	response, _ := service.Search(request)
+	request := &userpb.SearchUserRequest{Query: "s"}
+	response, _ := sendSearchUserRequest(client, request)
 
 	if len(response.Usernames) != 2 {
 		t.Fail()
