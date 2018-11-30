@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"net/http"
 )
 
 type RegisterAuthError struct {
@@ -15,7 +14,7 @@ type LoginAuthError struct {
 }
 
 type VerifyAuthError struct {
-	Cookie http.Cookie
+	Cookie string
 }
 
 type LogoutAuthError struct {
@@ -31,7 +30,7 @@ func (e *LoginAuthError) Error() string {
 }
 
 func (e *VerifyAuthError) Error() string {
-	return fmt.Sprintf("[AUTH]: Invalid cookie %s.", e.Cookie.String())
+	return fmt.Sprintf("[AUTH]: Invalid cookie %s.", e.Cookie)
 }
 
 func (e *LogoutAuthError) Error() string {

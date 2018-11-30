@@ -1,0 +1,47 @@
+syntax="proto3";
+
+package auth.service;
+
+option go_package = "authpb";
+
+service Auth {
+	rpc Register(RegisterAuthRequest) returns (RegisterAuthResponse);
+	rpc Login(LoginAuthRequest) returns (LoginAuthResponse);
+	rpc Verify(VerifyAuthRequest) returns (VerifyAuthResponse);
+	rpc Logout(LogoutAuthRequest) returns (LogoutAuthResponse);
+}
+
+message RegisterAuthRequest {
+	string Username = 1;
+	string Password = 2;
+}
+
+message RegisterAuthResponse {
+	string Cookie = 1;
+}
+
+message LoginAuthRequest {
+	string Username = 1;
+	string Password = 2;
+}
+
+message LoginAuthResponse {
+	string Cookie = 1;
+}
+
+message VerifyAuthRequest {
+	string Cookie = 1;
+}
+
+message VerifyAuthResponse {
+	string Username = 1;
+	string UID = 2;
+}
+
+message LogoutAuthRequest {
+	string Username = 1;
+	string Cookie = 2;
+}
+
+message LogoutAuthResponse {
+}
