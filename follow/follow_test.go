@@ -5,15 +5,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/user"
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"testing"
 )
 
-func createFollowService() (*StubClient, user.Service) {
-	userService := user.CreateStub()
+func createFollowService() (*StubClient, *user.StubClient) {
+	userService := user.NewStubClient(user.CreateStub())
 	return &StubClient{service: CreateStub(userService)}, userService
 }
 
-func createUsers(userService user.Service, usernames ...string) []string {
+func createUsers(userService *user.StubClient, usernames ...string) []string {
 	uuids := []string{}
 	for _, username := range usernames {
 		uuids = append(uuids, createUser(userService, username))
@@ -21,9 +22,10 @@ func createUsers(userService user.Service, usernames ...string) []string {
 	return uuids
 }
 
-func createUser(userService user.Service, username string) string {
-	userResponse, _ := userService.Create(user.CreateUserRequest{Username: username})
-	return userResponse.Uuid
+func createUser(userService *user.StubClient, username string) string {
+	createUserRequest := &userpb.CreateUserRequest{Username: username}
+	createUserResponse, _ := userService.Create(context.Background(), createUserRequest)
+	return createUserResponse.UID
 }
 
 func followUser(followService *StubClient, followerUserID string, followedUserID string) (*followpb.FollowResponse, error) {

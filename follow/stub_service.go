@@ -3,11 +3,11 @@ package follow
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
-	"github.com/mds796/CSGY9223-Final/user"
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 )
 
 type StubService struct {
-	User user.Service
+	User userpb.UserClient
 
 	// Storing connections in adjacency list allows to follow and unfollow in
 	// O(n) time and retrieve list of followers in O(1).
@@ -18,7 +18,7 @@ type StubService struct {
 	FollowingGraph map[string][]*followpb.User
 }
 
-func CreateStub(userService user.Service) *StubService {
+func CreateStub(userService userpb.UserClient) *StubService {
 	stub := new(StubService)
 	stub.User = userService
 	stub.FollowingGraph = make(map[string][]*followpb.User)
@@ -27,12 +27,12 @@ func CreateStub(userService user.Service) *StubService {
 
 func (stub *StubService) Follow(ctx context.Context, request *followpb.FollowRequest) (*followpb.FollowResponse, error) {
 	// Validate user IDs
-	ok := stub.validateUserID(request.FollowerUser.ID)
+	ok := stub.validateUserID(ctx, request.FollowerUser.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.FollowerUser.ID}
 	}
 
-	ok = stub.validateUserID(request.FollowedUser.ID)
+	ok = stub.validateUserID(ctx, request.FollowedUser.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.FollowedUser.ID}
 	}
@@ -56,12 +56,12 @@ func (stub *StubService) Follow(ctx context.Context, request *followpb.FollowReq
 
 func (stub *StubService) Unfollow(ctx context.Context, request *followpb.UnfollowRequest) (*followpb.UnfollowResponse, error) {
 	// Validate user IDs
-	ok := stub.validateUserID(request.FollowerUser.ID)
+	ok := stub.validateUserID(ctx, request.FollowerUser.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.FollowerUser.ID}
 	}
 
-	ok = stub.validateUserID(request.FollowedUser.ID)
+	ok = stub.validateUserID(ctx, request.FollowedUser.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.FollowedUser.ID}
 	}
@@ -80,7 +80,7 @@ func (stub *StubService) Unfollow(ctx context.Context, request *followpb.Unfollo
 func (stub *StubService) View(ctx context.Context, request *followpb.ViewRequest) (*followpb.ViewResponse, error) {
 
 	// Validate user ID
-	ok := stub.validateUserID(request.User.ID)
+	ok := stub.validateUserID(ctx, request.User.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.User.ID}
 	}
@@ -93,12 +93,12 @@ func (stub *StubService) View(ctx context.Context, request *followpb.ViewRequest
 func (stub *StubService) Search(ctx context.Context, request *followpb.SearchRequest) (*followpb.SearchResponse, error) {
 
 	// // Validate user ID
-	ok := stub.validateUserID(request.User.ID)
+	ok := stub.validateUserID(ctx, request.User.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.User.ID}
 	}
 
-	userResponse, err := stub.User.Search(user.SearchUserRequest{Query: request.Query})
+	userResponse, err := stub.User.Search(ctx, &userpb.SearchUserRequest{Query: request.Query})
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (stub *StubService) Search(ctx context.Context, request *followpb.SearchReq
 	response := []*followpb.User{}
 
 	// Caution: sub-optimal O(n^2) search
-	for _, userID := range userResponse.UserIDs {
+	for _, userID := range userResponse.UIDs {
 		if userID != request.User.ID {
 			followed := false
 
@@ -124,8 +124,8 @@ func (stub *StubService) Search(ctx context.Context, request *followpb.SearchReq
 	return &followpb.SearchResponse{Users: response}, nil
 }
 
-func (stub *StubService) validateUserID(userID string) bool {
-	_, err := stub.User.View(user.ViewUserRequest{UserID: userID})
+func (stub *StubService) validateUserID(ctx context.Context, userID string) bool {
+	_, err := stub.User.View(ctx, &userpb.ViewUserRequest{UID: userID})
 	if err != nil {
 		return false
 	}
