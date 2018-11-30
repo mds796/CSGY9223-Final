@@ -34,8 +34,8 @@ func sendSearchUserRequest(client *StubClient, request *userpb.SearchUserRequest
 func TestUserCreateBasic(t *testing.T) {
 	client := createUserService()
 
-	request := &userpb.CreateUserRequest{Username: "mksavic"}
-	_, err := sendCreateUserRequest(client, request)
+	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
+	_, err := sendCreateUserRequest(client, createRequest)
 
 	if err != nil {
 		t.Fail()
@@ -45,10 +45,10 @@ func TestUserCreateBasic(t *testing.T) {
 func TestUserCreateExists(t *testing.T) {
 	client := createUserService()
 
-	request := &userpb.CreateUserRequest{Username: "mksavic"}
-	sendCreateUserRequest(client, request)
+	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
+	sendCreateUserRequest(client, createRequest)
 
-	_, err := sendCreateUserRequest(client, request)
+	_, err := sendCreateUserRequest(client, createRequest)
 
 	if err == nil {
 		t.Fail()
@@ -61,8 +61,8 @@ func TestUserViewBasic(t *testing.T) {
 	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
 	sendCreateUserRequest(client, createRequest)
 
-	request := &userpb.ViewUserRequest{Username: "mksavic"}
-	_, err := sendViewUserRequest(client, request)
+	viewRequest := &userpb.ViewUserRequest{Username: "mksavic"}
+	_, err := sendViewUserRequest(client, viewRequest)
 
 	if err != nil {
 		t.Fail()
@@ -72,8 +72,8 @@ func TestUserViewBasic(t *testing.T) {
 func TestUserViewDoesNotExist(t *testing.T) {
 	client := createUserService()
 
-	request := &userpb.ViewUserRequest{Username: "mksavic"}
-	_, err := sendViewUserRequest(client, request)
+	viewRequest := &userpb.ViewUserRequest{Username: "mksavic"}
+	_, err := sendViewUserRequest(client, viewRequest)
 
 	if err == nil {
 		t.Fail()
@@ -86,8 +86,8 @@ func TestUserSearchBasic(t *testing.T) {
 	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
 	sendCreateUserRequest(client, createRequest)
 
-	request := &userpb.SearchUserRequest{Query: "sav"}
-	response, _ := sendSearchUserRequest(client, request)
+	searchRequest := &userpb.SearchUserRequest{Query: "sav"}
+	response, _ := sendSearchUserRequest(client, searchRequest)
 
 	if len(response.Usernames) != 1 {
 		t.Fail()
@@ -101,8 +101,8 @@ func TestUserSearchBasic(t *testing.T) {
 func TestUserSearchDoesNotExist(t *testing.T) {
 	client := createUserService()
 
-	request := &userpb.SearchUserRequest{Query: "sav"}
-	response, _ := sendSearchUserRequest(client, request)
+	searchRequest := &userpb.SearchUserRequest{Query: "sav"}
+	response, _ := sendSearchUserRequest(client, searchRequest)
 
 	if len(response.Usernames) > 0 {
 		t.Fail()
@@ -121,8 +121,8 @@ func TestUserSearchMulti(t *testing.T) {
 	createRequest = &userpb.CreateUserRequest{Username: "mvp307"}
 	sendCreateUserRequest(client, createRequest)
 
-	request := &userpb.SearchUserRequest{Query: "s"}
-	response, _ := sendSearchUserRequest(client, request)
+	searchRequest := &userpb.SearchUserRequest{Query: "s"}
+	response, _ := sendSearchUserRequest(client, searchRequest)
 
 	if len(response.Usernames) != 2 {
 		t.Fail()
