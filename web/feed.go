@@ -30,7 +30,7 @@ func (srv *HttpService) listFeedPosts(r *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	viewResponse, err := srv.FeedService.View(context.Background(), &feedpb.ViewRequest{User: &feedpb.User{ID: response.UserID, Name: response.Username}})
+	viewResponse, err := srv.FeedService.View(context.Background(), &feedpb.ViewRequest{User: &feedpb.User{ID: response.UID, Name: response.Username}})
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (srv *HttpService) createPost(r *http.Request) error {
 		return err
 	}
 
-	request := &postpb.CreateRequest{User: &postpb.User{ID: response.UserID}, Post: &postpb.Post{Text: string(bytes)}}
+	request := &postpb.CreateRequest{User: &postpb.User{ID: response.UID}, Post: &postpb.Post{Text: string(bytes)}}
 	_, err = srv.PostService.Create(context.Background(), request)
 
 	return err

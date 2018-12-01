@@ -3,13 +3,19 @@ package web
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/auth"
+
+	"github.com/mds796/CSGY9223-Final/auth/authpb"
 	"github.com/mds796/CSGY9223-Final/feed"
+
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
+
+	"github.com/mds796/CSGY9223-Final/user/userpb"
+
 	"log"
 	"net/http"
 	"path/filepath"
@@ -20,8 +26,8 @@ type HttpService struct {
 	StaticPath    string
 	Multiplexer   *http.ServeMux
 	Server        *http.Server
-	UserService   user.Service
-	AuthService   auth.Service
+	UserService   userpb.UserClient
+	AuthService   authpb.AuthClient
 	PostService   postpb.PostClient
 	FollowService followpb.FollowClient
 	FeedService   feedpb.FeedClient
@@ -74,8 +80,8 @@ func (srv *HttpService) listenAndServe() {
 func New(config *Config) Service {
 	service := newService(config.Target(), config.StaticPath)
 
-	service.UserService = user.CreateStub()
-	service.AuthService = auth.CreateStub(service.UserService)
+	service.UserService = user.NewStubClient(user.NewStubServer())
+	service.AuthService = auth.NewStubClient(auth.CreateStub(service.UserService))
 	service.PostService = post.NewStubClient(post.CreateStub())
 	service.FollowService = follow.NewStubClient(follow.CreateStub(service.UserService))
 
@@ -101,8 +107,8 @@ func newService(target string, staticPath string) *HttpService {
 func newStubService(host string, port uint16, staticPath string) *HttpService {
 	service := newService(host+":"+strconv.Itoa(int(port)), staticPath)
 
-	userService := user.CreateStub()
-	authService := auth.CreateStub(userService)
+	userService := user.NewStubClient(user.CreateStub())
+	authService := auth.NewStubClient(auth.CreateStub(userService))
 	postService := post.NewStubClient(post.CreateStub())
 	followService := follow.NewStubClient(follow.CreateStub(userService))
 	feedService := feed.NewStubClient(feed.NewStubServer(postService, userService, followService))

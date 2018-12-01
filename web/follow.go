@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
-	"github.com/mds796/CSGY9223-Final/user"
+
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"log"
 	"net/http"
 )
@@ -41,7 +42,7 @@ func (srv *HttpService) toggleFollowStatus(r *http.Request) error {
 		return err
 	}
 
-	userResponse, err := srv.UserService.View(user.ViewUserRequest{Username: followedUser})
+	userResponse, err := srv.UserService.View(context.Background(), &userpb.ViewUserRequest{Username: followedUser})
 	if err != nil {
 		return err
 	}
@@ -50,15 +51,15 @@ func (srv *HttpService) toggleFollowStatus(r *http.Request) error {
 		_, err = srv.FollowService.Follow(
 			context.Background(),
 			&followpb.FollowRequest{
-				FollowerUser: &followpb.User{ID: response.UserID},
-				FollowedUser: &followpb.User{ID: userResponse.Uuid},
+				FollowerUser: &followpb.User{ID: response.UID},
+				FollowedUser: &followpb.User{ID: userResponse.UID},
 			})
 	} else {
 		_, err = srv.FollowService.Unfollow(
 			context.Background(),
 			&followpb.UnfollowRequest{
-				FollowerUser: &followpb.User{ID: response.UserID},
-				FollowedUser: &followpb.User{ID: userResponse.Uuid},
+				FollowerUser: &followpb.User{ID: response.UID},
+				FollowedUser: &followpb.User{ID: userResponse.UID},
 			})
 	}
 
@@ -90,7 +91,7 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 	searchResponse, err := srv.FollowService.Search(
 		context.Background(),
 		&followpb.SearchRequest{
-			User:  &followpb.User{ID: response.UserID},
+			User:  &followpb.User{ID: response.UID},
 			Query: query,
 		})
 	if err != nil {
@@ -99,7 +100,7 @@ func (srv *HttpService) listUsersWithFollowStatus(r *http.Request) ([]byte, erro
 
 	follows := Follows{Follows: make([]*Follow, 0, len(searchResponse.Users))}
 	for _, followedUser := range searchResponse.Users {
-		userResponse, _ := srv.UserService.View(user.ViewUserRequest{UserID: followedUser.ID})
+		userResponse, _ := srv.UserService.View(context.Background(), &userpb.ViewUserRequest{UID: followedUser.ID})
 		data := &Follow{Name: userResponse.Username, Follow: followedUser.Followed}
 		follows.Follows = append(follows.Follows, data)
 	}

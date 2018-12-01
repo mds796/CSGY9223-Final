@@ -1,7 +1,10 @@
 package web
 
 import (
+	"context"
 	"github.com/mds796/CSGY9223-Final/auth"
+
+	"github.com/mds796/CSGY9223-Final/auth/authpb"
 	"github.com/pkg/errors"
 	"io"
 	"log"
@@ -15,12 +18,13 @@ func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	username, password, err := getUserAndPassword(r.Body, true)
 
 	if err == nil {
-		response, err := srv.AuthService.Register(auth.RegisterAuthRequest{Username: username, Password: password})
+		response, err := srv.AuthService.Register(context.Background(), &authpb.RegisterAuthRequest{Username: username, Password: password})
 
 		if err == nil {
 			http.SetCookie(w, &http.Cookie{Name: "error", Value: "", Expires: time.Unix(0, 0)})
 			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
-			http.SetCookie(w, &response.Cookie)
+			responseCookie := auth.DecodeCookie(response.Cookie)
+			http.SetCookie(w, responseCookie)
 
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		} else {
@@ -73,12 +77,13 @@ func (srv *HttpService) LogInUser(w http.ResponseWriter, r *http.Request) {
 	username, password, err := getUserAndPassword(r.Body, false)
 
 	if err == nil {
-		response, err := srv.AuthService.Login(auth.LoginAuthRequest{Username: username, Password: password})
+		response, err := srv.AuthService.Login(context.Background(), &authpb.LoginAuthRequest{Username: username, Password: password})
 
 		if err == nil {
 			http.SetCookie(w, &http.Cookie{Name: "error", Value: "", Expires: time.Unix(0, 0)})
 			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
-			http.SetCookie(w, &response.Cookie)
+			responseCookie := auth.DecodeCookie(response.Cookie)
+			http.SetCookie(w, responseCookie)
 
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		} else {
@@ -112,7 +117,7 @@ func (srv *HttpService) logout(r *http.Request) (string, error) {
 		return "", err
 	}
 
-	_, err = srv.AuthService.Logout(auth.LogoutAuthRequest{Username: username, Cookie: *token})
+	_, err = srv.AuthService.Logout(context.Background(), &authpb.LogoutAuthRequest{Username: username, Cookie: token.String()})
 	if err != nil {
 		return "", err
 	}
@@ -138,16 +143,16 @@ func getUsernameAndToken(r *http.Request) (username string, token *http.Cookie, 
 	return usernameCookie.Value, tokenCookie, nil
 }
 
-func (srv *HttpService) verifyToken(r *http.Request) (*auth.VerifyAuthResponse, error) {
+func (srv *HttpService) verifyToken(r *http.Request) (*authpb.VerifyAuthResponse, error) {
 	_, token, err := getUsernameAndToken(r)
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := srv.AuthService.Verify(auth.VerifyAuthRequest{Cookie: *token})
+	response, err := srv.AuthService.Verify(context.Background(), &authpb.VerifyAuthRequest{Cookie: token.String()})
 	if err != nil {
 		return nil, err
 	}
 
-	return &response, nil
+	return response, nil
 }

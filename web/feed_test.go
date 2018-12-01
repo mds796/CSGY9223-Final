@@ -1,9 +1,10 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
-	"github.com/mds796/CSGY9223-Final/user"
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,7 +18,7 @@ func TestHttpService_FetchFeed(t *testing.T) {
 
 	followUser(t, service, recorder)
 	makePost(t, recorder, service)
-	response, _ := service.UserService.View(user.ViewUserRequest{Username: "fake234"})
+	response, _ := service.UserService.View(context.Background(), &userpb.ViewUserRequest{Username: "fake234"})
 
 	req, err := http.NewRequest("GET", "/feed", nil)
 	if err != nil {
@@ -35,7 +36,7 @@ func TestHttpService_FetchFeed(t *testing.T) {
 	}
 
 	posts := make([]*feedpb.Post, 1)
-	posts[0] = &feedpb.Post{Text: "Hello, World!", User: &feedpb.User{Name: "fake234", ID: response.Uuid}}
+	posts[0] = &feedpb.Post{Text: "Hello, World!", User: &feedpb.User{Name: "fake234", ID: response.UID}}
 	expected := feedpb.ViewResponse{Feed: &feedpb.Feed{Posts: posts}}
 
 	data := rr.Body.Bytes()
@@ -95,7 +96,7 @@ func TestHttpService_FetchFeed_OtherUserPosts(t *testing.T) {
 
 	followUser(t, service, recorder)
 	makePost(t, otherUserRecorder, service)
-	response, _ := service.UserService.View(user.ViewUserRequest{Username: "fake123"})
+	response, _ := service.UserService.View(context.Background(), &userpb.ViewUserRequest{Username: "fake123"})
 
 	req, err := http.NewRequest("GET", "/feed", nil)
 	if err != nil {
@@ -113,7 +114,7 @@ func TestHttpService_FetchFeed_OtherUserPosts(t *testing.T) {
 	}
 
 	posts := make([]*feedpb.Post, 1)
-	posts[0] = &feedpb.Post{Text: "Hello, World!", User: &feedpb.User{Name: "fake123", ID: response.Uuid}}
+	posts[0] = &feedpb.Post{Text: "Hello, World!", User: &feedpb.User{Name: "fake123", ID: response.UID}}
 	expected := &feedpb.Feed{Posts: posts}
 
 	data := rr.Body.Bytes()
