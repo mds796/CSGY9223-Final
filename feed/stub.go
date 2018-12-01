@@ -5,7 +5,7 @@ import (
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
-	"github.com/mds796/CSGY9223-Final/user"
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"google.golang.org/grpc"
 	"log"
 	"sort"
@@ -14,7 +14,7 @@ import (
 type StubService struct {
 	Post   postpb.PostClient
 	Follow followpb.FollowClient
-	User   user.Service
+	User   userpb.UserClient
 }
 
 func (s StubService) View(ctx context.Context, request *feedpb.ViewRequest) (*feedpb.ViewResponse, error) {
@@ -43,11 +43,11 @@ func (s StubService) View(ctx context.Context, request *feedpb.ViewRequest) (*fe
 	return &feedpb.ViewResponse{Feed: &feedpb.Feed{Posts: posts}}, nil
 }
 
-func (s StubService) ListPosts(followed []*user.ViewUserResponse) ([]*feedpb.Post, error) {
+func (s StubService) ListPosts(followed []*userpb.ViewUserResponse) ([]*feedpb.Post, error) {
 	posts := make([]*feedpb.Post, 0, len(followed))
 
 	for i := range followed {
-		postsForUser := s.PostsForUser(followed[i].Uuid, followed[i].Username)
+		postsForUser := s.PostsForUser(followed[i].UID, followed[i].Username)
 		posts = append(posts, postsForUser...)
 	}
 
@@ -78,21 +78,21 @@ func (s StubService) PostsForUser(userId string, username string) []*feedpb.Post
 	return posts
 }
 
-func (s StubService) ListFollowed(userId string) ([]*user.ViewUserResponse, error) {
+func (s StubService) ListFollowed(userId string) ([]*userpb.ViewUserResponse, error) {
 	viewResponse, err := s.Follow.View(context.Background(), &followpb.ViewRequest{User: &followpb.User{ID: userId}})
 	if err != nil {
 		return nil, err
 	}
 
-	userIds := make([]*user.ViewUserResponse, 0, len(viewResponse.Users))
+	userIds := make([]*userpb.ViewUserResponse, 0, len(viewResponse.Users))
 
 	for i := range viewResponse.Users {
-		response, err := s.User.View(user.ViewUserRequest{UserID: viewResponse.Users[i].ID})
+		response, err := s.User.View(context.Background(), &userpb.ViewUserRequest{UID: viewResponse.Users[i].ID})
 
 		if err != nil {
 			log.Printf("Encountered an error viewing user %v.\n", viewResponse.Users[i].ID)
 		} else {
-			userIds = append(userIds, &response)
+			userIds = append(userIds, response)
 		}
 	}
 

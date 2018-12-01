@@ -7,6 +7,7 @@ import (
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
 	"github.com/mds796/CSGY9223-Final/user"
+	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -32,14 +33,14 @@ func (s *RpcService) Start() error {
 }
 
 func New(config *Config) *RpcService {
-	userService := user.CreateStub()
+	userService := user.NewStubClient(user.NewStubServer())
 	postService := post.NewStubClient(post.NewStubServer())
 	followService := follow.NewStubClient(follow.NewStubServer(userService))
 
 	return &RpcService{config: config, service: NewStubServer(postService, userService, followService)}
 }
 
-func NewStubServer(postService postpb.PostClient, userService user.Service, followService followpb.FollowClient) *StubService {
+func NewStubServer(postService postpb.PostClient, userService userpb.UserClient, followService followpb.FollowClient) *StubService {
 	return &StubService{Post: postService, Follow: followService, User: userService}
 }
 
