@@ -80,7 +80,7 @@ func (srv *HttpService) listenAndServe() {
 func New(config *Config) Service {
 	service := newService(config.Target(), config.StaticPath)
 
-	service.UserService = user.NewStubClient(user.NewStubServer())
+	service.UserService = user.NewStubClient(user.CreateStub())
 	service.AuthService = auth.NewStubClient(auth.CreateStub(service.UserService))
 	service.PostService = post.NewStubClient(post.CreateStub())
 	service.FollowService = follow.NewStubClient(follow.CreateStub(service.UserService))
