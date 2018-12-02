@@ -33,9 +33,20 @@ func (s *RpcService) Start() error {
 }
 
 func New(config *Config) *RpcService {
-	userService := user.NewStubClient(user.NewStubServer())
-	postService := post.NewStubClient(post.NewStubServer())
-	followService := follow.NewStubClient(follow.NewStubServer(userService))
+	userService, err := user.NewClient(config.UserTarget())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	postService, err := post.NewClient(config.PostTarget())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	followService, err := follow.NewClient(config.FollowTarget())
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return &RpcService{config: config, service: NewStubServer(postService, userService, followService)}
 }

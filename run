@@ -26,7 +26,7 @@ function awaitServer()
     echo "$NAME has started."
 }
 
-cd static && npm run start -- --port=8000&
+cd static && npm run build:static && npm run start -- --port=8000 &
 awaitServer 8000 "static asset"
 
 go build
@@ -45,7 +45,7 @@ awaitServer 8084 "follow"
 ./CSGY9223-Final feed restart -H 0.0.0.0 -P 8085 &
 awaitServer 8085 "feed"
 
-./CSGY9223-Final web restart -H 0.0.0.0 &
+./CSGY9223-Final web restart -H 0.0.0.0 -U "" &
 awaitServer 8080 "web"
 
 ./warmup

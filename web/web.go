@@ -88,19 +88,41 @@ func (srv *HttpService) listenAndServe() {
 func New(config *Config) Service {
 	service := newService(config.Target(), config.StaticPath, config.StaticUrl)
 
-	service.UserService = user.NewStubClient(user.CreateStub())
-	service.AuthService = auth.NewStubClient(auth.CreateStub(service.UserService))
-	service.PostService = post.NewStubClient(post.CreateStub())
-	service.FollowService = follow.NewStubClient(follow.CreateStub(service.UserService))
-
-	// Use this value once the feed service is updated to use thew gRPC user, post, and follow clients
-	_, err := feed.NewClient(config.FeedTarget())
+	userService, err := user.NewClient(config.UserTarget())
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
 
-	service.FeedService = feed.NewStubClient(feed.NewStubServer(service.PostService, service.UserService, service.FollowService))
+	authService, err := auth.NewClient(config.AuthTarget())
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	postService, err := post.NewClient(config.PostTarget())
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	followService, err := follow.NewClient(config.FollowTarget())
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	feedService, err := feed.NewClient(config.FeedTarget())
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	service.UserService = userService
+	service.AuthService = authService
+	service.PostService = postService
+	service.FollowService = followService
+	service.FeedService = feedService
 
 	return service
 }

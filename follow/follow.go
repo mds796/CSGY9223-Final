@@ -31,7 +31,11 @@ func (s *RpcService) Start() error {
 }
 
 func New(config *Config) *RpcService {
-	userService := user.NewStubClient(user.CreateStub())
+	userService, err := user.NewClient(config.UserTarget())
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &RpcService{config: config, service: NewStubServer(userService)}
 }
 
