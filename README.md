@@ -52,7 +52,6 @@ Alternatively, you can just do:
 ```bash
 $ cd CSGY9223-Final/
 $ ./run
-$ ./raft.sh
 ```
 
 This command will execute all of the above steps. It allows the web server to serve updates to the static files.

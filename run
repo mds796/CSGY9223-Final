@@ -9,7 +9,7 @@ function awaitServer()
     NAME=$2
 
     while :; do # success
-        curl --fail -s http://localhost:${PORT}/ >> /dev/null
+        curl -s http://localhost:${PORT}/ >> /dev/null
         EXIT_CODE=$?
 
         if [[ ${EXIT_CODE} -eq 0 ]]; then # connection reset by peer
@@ -25,6 +25,9 @@ function awaitServer()
 
     echo "$NAME has started."
 }
+
+./raft.sh &
+awaitServer 2379 "etcd"
 
 cd static && npm run build:static && npm run start -- --port=8000 &
 awaitServer 8000 "static asset"
