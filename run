@@ -3,17 +3,49 @@
 # install NPM
 # run: cd static && npm install && npm install -g polymer-cli
 
-cd static && npm run build:static && cd ..
+function awaitServer()
+{
+    PORT=$1
+    NAME=$2
 
-./CSGY9223-Final user restart -H 0.0.0.0 &
-./CSGY9223-Final auth restart -H 0.0.0.0 &
-./CSGY9223-Final feed restart -H 0.0.0.0 &
-./CSGY9223-Final post restart -H 0.0.0.0 &
-./CSGY9223-Final follow restart -H 0.0.0.0 &
+    while :; do # success
+        curl --fail -s http://localhost:${PORT}/ >> /dev/null
+        EXIT_CODE=$?
+
+        if [[ ${EXIT_CODE} -eq 0 ]]; then # connection reset by peer
+            break
+        else
+            if [[ ${EXIT_CODE} -eq 56 ]]; then # connection reset by peer
+                break
+            else
+                echo "Waiting for $NAME server to start (exit code: $EXIT_CODE)..." && sleep 1
+            fi
+        fi
+    done
+
+    echo "$NAME has started."
+}
+
+cd static && npm run start -- --port=8000&
+awaitServer 8000 "static asset"
+
+go build
+./CSGY9223-Final user restart -H 0.0.0.0 -P 8081 &
+awaitServer 8081 "user"
+
+./CSGY9223-Final auth restart -H 0.0.0.0 -P 8082 &
+awaitServer 8082 "auth"
+
+./CSGY9223-Final post restart -H 0.0.0.0 -P 8083 &
+awaitServer 8083 "post"
+
+./CSGY9223-Final follow restart -H 0.0.0.0 -P 8084 &
+awaitServer 8084 "follow"
+
+./CSGY9223-Final feed restart -H 0.0.0.0 -P 8085 &
+awaitServer 8085 "feed"
+
 ./CSGY9223-Final web restart -H 0.0.0.0 &
-
-until $(curl -s http://localhost:8080/ >> /dev/null); do
-    echo "Waiting for web server to start..."
-done
+awaitServer 8080 "web"
 
 ./warmup

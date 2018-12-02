@@ -3,6 +3,8 @@ package web
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/auth"
+	"net/http/httputil"
+	"net/url"
 
 	"github.com/mds796/CSGY9223-Final/auth/authpb"
 	"github.com/mds796/CSGY9223-Final/feed"
@@ -24,6 +26,7 @@ import (
 
 type HttpService struct {
 	StaticPath    string
+	StaticUrl     *url.URL
 	Multiplexer   *http.ServeMux
 	Server        *http.Server
 	UserService   userpb.UserClient
@@ -56,7 +59,12 @@ func (srv *HttpService) configureRoutes() {
 	srv.Multiplexer.HandleFunc("/post", srv.MakePost)
 	srv.Multiplexer.HandleFunc("/follow", srv.ToggleFollow)
 	srv.Multiplexer.HandleFunc("/follows", srv.ListFollows)
-	srv.Multiplexer.HandleFunc("/", srv.ServeStatic)
+
+	if srv.StaticUrl == nil {
+		srv.Multiplexer.HandleFunc("/", srv.ServeStatic)
+	} else {
+		srv.Multiplexer.Handle("/", httputil.NewSingleHostReverseProxy(srv.StaticUrl))
+	}
 }
 
 func (srv *HttpService) ServeStatic(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +86,7 @@ func (srv *HttpService) listenAndServe() {
 
 // New creates a new Web service with nil dependencies.
 func New(config *Config) Service {
-	service := newService(config.Target(), config.StaticPath)
+	service := newService(config.Target(), config.StaticPath, config.StaticUrl)
 
 	service.UserService = user.NewStubClient(user.CreateStub())
 	service.AuthService = auth.NewStubClient(auth.CreateStub(service.UserService))
@@ -97,15 +105,22 @@ func New(config *Config) Service {
 	return service
 }
 
-func newService(target string, staticPath string) *HttpService {
+func newService(target string, staticPath string, staticUrl string) *HttpService {
 	mux := http.NewServeMux()
 	server := &http.Server{Addr: target, Handler: mux}
 
-	return &HttpService{StaticPath: staticPath, Multiplexer: mux, Server: server}
+	staticServer, err := url.Parse(staticUrl)
+	if staticUrl == "" || err != nil {
+		log.Printf("Did not receive a valid static server URL. Using static server directory instead. Error: %v", err)
+		staticServer = nil
+	}
+
+	return &HttpService{StaticPath: staticPath, StaticUrl: staticServer, Multiplexer: mux, Server: server}
 }
 
 func newStubService(host string, port uint16, staticPath string) *HttpService {
-	service := newService(host+":"+strconv.Itoa(int(port)), staticPath)
+	target := host + ":" + strconv.Itoa(int(port))
+	service := newService(target, staticPath, "")
 
 	userService := user.NewStubClient(user.CreateStub())
 	authService := auth.NewStubClient(auth.CreateStub(userService))

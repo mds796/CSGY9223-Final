@@ -40,6 +40,7 @@ func webSetStartArgs(command *cobra.Command) {
 	command.Flags().Uint16Var(&webConfig.FeedPort, "feedPort", 8085, "The TCP port feed service listens on.")
 
 	command.Flags().StringVarP(&webConfig.StaticPath, "staticPath", "S", "static/build/default", "The file path of the static assets directory.")
+	command.Flags().StringVarP(&webConfig.StaticUrl, "staticUrl", "U", "http://localhost:8000", "The URL path of the static assets server.")
 }
 
 var webCmd = &cobra.Command{

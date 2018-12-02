@@ -1,12 +1,16 @@
 package web
 
-import "strconv"
+import (
+	"strconv"
+)
 
 // Config is a configuration struct for the web service.
 type Config struct {
 	StaticPath string
-	Host       string
-	Port       uint16
+	StaticUrl  string
+
+	Host string
+	Port uint16
 
 	UserHost string
 	UserPort uint16
