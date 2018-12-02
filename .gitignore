@@ -6,3 +6,4 @@ CSGY9223-Final
 *.pid
 static/build/
 static/package-lock.json
+vendor/
