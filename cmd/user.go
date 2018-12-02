@@ -22,7 +22,7 @@ func init() {
 
 func userSetStartArgs(command *cobra.Command) {
 	command.Flags().StringVarP(&userConfig.Host, "host", "H", "localhost", "The host interface to listen on.")
-	command.Flags().Uint16VarP(&userConfig.Port, "port", "P", 8088, "The TCP port to listen on.")
+	command.Flags().Uint16VarP(&userConfig.Port, "port", "P", 8081, "The TCP port to listen on.")
 }
 
 var userCmd = &cobra.Command{

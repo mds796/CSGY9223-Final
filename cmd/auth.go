@@ -23,6 +23,10 @@ func init() {
 func authSetStartArgs(command *cobra.Command) {
 	command.Flags().StringVarP(&authConfig.Host, "host", "H", "localhost", "The host interface to listen on.")
 	command.Flags().Uint16VarP(&authConfig.Port, "port", "P", 8089, "The TCP port to listen on.")
+
+	command.Flags().StringVar(&authConfig.UserHost, "userHost", "localhost", "The hostname user service listens on.")
+	command.Flags().Uint16Var(&authConfig.UserPort, "userPort", 8081, "The TCP port user service listens on.")
+
 }
 
 var authCmd = &cobra.Command{

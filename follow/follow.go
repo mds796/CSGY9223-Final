@@ -40,7 +40,7 @@ func New(config *Config) *RpcService {
 }
 
 func NewStubServer(userService userpb.UserClient) *StubService {
-	return &StubService{User: userService}
+	return CreateStub(userService)
 }
 
 func NewClient(target string) (followpb.FollowClient, error) {

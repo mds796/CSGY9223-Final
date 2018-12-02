@@ -63,7 +63,15 @@ func (srv *HttpService) configureRoutes() {
 	if srv.StaticUrl == nil {
 		srv.Multiplexer.HandleFunc("/", srv.ServeStatic)
 	} else {
-		srv.Multiplexer.Handle("/", httputil.NewSingleHostReverseProxy(srv.StaticUrl))
+		proxy := httputil.NewSingleHostReverseProxy(srv.StaticUrl)
+		oldDirector := proxy.Director
+
+		proxy.Director = func(req *http.Request) {
+			oldDirector(req)
+			req.Method = "GET"
+		}
+
+		srv.Multiplexer.Handle("/", proxy)
 	}
 }
 

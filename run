@@ -45,7 +45,7 @@ awaitServer 8084 "follow"
 ./CSGY9223-Final feed restart -H 0.0.0.0 -P 8085 &
 awaitServer 8085 "feed"
 
-./CSGY9223-Final web restart -H 0.0.0.0 -U "" &
+./CSGY9223-Final web restart -H 0.0.0.0 &
 awaitServer 8080 "web"
 
 ./warmup

@@ -38,7 +38,7 @@ func New(config *Config) *RpcService {
 }
 
 func NewStubServer(userService userpb.UserClient) *StubService {
-	return &StubService{UserService: userService}
+	return CreateStub(userService)
 }
 
 func NewClient(target string) (authpb.AuthClient, error) {

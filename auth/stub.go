@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"github.com/mds796/CSGY9223-Final/auth/authpb"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
+	"log"
 	"net/http"
 	"time"
 )
@@ -45,6 +46,7 @@ func (s *StubService) Register(ctx context.Context, request *authpb.RegisterAuth
 
 	// something went wrong in user service
 	if err != nil {
+		log.Printf("[AUTH] %v", err)
 		return &authpb.RegisterAuthResponse{}, &RegisterAuthError{request.Username}
 	}
 
