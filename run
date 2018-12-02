@@ -5,13 +5,15 @@
 
 cd static && npm run build:static && cd ..
 
-go build
-
-./CSGY9223-Final web restart -H 0.0.0.0 &
 ./CSGY9223-Final user restart -H 0.0.0.0 &
 ./CSGY9223-Final auth restart -H 0.0.0.0 &
 ./CSGY9223-Final feed restart -H 0.0.0.0 &
 ./CSGY9223-Final post restart -H 0.0.0.0 &
 ./CSGY9223-Final follow restart -H 0.0.0.0 &
+./CSGY9223-Final web restart -H 0.0.0.0 &
 
-sleep 5 && ./warmup
+until $(curl -s http://localhost:8080/ >> /dev/null); do
+    echo "Waiting for web server to start..."
+done
+
+./warmup

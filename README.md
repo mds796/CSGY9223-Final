@@ -40,12 +40,19 @@ $ npm run build:static
 $ cd ../
 $ go build
 $ ./CSGY9223-Final web start&
+$ ./CSGY9223-Final user start&
+$ ./CSGY9223-Final auth start&
+$ ./CSGY9223-Final post start&
+$ ./CSGY9223-Final follow start&
+$ ./CSGY9223-Final feed start&
+$ ./raft.sh&
 ```
 
 Alternatively, you can just do:
 ```bash
 $ cd CSGY9223-Final/
 $ ./run
+$ ./raft.sh
 ```
 
 This command will execute all of the above steps. It allows the web server to serve updates to the static files.
@@ -54,4 +61,16 @@ This command will execute all of the above steps. It allows the web server to se
 ```bash
 $ cd CSGY9223-Final/
 $ ./CSGY9223-Final web stop
+$ ./CSGY9223-Final user stop
+$ ./CSGY9223-Final auth stop
+$ ./CSGY9223-Final post stop
+$ ./CSGY9223-Final follow stop
+$ ./CSGY9223-Final feed stop
+$ pgrep etcd | xargs kill -9
+```
+
+Alternatively, you can just do:
+```bash
+$ cd CSGY9223-Final/
+$ ./stop.sh
 ```
