@@ -28,6 +28,7 @@ func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		} else {
+			log.Println(err)
 			setErrorCookie(w, "Invalid register request.")
 			http.Redirect(w, r, "/#/register", http.StatusTemporaryRedirect)
 		}
