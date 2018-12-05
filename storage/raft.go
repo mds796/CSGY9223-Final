@@ -16,6 +16,11 @@ func (s *RaftStorage) Put(key string, value []byte) error {
 	return nil
 }
 
+func (s *RaftStorage) Delete(key string) error {
+	// implement me
+	return &InvalidKeyError{Key: key}
+}
+
 func (s *RaftStorage) Iterate() map[string][]byte {
 	return map[string][]byte{}
 }

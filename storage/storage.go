@@ -10,6 +10,7 @@ const (
 type Storage interface {
 	Get(key string) ([]byte, error)
 	Put(key string, value []byte) error
+	Delete(key string) error
 	Iterate() map[string][]byte
 }
 

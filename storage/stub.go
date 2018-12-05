@@ -22,6 +22,13 @@ func (s *StubStorage) Put(key string, value []byte) error {
 	return nil
 }
 
+func (s *StubStorage) Delete(key string) error {
+	if _, ok := s.storage[key]; ok {
+		delete(s.storage, key)
+	}
+	return &InvalidKeyError{Key: key}
+}
+
 func (s *StubStorage) Iterate() map[string][]byte {
 	return s.storage
 }
