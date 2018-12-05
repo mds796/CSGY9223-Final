@@ -2,6 +2,7 @@ package post
 
 import (
 	"github.com/mds796/CSGY9223-Final/post/postpb"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -31,7 +32,7 @@ func New(config *Config) *RpcService {
 }
 
 func NewStubServer() *StubService {
-	return CreateStub()
+	return CreateStub(storage.STUB)
 }
 
 func NewClient(target string) (postpb.PostClient, error) {
