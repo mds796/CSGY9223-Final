@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"google.golang.org/grpc"
 	"log"
@@ -31,7 +32,7 @@ func New(config *Config) *RpcService {
 }
 
 func NewStubServer() *StubService {
-	return CreateStub()
+	return CreateStub(storage.STUB)
 }
 
 func NewClient(target string) (userpb.UserClient, error) {

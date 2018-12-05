@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"strings"
 )
@@ -10,14 +11,14 @@ import (
 const MIN_USERNAME = 6
 
 type StubService struct {
-	UIDCache      map[string]string // (UID, username)
-	UsernameCache map[string]string // (username, UID)
+	UIDCache      storage.Storage // (UID, username)
+	UsernameCache storage.Storage // (username, UID)
 }
 
-func CreateStub() *StubService {
+func CreateStub(storageType storage.StorageType) *StubService {
 	stub := new(StubService)
-	stub.UIDCache = make(map[string]string)
-	stub.UsernameCache = make(map[string]string)
+	stub.UIDCache = storage.CreateStorage(storageType)
+	stub.UsernameCache = storage.CreateStorage(storageType)
 	return stub
 }
 
@@ -28,7 +29,7 @@ func (s *StubService) Create(ctx context.Context, request *userpb.CreateUserRequ
 	}
 
 	// ensure this username doesn't already exist
-	if _, ok := s.UsernameCache[request.Username]; ok {
+	if _, err := s.UsernameCache.Get(request.Username); err == nil {
 		return &userpb.CreateUserResponse{}, &CreateUserError{request.Username}
 	}
 
@@ -36,8 +37,8 @@ func (s *StubService) Create(ctx context.Context, request *userpb.CreateUserRequ
 	newUID := uuid.New().String()
 
 	// add the user
-	s.UIDCache[newUID] = request.Username
-	s.UsernameCache[request.Username] = newUID
+	s.UIDCache.Put(newUID, request.Username)
+	s.UsernameCache.Put(request.Username, newUID)
 
 	// create the response
 	response := &userpb.CreateUserResponse{UID: newUID}
@@ -45,10 +46,10 @@ func (s *StubService) Create(ctx context.Context, request *userpb.CreateUserRequ
 }
 
 func (s *StubService) View(ctx context.Context, request *userpb.ViewUserRequest) (*userpb.ViewUserResponse, error) {
-	if id, ok := s.UsernameCache[request.Username]; ok {
+	if id, err := s.UsernameCache.Get(request.Username); err == nil {
 		// username exists
 		return &userpb.ViewUserResponse{UID: id, Username: request.Username}, nil
-	} else if username, ok := s.UIDCache[request.UID]; ok {
+	} else if username, err := s.UIDCache.Get(request.UID); err == nil {
 		return &userpb.ViewUserResponse{UID: request.UID, Username: username}, nil
 	} else {
 		// username doesn't exist
@@ -60,7 +61,7 @@ func (s *StubService) Search(ctx context.Context, request *userpb.SearchUserRequ
 	// find UIDs that match given query
 	var usernames []string
 	var userIds []string
-	for username, userId := range s.UsernameCache {
+	for username, userId := range s.UsernameCache.Iterate() {
 		if strings.Contains(username, request.Query) {
 			usernames = append(usernames, username)
 			userIds = append(userIds, userId)
