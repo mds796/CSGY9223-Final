@@ -30,6 +30,7 @@ $ npm install
 $ go get github.com/google/uuid github.com/pkg/errors github.com/spf13/cobra
 $ go get -u google.golang.org/grpc
 $ go get github.com/etcd-io/etcd
+$ go get github.com/mattn/goreman
 ```
 
 ## Run
