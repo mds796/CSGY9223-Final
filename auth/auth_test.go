@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/mds796/CSGY9223-Final/auth/authpb"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user"
 	"testing"
 )
 
 func createAuthService() *StubClient {
-	userService := user.NewStubClient(user.CreateStub())
-	return &StubClient{service: CreateStub(userService)}
+	userService := user.NewStubClient(user.CreateStub(storage.STUB))
+	return &StubClient{service: CreateStub(storage.STUB, userService)}
 }
 
 func sendRegisterAuthRequest(client *StubClient, request *authpb.RegisterAuthRequest) (*authpb.RegisterAuthResponse, error) {

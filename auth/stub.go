@@ -5,22 +5,18 @@ import (
 	"context"
 	"crypto/sha256"
 	"github.com/mds796/CSGY9223-Final/auth/authpb"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"log"
 	"net/http"
 	"time"
 )
 
-const (
-	LOGGED_OUT = iota // LOGGED_OUT == 0
-	LOGGED_IN  = iota // LOGGED_IN == 1
-)
-
 type StubService struct {
 	UserService   userpb.UserClient
-	PasswordCache map[string][]byte // (UUID, sha256(password))
-	StatusCache   map[string]int    // (UUID, status)
-	CookieCache   map[string]string // (username, cookie)
+	PasswordCache storage.Storage // (UUID, sha256(password))
+	StatusCache   storage.Storage // (UUID, status)
+	CookieCache   storage.Storage // (username, cookie)
 }
 
 func DecodeCookie(cookie string) *http.Cookie {
@@ -30,12 +26,12 @@ func DecodeCookie(cookie string) *http.Cookie {
 	return request.Cookies()[0]
 }
 
-func CreateStub(userService userpb.UserClient) *StubService {
+func CreateStub(storageType storage.StorageType, userService userpb.UserClient) *StubService {
 	stub := new(StubService)
 	stub.UserService = userService
-	stub.PasswordCache = make(map[string][]byte)
-	stub.StatusCache = make(map[string]int)
-	stub.CookieCache = make(map[string]string)
+	stub.PasswordCache = storage.CreateStorage(storageType)
+	stub.StatusCache = storage.CreateStorage(storageType)
+	stub.CookieCache = storage.CreateStorage(storageType)
 	return stub
 }
 
@@ -53,11 +49,11 @@ func (s *StubService) Register(ctx context.Context, request *authpb.RegisterAuth
 	// register the user
 	h := sha256.New()
 	h.Write([]byte(request.Password))
-	s.PasswordCache[createUserResponse.UID] = h.Sum(nil)
-	s.StatusCache[createUserResponse.UID] = LOGGED_IN
+	s.PasswordCache.Put(createUserResponse.UID, h.Sum(nil))
+	s.StatusCache.Put(createUserResponse.UID, []byte("LOGGED_IN"))
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 	cookie := (&http.Cookie{Name: request.Username, Value: createUserResponse.UID, Expires: expiration}).String()
-	s.CookieCache[request.Username] = cookie
+	s.CookieCache.Put(request.Username, []byte(cookie))
 	return &authpb.RegisterAuthResponse{Cookie: cookie}, nil
 }
 
@@ -74,12 +70,13 @@ func (s *StubService) Login(ctx context.Context, request *authpb.LoginAuthReques
 	// check user password
 	h := sha256.New()
 	h.Write([]byte(request.Password))
-	if bytes.Equal(s.PasswordCache[viewUserResponse.UID], h.Sum(nil)) {
+	password, _ := s.PasswordCache.Get(viewUserResponse.UID)
+	if bytes.Equal(password, h.Sum(nil)) {
 		// login the user, their current status is irrelevant
-		s.StatusCache[viewUserResponse.UID] = LOGGED_IN
+		s.StatusCache.Put(viewUserResponse.UID, []byte("LOGGED_IN"))
 		expiration := time.Now().Add(365 * 24 * time.Hour)
 		cookie := (&http.Cookie{Name: request.Username, Value: viewUserResponse.UID, Expires: expiration}).String()
-		s.CookieCache[request.Username] = cookie
+		s.CookieCache.Put(request.Username, []byte(cookie))
 		return &authpb.LoginAuthResponse{Cookie: cookie}, nil
 	} else {
 		return &authpb.LoginAuthResponse{}, &LoginAuthError{request.Username, request.Password}
@@ -88,8 +85,8 @@ func (s *StubService) Login(ctx context.Context, request *authpb.LoginAuthReques
 
 func (s *StubService) Verify(ctx context.Context, request *authpb.VerifyAuthRequest) (*authpb.VerifyAuthResponse, error) {
 	// check if cookie is assigned to a username
-	for username, cookie := range s.CookieCache {
-		savedCookie := DecodeCookie(cookie)
+	for username, cookie := range s.CookieCache.Iterate() {
+		savedCookie := DecodeCookie(string(cookie))
 		requestCookie := DecodeCookie(request.Cookie)
 		if savedCookie.Name == requestCookie.Name && savedCookie.Path == requestCookie.Path && savedCookie.Value == requestCookie.Value {
 			response := &authpb.VerifyAuthResponse{Username: username, UID: savedCookie.Value}
@@ -112,7 +109,7 @@ func (s *StubService) Logout(ctx context.Context, request *authpb.LogoutAuthRequ
 	}
 
 	// logout the user, their current status is irrelevant
-	s.StatusCache[viewUserResponse.UID] = LOGGED_OUT
-	delete(s.CookieCache, request.Username)
+	s.StatusCache.Put(viewUserResponse.UID, []byte("LOGGED_OUT"))
+	s.CookieCache.Delete(request.Username)
 	return &authpb.LogoutAuthResponse{}, nil
 }

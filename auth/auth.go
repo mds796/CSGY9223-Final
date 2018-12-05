@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/mds796/CSGY9223-Final/auth/authpb"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"google.golang.org/grpc"
@@ -38,7 +39,7 @@ func New(config *Config) *RpcService {
 }
 
 func NewStubServer(userService userpb.UserClient) *StubService {
-	return CreateStub(userService)
+	return CreateStub(storage.STUB, userService)
 }
 
 func NewClient(target string) (authpb.AuthClient, error) {
