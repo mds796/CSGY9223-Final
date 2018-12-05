@@ -1,31 +1,27 @@
 package storage
 
 type StubStorage struct {
-	storage map[string]string
+	storage map[string][]byte
 }
 
 func CreateStubStorage() *StubStorage {
 	s := &StubStorage{}
-	s.storage = map[string]string{}
+	s.storage = map[string][]byte{}
 	return s
 }
 
-func (s *StubStorage) Get(key string) (string, error) {
+func (s *StubStorage) Get(key string) ([]byte, error) {
 	if value, ok := s.storage[key]; ok {
 		return value, nil
 	}
-	return "", &InvalidKeyError{Key: key}
+	return []byte(""), &InvalidKeyError{Key: key}
 }
 
-func (s *StubStorage) Put(key string, value string) error {
+func (s *StubStorage) Put(key string, value []byte) error {
 	s.storage[key] = value
 	return nil
 }
 
-func (s *StubStorage) Iterate() map[string]string { //(result []string) {
-	//for k := range s.storage {
-	//	result = append(result, k)
-	//}
-	//return result
+func (s *StubStorage) Iterate() map[string][]byte {
 	return s.storage
 }

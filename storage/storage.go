@@ -8,9 +8,9 @@ const (
 )
 
 type Storage interface {
-	Get(key string) (string, error)
-	Put(key string, value string) error
-	Iterate() map[string]string
+	Get(key string) ([]byte, error)
+	Put(key string, value []byte) error
+	Iterate() map[string][]byte
 }
 
 func CreateStorage(storageType StorageType) Storage {

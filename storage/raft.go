@@ -8,15 +8,14 @@ func CreateRaftStorage() *RaftStorage {
 	return s
 }
 
-func (s *RaftStorage) Get(key string) (string, error) {
-	return "", nil
+func (s *RaftStorage) Get(key string) ([]byte, error) {
+	return []byte(""), nil
 }
 
-func (s *RaftStorage) Put(key string, value string) error {
+func (s *RaftStorage) Put(key string, value []byte) error {
 	return nil
 }
 
-func (s *RaftStorage) Iterate() map[string]string { //[]string {
-	//return []string{}
-	return map[string]string{}
+func (s *RaftStorage) Iterate() map[string][]byte {
+	return map[string][]byte{}
 }

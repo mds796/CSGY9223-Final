@@ -37,8 +37,8 @@ func (s *StubService) Create(ctx context.Context, request *userpb.CreateUserRequ
 	newUID := uuid.New().String()
 
 	// add the user
-	s.UIDCache.Put(newUID, request.Username)
-	s.UsernameCache.Put(request.Username, newUID)
+	s.UIDCache.Put(newUID, []byte(request.Username))
+	s.UsernameCache.Put(request.Username, []byte(newUID))
 
 	// create the response
 	response := &userpb.CreateUserResponse{UID: newUID}
@@ -48,9 +48,9 @@ func (s *StubService) Create(ctx context.Context, request *userpb.CreateUserRequ
 func (s *StubService) View(ctx context.Context, request *userpb.ViewUserRequest) (*userpb.ViewUserResponse, error) {
 	if id, err := s.UsernameCache.Get(request.Username); err == nil {
 		// username exists
-		return &userpb.ViewUserResponse{UID: id, Username: request.Username}, nil
+		return &userpb.ViewUserResponse{UID: string(id), Username: request.Username}, nil
 	} else if username, err := s.UIDCache.Get(request.UID); err == nil {
-		return &userpb.ViewUserResponse{UID: request.UID, Username: username}, nil
+		return &userpb.ViewUserResponse{UID: string(request.UID), Username: string(username)}, nil
 	} else {
 		// username doesn't exist
 		return &userpb.ViewUserResponse{}, &ViewUserError{request.Username}
@@ -64,7 +64,7 @@ func (s *StubService) Search(ctx context.Context, request *userpb.SearchUserRequ
 	for username, userId := range s.UsernameCache.Iterate() {
 		if strings.Contains(username, request.Query) {
 			usernames = append(usernames, username)
-			userIds = append(userIds, userId)
+			userIds = append(userIds, string(userId))
 		}
 	}
 
