@@ -26,24 +26,32 @@ func (stub *StubService) Create(ctx context.Context, request *postpb.CreateReque
 		return nil, &EmptyPostTextError{Text: request.Post.Text}
 	}
 
-	// Generate post
+	// create post object
 	post := &postpb.Post{ID: uuid.New().String(), Text: request.Post.Text, User: request.User, Timestamp: generateTimestamp()}
 
-	// Cache it in posts and user cache
+	// cache new post
 	postBytes, _ := proto.Marshal(post)
 	stub.PostCache.Put(post.ID, postBytes)
-	posts, _ := stub.UserPostsCache.Get(request.User.ID)
-	stub.UserPostsCache.Put(request.User.ID, prepend(posts, postBytes))
+
+	// get user's previous posts
+	postsBytes, _ := stub.UserPostsCache.Get(request.User.ID)
+	posts := &postpb.Posts{}
+	proto.Unmarshal(postsBytes, posts)
+
+	// prepend new post to user's previous posts
+	updatedPosts := &postpb.Posts{Posts: prepend(posts.Posts, post)}
+	updatedPostsBytes, _ := proto.Marshal(updatedPosts)
+	stub.UserPostsCache.Put(request.User.ID, updatedPostsBytes)
 
 	return &postpb.CreateResponse{Post: post}, nil
 }
 
-func generateTimestamp() *postpb.Timestamp {
-	return &postpb.Timestamp{EpochNanoseconds: time.Now().UnixNano()}
+func prepend(slice []*postpb.Post, obj *postpb.Post) []*postpb.Post {
+	return append([]*postpb.Post{obj}, slice...)
 }
 
-func prepend(slice []byte, obj []byte) []byte {
-	return append(obj, slice...)
+func generateTimestamp() *postpb.Timestamp {
+	return &postpb.Timestamp{EpochNanoseconds: time.Now().UnixNano()}
 }
 
 func (stub *StubService) View(ctx context.Context, request *postpb.ViewRequest) (*postpb.ViewResponse, error) {
@@ -60,7 +68,7 @@ func (stub *StubService) View(ctx context.Context, request *postpb.ViewRequest) 
 
 func (stub *StubService) List(ctx context.Context, request *postpb.ListRequest) (*postpb.ListResponse, error) {
 	posts, _ := stub.UserPostsCache.Get(request.User.ID)
-	deserializedPosts := []postpb.Post{}
+	deserializedPosts := &postpb.Posts{}
 	proto.Unmarshal(posts, deserializedPosts)
-	return &postpb.ListResponse{Posts: deserializedPosts}, nil
+	return &postpb.ListResponse{Posts: deserializedPosts.Posts}, nil
 }
