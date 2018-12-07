@@ -14,7 +14,7 @@ import (
 )
 
 func createFeed() (*StubClient, userpb.UserClient, postpb.PostClient, followpb.FollowClient) {
-	userService := user.NewStubClient(user.CreateStub(storage.STUB))
+	userService := user.NewStubClient()
 	postService := post.NewStubClient()
 	followService := follow.NewStubClient(follow.CreateStub(userService))
 

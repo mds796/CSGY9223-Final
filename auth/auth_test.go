@@ -10,7 +10,7 @@ import (
 )
 
 func createAuthService() *StubClient {
-	userService := user.NewStubClient(user.CreateStub(storage.STUB))
+	userService := user.NewStubClient()
 	return &StubClient{service: CreateStub(storage.STUB, userService)}
 }
 

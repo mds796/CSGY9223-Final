@@ -28,7 +28,7 @@ func (s *RpcService) Start() error {
 }
 
 func New(config *Config) *RpcService {
-	return &RpcService{config: config, service: NewStubServer()}
+	return &RpcService{config: config, service: CreateStub(storage.RAFT)}
 }
 
 func NewStubServer() *StubService {
@@ -46,6 +46,6 @@ func NewClient(target string) (userpb.UserClient, error) {
 
 }
 
-func NewStubClient(server userpb.UserServer) *StubClient {
-	return &StubClient{service: server}
+func NewStubClient() *StubClient {
+	return &StubClient{service: NewStubServer()}
 }

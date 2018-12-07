@@ -149,7 +149,7 @@ func newStubService(host string, port uint16, staticPath string) *HttpService {
 	target := host + ":" + strconv.Itoa(int(port))
 	service := newService(target, staticPath, "")
 
-	userService := user.NewStubClient(user.CreateStub(storage.STUB))
+	userService := user.NewStubClient()
 	authService := auth.NewStubClient(auth.CreateStub(storage.STUB, userService))
 	postService := post.NewStubClient()
 	followService := follow.NewStubClient(follow.CreateStub(userService))

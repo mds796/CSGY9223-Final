@@ -5,24 +5,25 @@ import (
 	"github.com/google/uuid"
 	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
+	"google.golang.org/grpc"
 	"strings"
 )
 
 const MIN_USERNAME = 6
 
-type StubService struct {
+type Service struct {
 	UIDCache      storage.Storage // (UID, username)
 	UsernameCache storage.Storage // (username, UID)
 }
 
-func CreateStub(storageType storage.StorageType) *StubService {
-	stub := new(StubService)
+func CreateStub(storageType storage.StorageType) *Service {
+	stub := new(Service)
 	stub.UIDCache = storage.CreateStorage(storageType, "user/uid_cache")
 	stub.UsernameCache = storage.CreateStorage(storageType, "user/username_cache")
 	return stub
 }
 
-func (s *StubService) Create(ctx context.Context, request *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
+func (s *Service) Create(ctx context.Context, request *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
 	// ensure this username meets the minimum requirements
 	if len(request.Username) < MIN_USERNAME {
 		return &userpb.CreateUserResponse{}, &CreateUserError{request.Username}
@@ -45,7 +46,7 @@ func (s *StubService) Create(ctx context.Context, request *userpb.CreateUserRequ
 	return response, nil
 }
 
-func (s *StubService) View(ctx context.Context, request *userpb.ViewUserRequest) (*userpb.ViewUserResponse, error) {
+func (s *Service) View(ctx context.Context, request *userpb.ViewUserRequest) (*userpb.ViewUserResponse, error) {
 	if id, err := s.UsernameCache.Get(request.Username); err == nil {
 		// username exists
 		return &userpb.ViewUserResponse{UID: string(id), Username: request.Username}, nil
@@ -57,7 +58,7 @@ func (s *StubService) View(ctx context.Context, request *userpb.ViewUserRequest)
 	}
 }
 
-func (s *StubService) Search(ctx context.Context, request *userpb.SearchUserRequest) (*userpb.SearchUserResponse, error) {
+func (s *Service) Search(ctx context.Context, request *userpb.SearchUserRequest) (*userpb.SearchUserResponse, error) {
 	// find UIDs that match given query
 	var usernames []string
 	var userIds []string
@@ -71,4 +72,20 @@ func (s *StubService) Search(ctx context.Context, request *userpb.SearchUserRequ
 	// create the response
 	response := &userpb.SearchUserResponse{Usernames: usernames, UIDs: userIds}
 	return response, nil
+}
+
+type StubClient struct {
+	service userpb.UserServer
+}
+
+func (s StubClient) Create(ctx context.Context, in *userpb.CreateUserRequest, opts ...grpc.CallOption) (*userpb.CreateUserResponse, error) {
+	return s.service.Create(ctx, in)
+}
+
+func (s StubClient) View(ctx context.Context, in *userpb.ViewUserRequest, opts ...grpc.CallOption) (*userpb.ViewUserResponse, error) {
+	return s.service.View(ctx, in)
+}
+
+func (s StubClient) Search(ctx context.Context, in *userpb.SearchUserRequest, opts ...grpc.CallOption) (*userpb.SearchUserResponse, error) {
+	return s.service.Search(ctx, in)
 }

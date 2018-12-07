@@ -16,7 +16,7 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func createUserService() *StubClient {
+func createClient() *StubClient {
 	return &StubClient{service: CreateStub(storage.STUB)}
 }
 
@@ -33,7 +33,7 @@ func sendSearchUserRequest(client *StubClient, request *userpb.SearchUserRequest
 }
 
 func TestUserCreateBasic(t *testing.T) {
-	client := createUserService()
+	client := createClient()
 
 	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
 	_, err := sendCreateUserRequest(client, createRequest)
@@ -44,7 +44,7 @@ func TestUserCreateBasic(t *testing.T) {
 }
 
 func TestUserCreateExists(t *testing.T) {
-	client := createUserService()
+	client := createClient()
 
 	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
 	sendCreateUserRequest(client, createRequest)
@@ -57,7 +57,7 @@ func TestUserCreateExists(t *testing.T) {
 }
 
 func TestUserViewBasic(t *testing.T) {
-	client := createUserService()
+	client := createClient()
 
 	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
 	sendCreateUserRequest(client, createRequest)
@@ -71,7 +71,7 @@ func TestUserViewBasic(t *testing.T) {
 }
 
 func TestUserViewDoesNotExist(t *testing.T) {
-	client := createUserService()
+	client := createClient()
 
 	viewRequest := &userpb.ViewUserRequest{Username: "mksavic"}
 	_, err := sendViewUserRequest(client, viewRequest)
@@ -82,7 +82,7 @@ func TestUserViewDoesNotExist(t *testing.T) {
 }
 
 func TestUserSearchBasic(t *testing.T) {
-	client := createUserService()
+	client := createClient()
 
 	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
 	sendCreateUserRequest(client, createRequest)
@@ -100,7 +100,7 @@ func TestUserSearchBasic(t *testing.T) {
 }
 
 func TestUserSearchDoesNotExist(t *testing.T) {
-	client := createUserService()
+	client := createClient()
 
 	searchRequest := &userpb.SearchUserRequest{Query: "sav"}
 	response, _ := sendSearchUserRequest(client, searchRequest)
@@ -111,7 +111,7 @@ func TestUserSearchDoesNotExist(t *testing.T) {
 }
 
 func TestUserSearchMulti(t *testing.T) {
-	client := createUserService()
+	client := createClient()
 
 	createRequest := &userpb.CreateUserRequest{Username: "mksavic"}
 	sendCreateUserRequest(client, createRequest)

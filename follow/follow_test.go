@@ -10,7 +10,7 @@ import (
 )
 
 func createFollowService() (*StubClient, *user.StubClient) {
-	userService := user.NewStubClient(user.CreateStub())
+	userService := user.NewStubClient()
 	return &StubClient{service: CreateStub(userService)}, userService
 }
 
