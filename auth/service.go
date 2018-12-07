@@ -7,12 +7,13 @@ import (
 	"github.com/mds796/CSGY9223-Final/auth/authpb"
 	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
+	"google.golang.org/grpc"
 	"log"
 	"net/http"
 	"time"
 )
 
-type StubService struct {
+type Service struct {
 	UserService   userpb.UserClient
 	PasswordCache storage.Storage // (UUID, sha256(password))
 	StatusCache   storage.Storage // (UUID, status)
@@ -26,8 +27,8 @@ func DecodeCookie(cookie string) *http.Cookie {
 	return request.Cookies()[0]
 }
 
-func CreateStub(storageType storage.StorageType, userService userpb.UserClient) *StubService {
-	stub := new(StubService)
+func CreateService(storageType storage.StorageType, userService userpb.UserClient) *Service {
+	stub := new(Service)
 	stub.UserService = userService
 	stub.PasswordCache = storage.CreateStorage(storageType, "auth/password_cache")
 	stub.StatusCache = storage.CreateStorage(storageType, "auth/status_cache")
@@ -35,7 +36,7 @@ func CreateStub(storageType storage.StorageType, userService userpb.UserClient) 
 	return stub
 }
 
-func (s *StubService) Register(ctx context.Context, request *authpb.RegisterAuthRequest) (*authpb.RegisterAuthResponse, error) {
+func (s *Service) Register(ctx context.Context, request *authpb.RegisterAuthRequest) (*authpb.RegisterAuthResponse, error) {
 	// create the user in user service
 	createUserRequest := &userpb.CreateUserRequest{Username: request.Username}
 	createUserResponse, err := s.UserService.Create(ctx, createUserRequest)
@@ -57,7 +58,7 @@ func (s *StubService) Register(ctx context.Context, request *authpb.RegisterAuth
 	return &authpb.RegisterAuthResponse{Cookie: cookie}, nil
 }
 
-func (s *StubService) Login(ctx context.Context, request *authpb.LoginAuthRequest) (*authpb.LoginAuthResponse, error) {
+func (s *Service) Login(ctx context.Context, request *authpb.LoginAuthRequest) (*authpb.LoginAuthResponse, error) {
 	// view the user in user service
 	viewUserRequest := &userpb.ViewUserRequest{Username: request.Username}
 	viewUserResponse, err := s.UserService.View(ctx, viewUserRequest)
@@ -83,7 +84,7 @@ func (s *StubService) Login(ctx context.Context, request *authpb.LoginAuthReques
 	}
 }
 
-func (s *StubService) Verify(ctx context.Context, request *authpb.VerifyAuthRequest) (*authpb.VerifyAuthResponse, error) {
+func (s *Service) Verify(ctx context.Context, request *authpb.VerifyAuthRequest) (*authpb.VerifyAuthResponse, error) {
 	// check if cookie is assigned to a username
 	for username, cookie := range s.CookieCache.Iterate() {
 		savedCookie := DecodeCookie(string(cookie))
@@ -98,7 +99,7 @@ func (s *StubService) Verify(ctx context.Context, request *authpb.VerifyAuthRequ
 	return &authpb.VerifyAuthResponse{}, &VerifyAuthError{request.Cookie}
 }
 
-func (s *StubService) Logout(ctx context.Context, request *authpb.LogoutAuthRequest) (*authpb.LogoutAuthResponse, error) {
+func (s *Service) Logout(ctx context.Context, request *authpb.LogoutAuthRequest) (*authpb.LogoutAuthResponse, error) {
 	// view the user in user service
 	viewUserRequest := &userpb.ViewUserRequest{Username: request.Username}
 	viewUserResponse, err := s.UserService.View(ctx, viewUserRequest)
@@ -112,4 +113,24 @@ func (s *StubService) Logout(ctx context.Context, request *authpb.LogoutAuthRequ
 	s.StatusCache.Put(viewUserResponse.UID, []byte("LOGGED_OUT"))
 	s.CookieCache.Delete(request.Username)
 	return &authpb.LogoutAuthResponse{}, nil
+}
+
+type StubClient struct {
+	service authpb.AuthServer
+}
+
+func (s StubClient) Register(ctx context.Context, in *authpb.RegisterAuthRequest, opts ...grpc.CallOption) (*authpb.RegisterAuthResponse, error) {
+	return s.service.Register(ctx, in)
+}
+
+func (s StubClient) Login(ctx context.Context, in *authpb.LoginAuthRequest, opts ...grpc.CallOption) (*authpb.LoginAuthResponse, error) {
+	return s.service.Login(ctx, in)
+}
+
+func (s StubClient) Verify(ctx context.Context, in *authpb.VerifyAuthRequest, opts ...grpc.CallOption) (*authpb.VerifyAuthResponse, error) {
+	return s.service.Verify(ctx, in)
+}
+
+func (s StubClient) Logout(ctx context.Context, in *authpb.LogoutAuthRequest, opts ...grpc.CallOption) (*authpb.LogoutAuthResponse, error) {
+	return s.service.Logout(ctx, in)
 }

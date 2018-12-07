@@ -10,7 +10,7 @@ import (
 
 type RpcService struct {
 	config  *Config
-	service *StubService
+	service *Service
 }
 
 func (s *RpcService) Start() error {
@@ -31,7 +31,7 @@ func New(config *Config) *RpcService {
 	return &RpcService{config: config, service: CreateStub(storage.RAFT)}
 }
 
-func NewStubServer() *StubService {
+func NewStubServer() *Service {
 	return CreateStub(storage.STUB)
 }
 

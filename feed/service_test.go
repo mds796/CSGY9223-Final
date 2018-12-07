@@ -7,7 +7,6 @@ import (
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
-	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"testing"

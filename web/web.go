@@ -10,7 +10,6 @@ import (
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
-	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"log"
@@ -150,7 +149,7 @@ func newStubService(host string, port uint16, staticPath string) *HttpService {
 	service := newService(target, staticPath, "")
 
 	userService := user.NewStubClient()
-	authService := auth.NewStubClient(auth.CreateStub(storage.STUB, userService))
+	authService := auth.NewStubClient(userService)
 	postService := post.NewStubClient()
 	followService := follow.NewStubClient(follow.CreateStub(userService))
 	feedService := feed.NewStubClient(feed.NewStubServer(postService, userService, followService))

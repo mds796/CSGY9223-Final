@@ -12,7 +12,7 @@ import (
 
 type RpcService struct {
 	config  *Config
-	service *StubService
+	service *Service
 }
 
 func (s *RpcService) Start() error {
@@ -35,11 +35,11 @@ func New(config *Config) *RpcService {
 		log.Fatal(err)
 	}
 
-	return &RpcService{config: config, service: NewStubServer(userService)}
+	return &RpcService{config: config, service: CreateService(storage.RAFT, userService)}
 }
 
-func NewStubServer(userService userpb.UserClient) *StubService {
-	return CreateStub(storage.STUB, userService)
+func NewStubServer(userService userpb.UserClient) *Service {
+	return CreateService(storage.STUB, userService)
 }
 
 func NewClient(target string) (authpb.AuthClient, error) {
@@ -53,6 +53,6 @@ func NewClient(target string) (authpb.AuthClient, error) {
 
 }
 
-func NewStubClient(server authpb.AuthServer) *StubClient {
-	return &StubClient{service: server}
+func NewStubClient(userService userpb.UserClient) *StubClient {
+	return &StubClient{service: NewStubServer(userService)}
 }
