@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func createPostService() *StubClient {
+func createClient() *StubClient {
 	return &StubClient{service: NewStubServer()}
 }
 
@@ -37,7 +37,7 @@ func doListRequest(client *StubClient, userID string) (*postpb.ListResponse, err
 }
 
 func TestValidCreatePostDoesNotReturnsError(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	response, err := doCreateRequest(client, uuid.New().String(), "testing")
 	if err != nil {
 		t.Fail()
@@ -50,7 +50,7 @@ func TestValidCreatePostDoesNotReturnsError(t *testing.T) {
 }
 
 func TestCreatePostReturnsValidUUID(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	response, _ := doCreateRequest(client, uuid.New().String(), "testing")
 	_, err := uuid.Parse(response.Post.ID)
 	if err != nil {
@@ -59,7 +59,7 @@ func TestCreatePostReturnsValidUUID(t *testing.T) {
 }
 
 func TestCreatePostReturnsErrorWithEmptyText(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	_, err := doCreateRequest(client, uuid.New().String(), "")
 	_, ok := err.(*EmptyPostTextError)
 	if !ok {
@@ -68,7 +68,7 @@ func TestCreatePostReturnsErrorWithEmptyText(t *testing.T) {
 }
 
 func TestViewReturnsTextAfterCreatingPost(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	createResponse, _ := doCreateRequest(client, uuid.New().String(), "testing")
 	viewResponse, _ := doViewRequest(client, createResponse.Post.ID)
 	if viewResponse.Post.Text != "testing" {
@@ -77,7 +77,7 @@ func TestViewReturnsTextAfterCreatingPost(t *testing.T) {
 }
 
 func TestViewReturnsTextFromCorrectPost(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	doCreateRequest(client, uuid.New().String(), "testing")
 	createResponse, _ := doCreateRequest(client, uuid.New().String(), "testing more")
 	viewResponse, _ := doViewRequest(client, createResponse.Post.ID)
@@ -87,7 +87,7 @@ func TestViewReturnsTextFromCorrectPost(t *testing.T) {
 }
 
 func TestCreatedPostsHaveIncreasingTimestamps(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	createResponse1, _ := doCreateRequest(client, uuid.New().String(), "post 1")
 	createResponse2, _ := doCreateRequest(client, uuid.New().String(), "post 2")
 	viewResponse1, _ := doViewRequest(client, createResponse1.Post.ID)
@@ -98,7 +98,7 @@ func TestCreatedPostsHaveIncreasingTimestamps(t *testing.T) {
 }
 
 func TestViewReturnsErrorWithInvalidPostID(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	_, err := doViewRequest(client, "123")
 	_, ok := err.(*InvalidPostIDError)
 	if !ok {
@@ -107,7 +107,7 @@ func TestViewReturnsErrorWithInvalidPostID(t *testing.T) {
 }
 
 func TestListReturnsAllPostsFromUserInReverseOrder(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 
 	userID := uuid.New().String()
 	doCreateRequest(client, userID, "post 1")
@@ -132,7 +132,7 @@ func TestListReturnsAllPostsFromUserInReverseOrder(t *testing.T) {
 }
 
 func TestListReturnsPostsFromCorrectUser(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	userID := uuid.New().String()
 
 	doCreateRequest(client, userID, "post 1")
@@ -152,7 +152,7 @@ func TestListReturnsPostsFromCorrectUser(t *testing.T) {
 }
 
 func TestListReturnsEmptyPostsListWithUnknownUserID(t *testing.T) {
-	client := createPostService()
+	client := createClient()
 	listResponse, err := doListRequest(client, uuid.New().String())
 
 	if err != nil {
