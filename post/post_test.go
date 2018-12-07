@@ -4,12 +4,11 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
-	"github.com/mds796/CSGY9223-Final/storage"
 	"testing"
 )
 
 func createPostService() *StubClient {
-	return NewStubServer()
+	return &StubClient{service: NewStubServer()}
 }
 
 func doCreateRequest(client *StubClient, userID string, text string) (*postpb.CreateResponse, error) {

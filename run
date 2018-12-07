@@ -3,6 +3,14 @@
 # install NPM
 # run: cd static && npm install && npm install -g polymer-cli
 
+# The following error might occur:
+#    $ panic: /debug/requests is already registered. You may have two independent copies of golang.org/x/net/trace in your binary, trying to maintain separate state. This may involve a vendored copy of golang.org/x/net/trace.
+#
+# This happens because both gRPC and etcd vendor "net/trace". In this case, run the following command to remove etcd's version of "net/trace":
+#    $ rm -rf $GOPATH/src/go.etcd.io/etcd/vendor/golang.org/x/net/trace
+#
+# Reference: https://github.com/etcd-io/etcd/issues/9357#issuecomment-377560659
+
 function awaitServer()
 {
     PORT=$1
@@ -32,7 +40,6 @@ awaitServer 2379 "etcd"
 cd static && npm run build:static && npm run start -- --port=8000 &
 awaitServer 8000 "static asset"
 
-cd ..
 go build
 
 ./CSGY9223-Final user restart -H 0.0.0.0 -P 8081 &
