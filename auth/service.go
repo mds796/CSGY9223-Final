@@ -28,12 +28,12 @@ func DecodeCookie(cookie string) *http.Cookie {
 }
 
 func CreateService(storageType storage.StorageType, userService userpb.UserClient) *Service {
-	stub := new(Service)
-	stub.UserService = userService
-	stub.PasswordCache = storage.CreateStorage(storageType, "auth/password_cache")
-	stub.StatusCache = storage.CreateStorage(storageType, "auth/status_cache")
-	stub.CookieCache = storage.CreateStorage(storageType, "auth/cookie_cache")
-	return stub
+	service := new(Service)
+	service.UserService = userService
+	service.PasswordCache = storage.CreateStorage(storageType, "auth/password_cache")
+	service.StatusCache = storage.CreateStorage(storageType, "auth/status_cache")
+	service.CookieCache = storage.CreateStorage(storageType, "auth/cookie_cache")
+	return service
 }
 
 func (s *Service) Register(ctx context.Context, request *authpb.RegisterAuthRequest) (*authpb.RegisterAuthResponse, error) {

@@ -20,26 +20,26 @@ type Service struct {
 }
 
 func CreateService(userService userpb.UserClient) *Service {
-	stub := new(Service)
-	stub.User = userService
-	stub.FollowingGraph = make(map[string][]*followpb.User)
-	return stub
+	service := new(Service)
+	service.User = userService
+	service.FollowingGraph = make(map[string][]*followpb.User)
+	return service
 }
 
-func (stub *Service) Follow(ctx context.Context, request *followpb.FollowRequest) (*followpb.FollowResponse, error) {
+func (service *Service) Follow(ctx context.Context, request *followpb.FollowRequest) (*followpb.FollowResponse, error) {
 	// Validate user IDs
-	ok := stub.validateUserID(ctx, request.FollowerUser.ID)
+	ok := service.validateUserID(ctx, request.FollowerUser.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.FollowerUser.ID}
 	}
 
-	ok = stub.validateUserID(ctx, request.FollowedUser.ID)
+	ok = service.validateUserID(ctx, request.FollowedUser.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.FollowedUser.ID}
 	}
 
 	// Avoid duplicated connections
-	followed := stub.FollowingGraph[request.FollowerUser.ID]
+	followed := service.FollowingGraph[request.FollowerUser.ID]
 	newConnection := true
 	for _, f := range followed {
 		if f.ID == request.FollowedUser.ID {
@@ -49,57 +49,57 @@ func (stub *Service) Follow(ctx context.Context, request *followpb.FollowRequest
 
 	// Add followed user from follow graph
 	if newConnection {
-		stub.FollowingGraph[request.FollowerUser.ID] = append(stub.FollowingGraph[request.FollowerUser.ID], &followpb.User{ID: request.FollowedUser.ID, Followed: true})
+		service.FollowingGraph[request.FollowerUser.ID] = append(service.FollowingGraph[request.FollowerUser.ID], &followpb.User{ID: request.FollowedUser.ID, Followed: true})
 	}
 
 	return &followpb.FollowResponse{}, nil
 }
 
-func (stub *Service) Unfollow(ctx context.Context, request *followpb.UnfollowRequest) (*followpb.UnfollowResponse, error) {
+func (service *Service) Unfollow(ctx context.Context, request *followpb.UnfollowRequest) (*followpb.UnfollowResponse, error) {
 	// Validate user IDs
-	ok := stub.validateUserID(ctx, request.FollowerUser.ID)
+	ok := service.validateUserID(ctx, request.FollowerUser.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.FollowerUser.ID}
 	}
 
-	ok = stub.validateUserID(ctx, request.FollowedUser.ID)
+	ok = service.validateUserID(ctx, request.FollowedUser.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.FollowedUser.ID}
 	}
 
 	// Remove followed user from follow graph
-	followed := stub.FollowingGraph[request.FollowerUser.ID]
+	followed := service.FollowingGraph[request.FollowerUser.ID]
 	for i := 0; i < len(followed); i++ {
 		if followed[i].ID == request.FollowedUser.ID {
 			followed = append(followed[:i], followed[i+1:]...)
 		}
 	}
-	stub.FollowingGraph[request.FollowerUser.ID] = followed
+	service.FollowingGraph[request.FollowerUser.ID] = followed
 	return &followpb.UnfollowResponse{}, nil
 }
 
-func (stub *Service) View(ctx context.Context, request *followpb.ViewRequest) (*followpb.ViewResponse, error) {
+func (service *Service) View(ctx context.Context, request *followpb.ViewRequest) (*followpb.ViewResponse, error) {
 
 	// Validate user ID
-	ok := stub.validateUserID(ctx, request.User.ID)
+	ok := service.validateUserID(ctx, request.User.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.User.ID}
 	}
 
 	// Return user's adjacency list
-	users := stub.FollowingGraph[request.User.ID]
+	users := service.FollowingGraph[request.User.ID]
 	return &followpb.ViewResponse{Users: users}, nil
 }
 
-func (stub *Service) Search(ctx context.Context, request *followpb.SearchRequest) (*followpb.SearchResponse, error) {
+func (service *Service) Search(ctx context.Context, request *followpb.SearchRequest) (*followpb.SearchResponse, error) {
 
 	// // Validate user ID
-	ok := stub.validateUserID(ctx, request.User.ID)
+	ok := service.validateUserID(ctx, request.User.ID)
 	if !ok {
 		return nil, &InvalidUserIDError{UserID: request.User.ID}
 	}
 
-	userResponse, err := stub.User.Search(ctx, &userpb.SearchUserRequest{Query: request.Query})
+	userResponse, err := service.User.Search(ctx, &userpb.SearchUserRequest{Query: request.Query})
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (stub *Service) Search(ctx context.Context, request *followpb.SearchRequest
 		if userID != request.User.ID {
 			followed := false
 
-			for _, followedUser := range stub.FollowingGraph[request.User.ID] {
+			for _, followedUser := range service.FollowingGraph[request.User.ID] {
 				if followedUser.ID == userID {
 					followed = true
 					break
@@ -125,8 +125,8 @@ func (stub *Service) Search(ctx context.Context, request *followpb.SearchRequest
 	return &followpb.SearchResponse{Users: response}, nil
 }
 
-func (stub *Service) validateUserID(ctx context.Context, userID string) bool {
-	_, err := stub.User.View(ctx, &userpb.ViewUserRequest{UID: userID})
+func (service *Service) validateUserID(ctx context.Context, userID string) bool {
+	_, err := service.User.View(ctx, &userpb.ViewUserRequest{UID: userID})
 	if err != nil {
 		return false
 	}

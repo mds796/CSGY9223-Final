@@ -16,13 +16,13 @@ type Service struct {
 }
 
 func CreateService(storageType storage.StorageType) *Service {
-	stub := new(Service)
-	stub.PostCache = storage.CreateStorage(storageType, "post/post_cache")
-	stub.UserPostsCache = storage.CreateStorage(storageType, "post/user_posts_cache")
-	return stub
+	service := new(Service)
+	service.PostCache = storage.CreateStorage(storageType, "post/post_cache")
+	service.UserPostsCache = storage.CreateStorage(storageType, "post/user_posts_cache")
+	return service
 }
 
-func (stub *Service) Create(ctx context.Context, request *postpb.CreateRequest) (*postpb.CreateResponse, error) {
+func (service *Service) Create(ctx context.Context, request *postpb.CreateRequest) (*postpb.CreateResponse, error) {
 	if request.Post.Text == "" {
 		return nil, &EmptyPostTextError{Text: request.Post.Text}
 	}
@@ -32,17 +32,17 @@ func (stub *Service) Create(ctx context.Context, request *postpb.CreateRequest) 
 
 	// cache new post
 	postBytes, _ := proto.Marshal(post)
-	stub.PostCache.Put(post.ID, postBytes)
+	service.PostCache.Put(post.ID, postBytes)
 
 	// get user's previous posts
-	postsBytes, _ := stub.UserPostsCache.Get(request.User.ID)
+	postsBytes, _ := service.UserPostsCache.Get(request.User.ID)
 	posts := &postpb.Posts{}
 	proto.Unmarshal(postsBytes, posts)
 
 	// prepend new post to user's previous posts
 	updatedPosts := &postpb.Posts{Posts: prepend(posts.Posts, post)}
 	updatedPostsBytes, _ := proto.Marshal(updatedPosts)
-	stub.UserPostsCache.Put(request.User.ID, updatedPostsBytes)
+	service.UserPostsCache.Put(request.User.ID, updatedPostsBytes)
 
 	return &postpb.CreateResponse{Post: post}, nil
 }
@@ -55,8 +55,8 @@ func generateTimestamp() *postpb.Timestamp {
 	return &postpb.Timestamp{EpochNanoseconds: time.Now().UnixNano()}
 }
 
-func (stub *Service) View(ctx context.Context, request *postpb.ViewRequest) (*postpb.ViewResponse, error) {
-	post, err := stub.PostCache.Get(request.Post.ID)
+func (service *Service) View(ctx context.Context, request *postpb.ViewRequest) (*postpb.ViewResponse, error) {
+	post, err := service.PostCache.Get(request.Post.ID)
 
 	if err != nil {
 		return nil, &InvalidPostIDError{PostID: request.Post.ID}
@@ -67,8 +67,8 @@ func (stub *Service) View(ctx context.Context, request *postpb.ViewRequest) (*po
 	return &postpb.ViewResponse{Post: deserializedPost}, nil
 }
 
-func (stub *Service) List(ctx context.Context, request *postpb.ListRequest) (*postpb.ListResponse, error) {
-	posts, _ := stub.UserPostsCache.Get(request.User.ID)
+func (service *Service) List(ctx context.Context, request *postpb.ListRequest) (*postpb.ListResponse, error) {
+	posts, _ := service.UserPostsCache.Get(request.User.ID)
 	deserializedPosts := &postpb.Posts{}
 	proto.Unmarshal(posts, deserializedPosts)
 	return &postpb.ListResponse{Posts: deserializedPosts.Posts}, nil

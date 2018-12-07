@@ -17,10 +17,10 @@ type Service struct {
 }
 
 func CreateStub(storageType storage.StorageType) *Service {
-	stub := new(Service)
-	stub.UIDCache = storage.CreateStorage(storageType, "user/uid_cache")
-	stub.UsernameCache = storage.CreateStorage(storageType, "user/username_cache")
-	return stub
+	service := new(Service)
+	service.UIDCache = storage.CreateStorage(storageType, "user/uid_cache")
+	service.UsernameCache = storage.CreateStorage(storageType, "user/username_cache")
+	return service
 }
 
 func (s *Service) Create(ctx context.Context, request *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {
