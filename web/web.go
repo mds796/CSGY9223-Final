@@ -3,23 +3,20 @@ package web
 import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/auth"
-	"net/http/httputil"
-	"net/url"
-
 	"github.com/mds796/CSGY9223-Final/auth/authpb"
 	"github.com/mds796/CSGY9223-Final/feed"
-
 	"github.com/mds796/CSGY9223-Final/feed/feedpb"
 	"github.com/mds796/CSGY9223-Final/follow"
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user"
-
 	"github.com/mds796/CSGY9223-Final/user/userpb"
-
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"path/filepath"
 	"strconv"
 )
@@ -152,9 +149,9 @@ func newStubService(host string, port uint16, staticPath string) *HttpService {
 	target := host + ":" + strconv.Itoa(int(port))
 	service := newService(target, staticPath, "")
 
-	userService := user.NewStubClient(user.CreateStub())
-	authService := auth.NewStubClient(auth.CreateStub(userService))
-	postService := post.NewStubClient(post.CreateStub())
+	userService := user.NewStubClient(user.CreateStub(storage.STUB))
+	authService := auth.NewStubClient(auth.CreateStub(storage.STUB, userService))
+	postService := post.NewStubClient(post.CreateStub(storage.STUB))
 	followService := follow.NewStubClient(follow.CreateStub(userService))
 	feedService := feed.NewStubClient(feed.NewStubServer(postService, userService, followService))
 

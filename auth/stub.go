@@ -29,9 +29,9 @@ func DecodeCookie(cookie string) *http.Cookie {
 func CreateStub(storageType storage.StorageType, userService userpb.UserClient) *StubService {
 	stub := new(StubService)
 	stub.UserService = userService
-	stub.PasswordCache = storage.CreateStorage(storageType)
-	stub.StatusCache = storage.CreateStorage(storageType)
-	stub.CookieCache = storage.CreateStorage(storageType)
+	stub.PasswordCache = storage.CreateStorage(storageType, "auth/password_cache")
+	stub.StatusCache = storage.CreateStorage(storageType, "auth/status_cache")
+	stub.CookieCache = storage.CreateStorage(storageType, "auth/cookie_cache")
 	return stub
 }
 

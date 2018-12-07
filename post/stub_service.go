@@ -16,8 +16,8 @@ type StubService struct {
 
 func CreateStub(storageType storage.StorageType) *StubService {
 	stub := new(StubService)
-	stub.PostCache = storage.CreateStorage(storageType)
-	stub.UserPostsCache = storage.CreateStorage(storageType)
+	stub.PostCache = storage.CreateStorage(storageType, "post/post_cache")
+	stub.UserPostsCache = storage.CreateStorage(storageType, "post/user_posts_cache")
 	return stub
 }
 

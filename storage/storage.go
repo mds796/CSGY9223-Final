@@ -14,10 +14,12 @@ type Storage interface {
 	Iterate() map[string][]byte
 }
 
-func CreateStorage(storageType StorageType) Storage {
+// storageType: chooses the Raft or Stub implementation of Storage
+// namespace: provides logical separation for services in a key-value data store
+func CreateStorage(storageType StorageType, namespace string) Storage {
 	if storageType == RAFT {
-		return CreateRaftStorage()
+		return CreateRaftStorage(namespace)
 	} else {
-		return CreateStubStorage()
+		return CreateStubStorage(namespace)
 	}
 }
