@@ -11,13 +11,21 @@ import (
 	"sort"
 )
 
-type StubService struct {
+type Service struct {
 	Post   postpb.PostClient
 	Follow followpb.FollowClient
 	User   userpb.UserClient
 }
 
-func (s StubService) View(ctx context.Context, request *feedpb.ViewRequest) (*feedpb.ViewResponse, error) {
+func CreateService(postService postpb.PostClient, userService userpb.UserClient, followService followpb.FollowClient) *Service {
+	service := new(Service)
+	service.Post = postService
+	service.Follow = followService
+	service.User = userService
+	return service
+}
+
+func (s Service) View(ctx context.Context, request *feedpb.ViewRequest) (*feedpb.ViewResponse, error) {
 	followed, err := s.ListFollowed(request.User.ID)
 	if err != nil {
 		return nil, err
@@ -43,7 +51,7 @@ func (s StubService) View(ctx context.Context, request *feedpb.ViewRequest) (*fe
 	return &feedpb.ViewResponse{Feed: &feedpb.Feed{Posts: posts}}, nil
 }
 
-func (s StubService) ListPosts(followed []*userpb.ViewUserResponse) ([]*feedpb.Post, error) {
+func (s Service) ListPosts(followed []*userpb.ViewUserResponse) ([]*feedpb.Post, error) {
 	posts := make([]*feedpb.Post, 0, len(followed))
 
 	for i := range followed {
@@ -54,7 +62,7 @@ func (s StubService) ListPosts(followed []*userpb.ViewUserResponse) ([]*feedpb.P
 	return posts, nil
 }
 
-func (s StubService) PostsForUser(userId string, username string) []*feedpb.Post {
+func (s Service) PostsForUser(userId string, username string) []*feedpb.Post {
 
 	response, err := s.Post.List(context.Background(), &postpb.ListRequest{User: &postpb.User{ID: userId}})
 	if err != nil {
@@ -78,7 +86,7 @@ func (s StubService) PostsForUser(userId string, username string) []*feedpb.Post
 	return posts
 }
 
-func (s StubService) ListFollowed(userId string) ([]*userpb.ViewUserResponse, error) {
+func (s Service) ListFollowed(userId string) ([]*userpb.ViewUserResponse, error) {
 	viewResponse, err := s.Follow.View(context.Background(), &followpb.ViewRequest{User: &followpb.User{ID: userId}})
 	if err != nil {
 		return nil, err

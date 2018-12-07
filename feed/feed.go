@@ -15,7 +15,7 @@ import (
 
 type RpcService struct {
 	config  *Config
-	service *StubService
+	service *Service
 }
 
 func (s *RpcService) Start() error {
@@ -48,11 +48,11 @@ func New(config *Config) *RpcService {
 		log.Fatal(err)
 	}
 
-	return &RpcService{config: config, service: NewStubServer(postService, userService, followService)}
+	return &RpcService{config: config, service: CreateService(postService, userService, followService)}
 }
 
-func NewStubServer(postService postpb.PostClient, userService userpb.UserClient, followService followpb.FollowClient) *StubService {
-	return &StubService{Post: postService, Follow: followService, User: userService}
+func NewStubServer(postService postpb.PostClient, userService userpb.UserClient, followService followpb.FollowClient) *Service {
+	return CreateService(postService, userService, followService)
 }
 
 func NewClient(target string) (feedpb.FeedClient, error) {
@@ -66,7 +66,7 @@ func NewClient(target string) (feedpb.FeedClient, error) {
 
 }
 
-func NewStubClient(server feedpb.FeedServer) *StubClient {
-	return &StubClient{service: server}
+func NewStubClient(postService postpb.PostClient, userService userpb.UserClient, followService followpb.FollowClient) *StubClient {
+	return &StubClient{service: NewStubServer(postService, userService, followService)}
 
 }

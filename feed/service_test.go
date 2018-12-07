@@ -15,9 +15,8 @@ import (
 func createFeed() (*StubClient, userpb.UserClient, postpb.PostClient, followpb.FollowClient) {
 	userService := user.NewStubClient()
 	postService := post.NewStubClient()
-	followService := follow.NewStubClient(follow.CreateStub(userService))
-
-	return &StubClient{service: &StubService{User: userService, Post: postService, Follow: followService}}, userService, postService, followService
+	followService := follow.NewStubClient(userService)
+	return NewStubClient(postService, userService, followService), userService, postService, followService
 }
 
 func TestStubService_View_WithNonExistingUser(t *testing.T) {
