@@ -4,9 +4,10 @@ import (
 	"context"
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
+	"google.golang.org/grpc"
 )
 
-type StubService struct {
+type Service struct {
 	User userpb.UserClient
 
 	// Storing connections in adjacency list allows to follow and unfollow in
@@ -18,14 +19,14 @@ type StubService struct {
 	FollowingGraph map[string][]*followpb.User
 }
 
-func CreateStub(userService userpb.UserClient) *StubService {
-	stub := new(StubService)
+func CreateService(userService userpb.UserClient) *Service {
+	stub := new(Service)
 	stub.User = userService
 	stub.FollowingGraph = make(map[string][]*followpb.User)
 	return stub
 }
 
-func (stub *StubService) Follow(ctx context.Context, request *followpb.FollowRequest) (*followpb.FollowResponse, error) {
+func (stub *Service) Follow(ctx context.Context, request *followpb.FollowRequest) (*followpb.FollowResponse, error) {
 	// Validate user IDs
 	ok := stub.validateUserID(ctx, request.FollowerUser.ID)
 	if !ok {
@@ -54,7 +55,7 @@ func (stub *StubService) Follow(ctx context.Context, request *followpb.FollowReq
 	return &followpb.FollowResponse{}, nil
 }
 
-func (stub *StubService) Unfollow(ctx context.Context, request *followpb.UnfollowRequest) (*followpb.UnfollowResponse, error) {
+func (stub *Service) Unfollow(ctx context.Context, request *followpb.UnfollowRequest) (*followpb.UnfollowResponse, error) {
 	// Validate user IDs
 	ok := stub.validateUserID(ctx, request.FollowerUser.ID)
 	if !ok {
@@ -77,7 +78,7 @@ func (stub *StubService) Unfollow(ctx context.Context, request *followpb.Unfollo
 	return &followpb.UnfollowResponse{}, nil
 }
 
-func (stub *StubService) View(ctx context.Context, request *followpb.ViewRequest) (*followpb.ViewResponse, error) {
+func (stub *Service) View(ctx context.Context, request *followpb.ViewRequest) (*followpb.ViewResponse, error) {
 
 	// Validate user ID
 	ok := stub.validateUserID(ctx, request.User.ID)
@@ -90,7 +91,7 @@ func (stub *StubService) View(ctx context.Context, request *followpb.ViewRequest
 	return &followpb.ViewResponse{Users: users}, nil
 }
 
-func (stub *StubService) Search(ctx context.Context, request *followpb.SearchRequest) (*followpb.SearchResponse, error) {
+func (stub *Service) Search(ctx context.Context, request *followpb.SearchRequest) (*followpb.SearchResponse, error) {
 
 	// // Validate user ID
 	ok := stub.validateUserID(ctx, request.User.ID)
@@ -124,10 +125,30 @@ func (stub *StubService) Search(ctx context.Context, request *followpb.SearchReq
 	return &followpb.SearchResponse{Users: response}, nil
 }
 
-func (stub *StubService) validateUserID(ctx context.Context, userID string) bool {
+func (stub *Service) validateUserID(ctx context.Context, userID string) bool {
 	_, err := stub.User.View(ctx, &userpb.ViewUserRequest{UID: userID})
 	if err != nil {
 		return false
 	}
 	return true
+}
+
+type StubClient struct {
+	service followpb.FollowServer
+}
+
+func (s StubClient) Follow(ctx context.Context, in *followpb.FollowRequest, opts ...grpc.CallOption) (*followpb.FollowResponse, error) {
+	return s.service.Follow(ctx, in)
+}
+
+func (s StubClient) Unfollow(ctx context.Context, in *followpb.UnfollowRequest, opts ...grpc.CallOption) (*followpb.UnfollowResponse, error) {
+	return s.service.Unfollow(ctx, in)
+}
+
+func (s StubClient) View(ctx context.Context, in *followpb.ViewRequest, opts ...grpc.CallOption) (*followpb.ViewResponse, error) {
+	return s.service.View(ctx, in)
+}
+
+func (s StubClient) Search(ctx context.Context, in *followpb.SearchRequest, opts ...grpc.CallOption) (*followpb.SearchResponse, error) {
+	return s.service.Search(ctx, in)
 }
