@@ -34,7 +34,7 @@ function awaitServer()
     echo "$NAME has started."
 }
 
-# ./raft.sh &
+./raft.sh &
 awaitServer 2379 "etcd"
 
 cd static && npm run build:static && npm run start -- --port=8000 &
