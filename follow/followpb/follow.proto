@@ -7,3 +7,7 @@ message User {
   string ID = 1;
   bool Followed = 2;
 }
+
+message Users {
+  repeated User Users = 1;
+}

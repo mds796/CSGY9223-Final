@@ -11,7 +11,7 @@ import (
 
 func createClients() (*StubClient, *user.StubClient) {
 	userClient := user.NewStubClient()
-	return &StubClient{service: CreateService(userClient)}, userClient
+	return NewStubClient(userClient), userClient
 }
 
 func createUsers(userClient *user.StubClient, usernames ...string) []string {

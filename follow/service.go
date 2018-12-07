@@ -2,7 +2,9 @@ package follow
 
 import (
 	"context"
+	"github.com/gogo/protobuf/proto"
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"google.golang.org/grpc"
 )
@@ -16,13 +18,15 @@ type Service struct {
 	// Using a hash set (map[string]bool), we can achieve follow and unfollow in
 	// O(1) average time, however, retrieving the list of followers will require
 	// to iterate through the hash set keys in O(n) time.
-	FollowingGraph map[string][]*followpb.User
+
+	// FollowingGraph map[string][]*followpb.User
+	FollowingGraph storage.Storage
 }
 
-func CreateService(userService userpb.UserClient) *Service {
+func CreateService(storageType storage.StorageType, userService userpb.UserClient) *Service {
 	service := new(Service)
 	service.User = userService
-	service.FollowingGraph = make(map[string][]*followpb.User)
+	service.FollowingGraph = storage.CreateStorage(storageType, "follow/following_graph")
 	return service
 }
 
@@ -39,9 +43,12 @@ func (service *Service) Follow(ctx context.Context, request *followpb.FollowRequ
 	}
 
 	// Avoid duplicated connections
-	followed := service.FollowingGraph[request.FollowerUser.ID]
+	followedBytes, _ := service.FollowingGraph.Get(request.FollowerUser.ID)
+	followed := &followpb.Users{}
+	proto.Unmarshal(followedBytes, followed)
+
 	newConnection := true
-	for _, f := range followed {
+	for _, f := range followed.Users {
 		if f.ID == request.FollowedUser.ID {
 			newConnection = false
 		}
@@ -49,7 +56,11 @@ func (service *Service) Follow(ctx context.Context, request *followpb.FollowRequ
 
 	// Add followed user from follow graph
 	if newConnection {
-		service.FollowingGraph[request.FollowerUser.ID] = append(service.FollowingGraph[request.FollowerUser.ID], &followpb.User{ID: request.FollowedUser.ID, Followed: true})
+		user := &followpb.User{ID: request.FollowedUser.ID, Followed: true}
+
+		followed = &followpb.Users{Users: append(followed.Users, user)}
+		followedBytes, _ = proto.Marshal(followed)
+		service.FollowingGraph.Put(request.FollowerUser.ID, followedBytes)
 	}
 
 	return &followpb.FollowResponse{}, nil
@@ -68,13 +79,18 @@ func (service *Service) Unfollow(ctx context.Context, request *followpb.Unfollow
 	}
 
 	// Remove followed user from follow graph
-	followed := service.FollowingGraph[request.FollowerUser.ID]
-	for i := 0; i < len(followed); i++ {
-		if followed[i].ID == request.FollowedUser.ID {
-			followed = append(followed[:i], followed[i+1:]...)
+	followedBytes, _ := service.FollowingGraph.Get(request.FollowerUser.ID)
+	followed := &followpb.Users{}
+	proto.Unmarshal(followedBytes, followed)
+
+	for i := 0; i < len(followed.Users); i++ {
+		if followed.Users[i].ID == request.FollowedUser.ID {
+			followed.Users = append(followed.Users[:i], followed.Users[i+1:]...)
 		}
 	}
-	service.FollowingGraph[request.FollowerUser.ID] = followed
+
+	followedBytes, _ = proto.Marshal(followed)
+	service.FollowingGraph.Put(request.FollowerUser.ID, followedBytes)
 	return &followpb.UnfollowResponse{}, nil
 }
 
@@ -87,8 +103,10 @@ func (service *Service) View(ctx context.Context, request *followpb.ViewRequest)
 	}
 
 	// Return user's adjacency list
-	users := service.FollowingGraph[request.User.ID]
-	return &followpb.ViewResponse{Users: users}, nil
+	followedBytes, _ := service.FollowingGraph.Get(request.User.ID)
+	followed := &followpb.Users{}
+	proto.Unmarshal(followedBytes, followed)
+	return &followpb.ViewResponse{Users: followed.Users}, nil
 }
 
 func (service *Service) Search(ctx context.Context, request *followpb.SearchRequest) (*followpb.SearchResponse, error) {
@@ -111,7 +129,11 @@ func (service *Service) Search(ctx context.Context, request *followpb.SearchRequ
 		if userID != request.User.ID {
 			followed := false
 
-			for _, followedUser := range service.FollowingGraph[request.User.ID] {
+			usersBytes, _ := service.FollowingGraph.Get(request.User.ID)
+			users := &followpb.Users{}
+			proto.Unmarshal(usersBytes, users)
+
+			for _, followedUser := range users.Users {
 				if followedUser.ID == userID {
 					followed = true
 					break

@@ -4,6 +4,7 @@ package follow
 
 import (
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"google.golang.org/grpc"
@@ -36,11 +37,11 @@ func New(config *Config) *RpcService {
 		log.Fatal(err)
 	}
 
-	return &RpcService{config: config, service: CreateService(userService)}
+	return &RpcService{config: config, service: CreateService(storage.RAFT, userService)}
 }
 
 func NewStubServer(userService userpb.UserClient) *Service {
-	return CreateService(userService)
+	return CreateService(storage.STUB, userService)
 }
 
 func NewClient(target string) (followpb.FollowClient, error) {
