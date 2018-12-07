@@ -9,7 +9,7 @@ import (
 )
 
 func createPostService() *StubClient {
-	return &StubClient{service: CreateStub(storage.STUB)}
+	return NewStubServer()
 }
 
 func doCreateRequest(client *StubClient, userID string, text string) (*postpb.CreateResponse, error) {

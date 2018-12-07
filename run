@@ -32,7 +32,9 @@ awaitServer 2379 "etcd"
 cd static && npm run build:static && npm run start -- --port=8000 &
 awaitServer 8000 "static asset"
 
+cd ..
 go build
+
 ./CSGY9223-Final user restart -H 0.0.0.0 -P 8081 &
 awaitServer 8081 "user"
 

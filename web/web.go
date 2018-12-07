@@ -151,7 +151,7 @@ func newStubService(host string, port uint16, staticPath string) *HttpService {
 
 	userService := user.NewStubClient(user.CreateStub(storage.STUB))
 	authService := auth.NewStubClient(auth.CreateStub(storage.STUB, userService))
-	postService := post.NewStubClient(post.CreateStub(storage.STUB))
+	postService := post.NewStubClient(post.CreateService(storage.STUB))
 	followService := follow.NewStubClient(follow.CreateStub(userService))
 	feedService := feed.NewStubClient(feed.NewStubServer(postService, userService, followService))
 

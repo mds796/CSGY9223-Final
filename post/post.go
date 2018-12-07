@@ -28,11 +28,11 @@ func (s *RpcService) Start() error {
 }
 
 func New(config *Config) *RpcService {
-	return &RpcService{config: config, service: NewStubServer()}
+	return &RpcService{config: config, service: CreateService(storage.RAFT)}
 }
 
 func NewStubServer() *StubService {
-	return CreateStub(storage.STUB)
+	return CreateService(storage.STUB)
 }
 
 func NewClient(target string) (postpb.PostClient, error) {
