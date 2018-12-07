@@ -8,7 +8,7 @@ import (
 )
 
 func createClient() *StubClient {
-	return &StubClient{service: NewStubServer()}
+	return NewStubClient()
 }
 
 func doCreateRequest(client *StubClient, userID string, text string) (*postpb.CreateResponse, error) {

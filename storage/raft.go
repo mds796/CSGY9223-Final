@@ -13,6 +13,7 @@ type RaftStorage struct {
 }
 
 func CreateRaftStorage(ns string) *RaftStorage {
+	log.Println("Creating Raft storage")
 	client, err := clientv3.New(getRaftClusterConfig())
 	if err != nil {
 		// handle error!
@@ -29,6 +30,7 @@ func getRaftClusterConfig() clientv3.Config {
 }
 
 func (s *RaftStorage) Get(key string) ([]byte, error) {
+	log.Printf("Raft - Get '%v'\n", key)
 	response, err := s.Client.Get(s.context(), s.keyWithNamespace(key))
 	value := []byte{}
 	if err != nil {
@@ -43,6 +45,7 @@ func (s *RaftStorage) Get(key string) ([]byte, error) {
 }
 
 func (s *RaftStorage) Put(key string, value []byte) error {
+	log.Printf("Raft - Put '%v: %v'\n", key, value)
 	_, err := s.Client.Put(s.context(), s.keyWithNamespace(key), string(value))
 	if err != nil {
 		return &PutError{Key: s.keyWithNamespace(key)}
@@ -51,6 +54,7 @@ func (s *RaftStorage) Put(key string, value []byte) error {
 }
 
 func (s *RaftStorage) Delete(key string) error {
+	log.Printf("Raft - Delete '%v'\n", key)
 	response, err := s.Client.Delete(s.context(), s.keyWithNamespace(key))
 	if err != nil {
 		return &DeleteError{Key: s.keyWithNamespace(key)}

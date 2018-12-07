@@ -46,6 +46,6 @@ func NewClient(target string) (postpb.PostClient, error) {
 
 }
 
-func NewStubClient(server postpb.PostServer) *StubClient {
-	return &StubClient{service: server}
+func NewStubClient() *StubClient {
+	return &StubClient{service: NewStubServer()}
 }

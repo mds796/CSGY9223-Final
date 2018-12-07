@@ -7,15 +7,15 @@ import (
 	"github.com/mds796/CSGY9223-Final/follow/followpb"
 	"github.com/mds796/CSGY9223-Final/post"
 	"github.com/mds796/CSGY9223-Final/post/postpb"
+	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user"
-
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"testing"
 )
 
 func createFeed() (*StubClient, userpb.UserClient, postpb.PostClient, followpb.FollowClient) {
-	userService := user.NewStubClient(user.CreateStub())
-	postService := post.NewStubClient(post.CreateStub())
+	userService := user.NewStubClient(user.CreateStub(storage.STUB))
+	postService := post.NewStubClient()
 	followService := follow.NewStubClient(follow.CreateStub(userService))
 
 	return &StubClient{service: &StubService{User: userService, Post: postService, Follow: followService}}, userService, postService, followService
