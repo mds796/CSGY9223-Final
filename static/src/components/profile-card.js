@@ -33,6 +33,12 @@ class ProfileCard extends PolymerElement {
                 cursor: pointer;
             }
 
+            user-card svg {
+                padding-left: 5px;
+                padding-right: 5px;
+                height: 18px;
+            }
+
             a {
                 color: var(--app-header-text-color);
                 text-decoration: none;

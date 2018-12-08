@@ -19,10 +19,15 @@ class FeedView extends PolymerElement {
             :host .post-input {
               text-align: center;
             }
+
+            textarea {
+              padding: 10px;
+              resize: none;
+            }
           </style>
 
           <section class="post-input">
-            <textarea value="{{post::change}}" rows="7" cols="80">
+            <textarea placeholder="What's happening?" value="{{post::change}}" rows="7" cols="80">
             </textarea>
             <input id="post-button" type="submit" value="Post" on-click="submitPost"/>
           </section>
@@ -75,8 +80,6 @@ class FeedView extends PolymerElement {
 
     fetchFeed() {
         const provider = this;
-
-        console.log("Fetching feed")
 
         if (!provider.active) {
             return;
