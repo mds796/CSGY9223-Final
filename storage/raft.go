@@ -18,7 +18,6 @@ func CreateRaftStorage(config StorageConfig, ns string) *RaftStorage {
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {
-		// handle error!
 		log.Fatalf("Could not connect to Raft nodes: %v", err)
 		panic(err)
 	}
