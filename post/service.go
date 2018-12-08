@@ -15,10 +15,10 @@ type Service struct {
 	UserPostsCache storage.Storage
 }
 
-func CreateService(storageType storage.StorageType) *Service {
+func CreateService(storageConfig storage.StorageConfig) *Service {
 	service := new(Service)
-	service.PostCache = storage.CreateStorage(storageType, "post/post_cache")
-	service.UserPostsCache = storage.CreateStorage(storageType, "post/user_posts_cache")
+	service.PostCache = storage.CreateStorage(storageConfig, "post/post_cache")
+	service.UserPostsCache = storage.CreateStorage(storageConfig, "post/user_posts_cache")
 	return service
 }
 

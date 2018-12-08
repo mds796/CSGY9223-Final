@@ -4,7 +4,7 @@ type StubStorage struct {
 	storage map[string][]byte
 }
 
-func CreateStubStorage(_ string) *StubStorage {
+func CreateStubStorage() *StubStorage {
 	s := &StubStorage{}
 	s.storage = map[string][]byte{}
 	return s

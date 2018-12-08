@@ -23,10 +23,10 @@ type Service struct {
 	FollowingGraph storage.Storage
 }
 
-func CreateService(storageType storage.StorageType, userService userpb.UserClient) *Service {
+func CreateService(storageConfig storage.StorageConfig, userService userpb.UserClient) *Service {
 	service := new(Service)
 	service.User = userService
-	service.FollowingGraph = storage.CreateStorage(storageType, "follow/following_graph")
+	service.FollowingGraph = storage.CreateStorage(storageConfig, "follow/following_graph")
 	return service
 }
 

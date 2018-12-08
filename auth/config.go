@@ -9,6 +9,8 @@ type Config struct {
 
 	UserHost string
 	UserPort uint16
+
+	StorageHosts []string
 }
 
 func (c *Config) Target() string {

@@ -37,11 +37,14 @@ func New(config *Config) *RpcService {
 		log.Fatal(err)
 	}
 
-	return &RpcService{config: config, service: CreateService(storage.RAFT, userService)}
+	return &RpcService{
+		config:  config,
+		service: CreateService(storage.StorageConfig{StorageType: storage.RAFT, Hosts: config.StorageHosts}, userService),
+	}
 }
 
 func NewStubServer(userService userpb.UserClient) *Service {
-	return CreateService(storage.STUB, userService)
+	return CreateService(storage.StorageConfig{StorageType: storage.STUB}, userService)
 }
 
 func NewClient(target string) (followpb.FollowClient, error) {

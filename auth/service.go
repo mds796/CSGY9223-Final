@@ -27,12 +27,12 @@ func DecodeCookie(cookie string) *http.Cookie {
 	return request.Cookies()[0]
 }
 
-func CreateService(storageType storage.StorageType, userService userpb.UserClient) *Service {
+func CreateService(storageConfig storage.StorageConfig, userService userpb.UserClient) *Service {
 	service := new(Service)
 	service.UserService = userService
-	service.PasswordCache = storage.CreateStorage(storageType, "auth/password_cache")
-	service.StatusCache = storage.CreateStorage(storageType, "auth/status_cache")
-	service.CookieCache = storage.CreateStorage(storageType, "auth/cookie_cache")
+	service.PasswordCache = storage.CreateStorage(storageConfig, "auth/password_cache")
+	service.StatusCache = storage.CreateStorage(storageConfig, "auth/status_cache")
+	service.CookieCache = storage.CreateStorage(storageConfig, "auth/cookie_cache")
 	return service
 }
 

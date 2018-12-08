@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"github.com/mds796/CSGY9223-Final/storage"
 	"github.com/mds796/CSGY9223-Final/user/userpb"
 	"testing"
 )
@@ -17,7 +16,7 @@ func contains(s []string, e string) bool {
 }
 
 func createClient() *StubClient {
-	return &StubClient{service: CreateStub(storage.STUB)}
+	return NewStubClient()
 }
 
 func sendCreateUserRequest(client *StubClient, request *userpb.CreateUserRequest) (*userpb.CreateUserResponse, error) {

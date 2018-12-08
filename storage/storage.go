@@ -3,9 +3,15 @@ package storage
 type StorageType int
 
 const (
-	RAFT StorageType = iota // RAFT == 0
-	STUB StorageType = iota // STUB == 1
+	STUB StorageType = iota
+	RAFT StorageType = iota
 )
+
+type StorageConfig struct {
+	StorageType StorageType
+	Hosts       []string
+	Namespace   string
+}
 
 type Storage interface {
 	Get(key string) ([]byte, error)
@@ -16,10 +22,11 @@ type Storage interface {
 
 // storageType: chooses the Raft or Stub implementation of Storage
 // namespace: provides logical separation for services in a key-value data store
-func CreateStorage(storageType StorageType, namespace string) Storage {
-	if storageType == RAFT {
-		return CreateRaftStorage(namespace)
-	} else {
-		return CreateStubStorage(namespace)
+func CreateStorage(config StorageConfig, namespace string) Storage {
+	switch config.StorageType {
+	case RAFT:
+		return CreateRaftStorage(config, namespace)
+	default:
+		return CreateStubStorage()
 	}
 }

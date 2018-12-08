@@ -16,10 +16,10 @@ type Service struct {
 	UsernameCache storage.Storage // (username, UID)
 }
 
-func CreateStub(storageType storage.StorageType) *Service {
+func CreateService(storageConfig storage.StorageConfig) *Service {
 	service := new(Service)
-	service.UIDCache = storage.CreateStorage(storageType, "user/uid_cache")
-	service.UsernameCache = storage.CreateStorage(storageType, "user/username_cache")
+	service.UIDCache = storage.CreateStorage(storageConfig, "user/uid_cache")
+	service.UsernameCache = storage.CreateStorage(storageConfig, "user/username_cache")
 	return service
 }
 

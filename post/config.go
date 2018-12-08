@@ -4,8 +4,9 @@ import "strconv"
 
 // Config is a configuration struct for the post service.
 type Config struct {
-	Host string
-	Port uint16
+	Host         string
+	Port         uint16
+	StorageHosts []string
 }
 
 func (c *Config) Target() string {

@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"go.etcd.io/etcd/clientv3"
+	"log"
 	"time"
 )
 
@@ -11,20 +12,18 @@ type RaftStorage struct {
 	Namespace string
 }
 
-func CreateRaftStorage(ns string) *RaftStorage {
-	client, err := clientv3.New(getRaftClusterConfig())
+func CreateRaftStorage(config StorageConfig, ns string) *RaftStorage {
+	client, err := clientv3.New(clientv3.Config{
+		Endpoints:   config.Hosts,
+		DialTimeout: 5 * time.Second,
+	})
 	if err != nil {
 		// handle error!
+		log.Fatalf("Could not connect to Raft nodes: %v", err)
+		panic(err)
 	}
 	// defer client.Close()
 	return &RaftStorage{Client: client, Namespace: ns + "/"}
-}
-
-func getRaftClusterConfig() clientv3.Config {
-	return clientv3.Config{
-		Endpoints:   []string{"localhost:2379", "localhost:22379", "localhost:32379"},
-		DialTimeout: 5 * time.Second,
-	}
 }
 
 func (s *RaftStorage) Get(key string) ([]byte, error) {
