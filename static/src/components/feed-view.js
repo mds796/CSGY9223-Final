@@ -76,6 +76,8 @@ class FeedView extends PolymerElement {
     fetchFeed() {
         const provider = this;
 
+        console.log("Fetching feed")
+
         if (!provider.active) {
             return;
         }
@@ -89,8 +91,10 @@ class FeedView extends PolymerElement {
         }).then(data => {
             provider.feed = data.Posts;
         }).catch(err => {
-            console.log("Unable to fetch follows: ", err);
+            console.log("Unable to fetch feed: ", err);
         });
+
+        setTimeout(() => this.fetchFeed(), 1000);
     }
 }
 
