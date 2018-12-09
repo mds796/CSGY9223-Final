@@ -7,9 +7,9 @@ Please follow [these](https://medium.com/@RidhamTarpara/install-go-1-11-on-ubunt
 
 ### Node.js v11.x
 ```bash
-$ sudo apt-get install -y curl
-$ curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
-$ sudo apt-get install -y nodejs
+sudo apt-get install -y curl
+curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
+sudo apt-get install -y nodejs
 ```
 
 ### gRPC
