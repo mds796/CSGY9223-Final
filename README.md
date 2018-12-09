@@ -1,9 +1,9 @@
 # M3
 
-## Prerequisites
+## Prerequisites & Dependencies
 
-### Go 1.11
-Follow these instructions: https://medium.com/@RidhamTarpara/install-go-1-11-on-ubuntu-18-04-16-04-lts-8c098c503c5f
+### go1.11
+Please follow [these](https://medium.com/@RidhamTarpara/install-go-1-11-on-ubuntu-18-04-16-04-lts-8c098c503c5f) instructions.
 
 ### Node.js v11.x
 ```bash
