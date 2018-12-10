@@ -2,19 +2,18 @@
 
 ## Prerequisites
 
+
+
 ### go1.11
 Please follow [these](https://medium.com/@RidhamTarpara/install-go-1-11-on-ubuntu-18-04-16-04-lts-8c098c503c5f) instructions.
 
-### Node.js v11.x
+### Bash Dependencies
 ```bash
-sudo apt-get install -y curl
-curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
-sudo apt-get install -y nodejs
+sudo apt-get install -y curl git-core
 ```
 
-### Miscellaneous Dependencies
-```bash
-sudo apt-get install -y git-core
+### Go Dependencies
+```
 go get github.com/spf13/cobra
 go get github.com/pkg/errors
 go get github.com/etcd-io/etcd
@@ -22,6 +21,13 @@ go get github.com/mattn/goreman
 go get github.com/gogo/protobuf/proto
 go get github.com/google/uuid
 rm -rf $GOPATH/src/go.etcd.io/etcd/vendor/golang.org/x/net/trace
+```
+
+
+### Node.js v11.x
+```bash
+curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
+sudo apt-get install -y nodejs
 ```
 
 ### gRPC
