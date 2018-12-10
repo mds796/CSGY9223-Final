@@ -12,6 +12,18 @@ curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
 
+### Miscellaneous Dependencies
+```bash
+sudo apt-get install -y git-core
+go get github.com/spf13/cobra
+go get github.com/pkg/errors
+go get github.com/etcd-io/etcd
+go get github.com/mattn/goreman
+go get github.com/gogo/protobuf/proto
+go get github.com/google/uuid
+rm -rf $GOPATH/src/go.etcd.io/etcd/vendor/golang.org/x/net/trace
+```
+
 ### gRPC
 ```bash
 go get -u google.golang.org/grpc
@@ -25,18 +37,6 @@ unzip protoc-3.6.1-linux-x86_64.zip -d protoc-3.6.1-linux-x86_64/
 export PATH=$PATH:~/Downloads/protoc-3.6.1-linux-x86_64
 go get -u github.com/golang/protobuf/protoc-gen-go
 export PATH=$PATH:$GOPATH/bin
-```
-
-### Miscellaneous Dependencies
-```bash
-sudo apt-get install -y git-core
-go get github.com/spf13/cobra
-go get github.com/pkg/errors
-go get github.com/etcd-io/etcd
-go get github.com/mattn/goreman
-go get github.com/gogo/protobuf/proto
-go get github.com/google/uuid
-rm -rf $GOPATH/src/go.etcd.io/etcd/vendor/golang.org/x/net/trace
 ```
 
 ## Build
