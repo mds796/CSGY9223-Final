@@ -21,7 +21,7 @@ class RegisterView extends PolymerElement {
 
           <section>
             <h2>Register</h2>
-           
+            <p>Usernames must be at least 6 characters.</p>
             <form action="/register" method="post">
               <div>
                 <label for="username">Username: </label>
