@@ -2,8 +2,6 @@
 
 ## Prerequisites
 
-
-
 ### go1.11
 Please follow [these](https://medium.com/@RidhamTarpara/install-go-1-11-on-ubuntu-18-04-16-04-lts-8c098c503c5f) instructions.
 
@@ -22,7 +20,6 @@ go get github.com/gogo/protobuf/proto
 go get github.com/google/uuid
 rm -rf $GOPATH/src/go.etcd.io/etcd/vendor/golang.org/x/net/trace
 ```
-
 
 ### Node.js v11.x
 ```bash
