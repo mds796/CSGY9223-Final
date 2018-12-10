@@ -36,14 +36,15 @@ go get github.com/etcd-io/etcd
 go get github.com/mattn/goreman
 go get github.com/gogo/protobuf/proto
 go get github.com/google/uuid
+rm -rf $GOPATH/src/go.etcd.io/etcd/vendor/golang.org/x/net/trace
 ```
 
 ## Build
 ```bash
-$ mkdir ~/go/src/github.com/mds796
-$ git clone git@github.com:mds796/CSGY9223-Final.git ~/go/src/github.com/mds796/CSGY9223-Final
-$ cd ~/go/src/github.com/mds796/CSGY9223-Final/static/
-$ npm install
+mkdir ~/go/src/github.com/mds796
+git clone git@github.com:mds796/CSGY9223-Final.git ~/go/src/github.com/mds796/CSGY9223-Final
+cd ~/go/src/github.com/mds796/CSGY9223-Final/static/
+npm install
 ```
 
 ## Run
