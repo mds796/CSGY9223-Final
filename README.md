@@ -15,8 +15,14 @@ sudo apt-get install -y nodejs
 ### gRPC
 ```bash
 go get -u google.golang.org/grpc
+```
+
+### Protocol Buffers v3
+```bash
+cd Downloads/
 wget https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protoc-3.6.1-linux-x86_64.zip
 unzip protoc-3.6.1-linux-x86_64.zip -d protoc-3.6.1-linux-x86_64/
+export PATH=$PATH:~/Downloads/protoc-3.6.1-linux-x86_64
 go get -u github.com/golang/protobuf/protoc-gen-go
 export PATH=$PATH:$GOPATH/bin
 ```
