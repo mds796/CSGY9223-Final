@@ -73,8 +73,6 @@ cd ~/go/src/github.com/mds796/CSGY9223-Final
 ./run.sh
 ```
 
-This command will execute all of the above steps. It allows the web server to serve updates to the static files.
-
 ### Stop
 ```bash
 cd ~/go/src/github.com/mds796/CSGY9223-Final
