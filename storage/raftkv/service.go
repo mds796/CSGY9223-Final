@@ -12,8 +12,8 @@ type Service struct {
 
 func CreateService(nodeID string, address string, standaloneCluster bool) *Service {
 	service := new(Service)
-	service.Raft = CreateRaftKV(address)
-	err := service.Raft.Open(nodeID, standaloneCluster)
+	service.Raft = CreateRaftKV(nodeID, address)
+	err := service.Raft.Open(standaloneCluster)
 	if err != nil {
 		log.Fatalf("Error creating Raft node: %v", err)
 		panic("Cannot create Raft node")
@@ -36,8 +36,8 @@ func (s *Service) Delete(ctx context.Context, request *raftkvpb.DeleteRequest) (
 	return &raftkvpb.DeleteResponse{}, err
 }
 
-func (s *Service) Iterate(ctx context.Context, _ *raftkvpb.IterateRequest) (*raftkvpb.IterateResponse, error) {
-	kv := s.Raft.Iterate()
+func (s *Service) Iterate(ctx context.Context, request *raftkvpb.IterateRequest) (*raftkvpb.IterateResponse, error) {
+	kv := s.Raft.Iterate(request.Namespace)
 	return &raftkvpb.IterateResponse{KV: &raftkvpb.KeyValue{KV: kv}}, nil
 }
 

@@ -11,11 +11,13 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
 
 type RaftKV struct {
+	RaftID            string
 	RaftDir           string
 	RaftAddress       string
 	SnapshotThreshold int
@@ -25,30 +27,25 @@ type RaftKV struct {
 	mutex             sync.Mutex
 }
 
-func CreateRaftKV(address string) *RaftKV {
-	// raftDir := flag.Arg(0)
-	// if raftDir == "" {
-	// 	fmt.Fprintf(os.Stderr, "No Raft storage directory specified\n")
-	// 	os.Exit(1)
-	// }
-	// os.MkdirAll(raftDir, 0700)
-
-	// s := store.New(inmem)
-	// s.RaftDir = raftDir
-	// s.RaftAddress = raftAddr
+func CreateRaftKV(raftID string, address string) *RaftKV {
+	raftDir := "./" + raftID
+	os.MkdirAll(raftDir, 0700)
 
 	return &RaftKV{
+		RaftID:            raftID,
+		RaftDir:           raftDir,
 		RaftAddress:       address,
 		SnapshotThreshold: 100,
 		Timeout:           10 * time.Second,
 		KV:                map[string][]byte{},
+		mutex:             sync.Mutex{},
 	}
 }
 
-func (r *RaftKV) Open(localID string, standaloneCluster bool) error {
+func (r *RaftKV) Open(standaloneCluster bool) error {
 	// Setup Raft
 	config := raft.DefaultConfig()
-	config.LocalID = raft.ServerID(localID)
+	config.LocalID = raft.ServerID(r.RaftID)
 
 	// Setup Raft gRPC
 	// TODO
@@ -56,7 +53,6 @@ func (r *RaftKV) Open(localID string, standaloneCluster bool) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("TCP address: %v", addr)
 	transport, err := raft.NewTCPTransport(r.RaftAddress, addr, 3, 10*time.Second, os.Stderr)
 	if err != nil {
 		return err
@@ -93,12 +89,12 @@ func (r *RaftKV) Open(localID string, standaloneCluster bool) error {
 
 // Configuration changes in the Raft cluster
 func (r *RaftKV) Join(nodeID string, addr string) error {
-	log.Printf("[RAFTDB] Received join request for remote node '%s' at '%s'", nodeID, addr)
+	log.Printf("[RAFTKV] Received join request for remote node '%s' at '%s'", nodeID, addr)
 
 	configFuture := r.Raft.GetConfiguration()
 	err := configFuture.Error()
 	if err != nil {
-		log.Printf("[RAFTDB] Railed to get Raft configuration future: %v", err)
+		log.Printf("[RAFTKV] Failed to get Raft configuration future: %v", err)
 		return err
 	}
 
@@ -125,7 +121,7 @@ func (r *RaftKV) Join(nodeID string, addr string) error {
 		return err
 	}
 
-	log.Printf("[RAFTDB] Node %s at %s joined Raft cluster", nodeID, addr)
+	log.Printf("[RAFTKV] Node %s at %s joined Raft cluster", nodeID, addr)
 	return nil
 }
 
@@ -147,13 +143,15 @@ func (r *RaftKV) Delete(key string) error {
 	return r.ApplyLogEntry(raftkvpb.LogEntryType_DEL, key, []byte{})
 }
 
-func (r *RaftKV) Iterate() map[string][]byte {
+func (r *RaftKV) Iterate(namespace string) map[string][]byte {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
 	kv := map[string][]byte{}
 	for k, v := range r.KV {
-		kv[k] = v
+		if strings.HasPrefix(k, namespace) {
+			kv[k] = v
+		}
 	}
 
 	return kv
@@ -223,7 +221,9 @@ func (r *RaftKV) Restore(rc io.ReadCloser) error {
 
 // Current state of the key-value store
 func (r *RaftKV) Snapshot() (raft.FSMSnapshot, error) {
-	return &Snapshot{Store: &raftkvpb.KeyValue{KV: r.Iterate()}}, nil
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	return &Snapshot{Store: &raftkvpb.KeyValue{KV: r.Iterate("")}}, nil
 }
 
 type Snapshot raftkvpb.Snapshot

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
-readonly GO_PATH=$(go env GOPATH)
+./CSGY9223-Final raftkv restart -N node0 -H localhost -P 7000 &
 
-cd ${GO_PATH}/src/go.etcd.io/etcd && go build && ./build && ${GO_PATH}/bin/goreman start
+# Wait for an election
+sleep 5
+
+./CSGY9223-Final raftkv restart -N node1 -H localhost -P 7010 --joinHost localhost --joinPort 7000 &
+./CSGY9223-Final raftkv restart -N node2 -H localhost -P 7020 --joinHost localhost --joinPort 7000 &

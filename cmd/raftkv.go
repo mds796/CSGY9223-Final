@@ -18,6 +18,7 @@ func init() {
 
 	raftkvSetStartArgs(startRaftKVCmd)
 	raftkvSetStartArgs(restartRaftKVCmd)
+	raftkvSetStopArgs(stopRaftKVCmd)
 }
 
 func raftkvSetStartArgs(command *cobra.Command) {
@@ -26,6 +27,10 @@ func raftkvSetStartArgs(command *cobra.Command) {
 	command.Flags().Uint16VarP(&raftkvConfig.Port, "port", "P", 2379, "The TCP port to listen on.")
 	command.Flags().StringVar(&raftkvConfig.JoinHost, "joinHost", "", "The host interface the current leader is listening on.")
 	command.Flags().Uint16Var(&raftkvConfig.JoinPort, "joinPort", 0, "The TCP port the current leader is listening on.")
+}
+
+func raftkvSetStopArgs(command *cobra.Command) {
+	command.Flags().StringVarP(&raftkvConfig.NodeID, "nodeID", "N", "node0", "The unique NodeID identifying this RaftKV node.")
 }
 
 var raftkvCmd = &cobra.Command{
@@ -41,7 +46,7 @@ var startRaftKVCmd = &cobra.Command{
 	Short: "Starts raftkv.",
 	Long:  `Starts a raftkv node process.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		writePidFile(raftkvPidFile)
+		writePidFile("." + raftkvConfig.NodeID + raftkvPidFile)
 		err := raftkv.New(&raftkvConfig).Start()
 
 		if err != nil {
@@ -55,7 +60,7 @@ var stopRaftKVCmd = &cobra.Command{
 	Short: "Stops raftkv.",
 	Long:  `Stops a raftkv node process.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		stopServer(raftkvPidFile)
+		stopServer("." + raftkvConfig.NodeID + raftkvPidFile)
 	},
 }
 

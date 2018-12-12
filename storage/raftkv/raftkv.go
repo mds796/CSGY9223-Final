@@ -57,5 +57,16 @@ func NewClient(target string) (raftkvpb.RaftKVClient, error) {
 	}
 
 	return raftkvpb.NewRaftKVClient(conn), nil
+}
 
+func NewClusterClients(targets []string) ([]raftkvpb.RaftKVClient, error) {
+	clients := []raftkvpb.RaftKVClient{}
+	for _, target := range targets {
+		client, err := NewClient(target)
+		if err != nil {
+			return []raftkvpb.RaftKVClient{}, err
+		}
+		clients = append(clients, client)
+	}
+	return clients, nil
 }

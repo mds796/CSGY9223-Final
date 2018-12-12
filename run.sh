@@ -35,7 +35,8 @@ function awaitServer()
 }
 
 ./raft.sh &
-awaitServer 2379 "etcd"
+# Wait raft nodes to join and update configuration
+sleep 15
 
 cd static && npm run build:static && npm run start -- --port=8000 &
 awaitServer 8000 "static asset"

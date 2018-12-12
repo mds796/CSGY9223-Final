@@ -38,6 +38,7 @@ message DeleteResponse {
 }
 
 message IterateRequest {
+  string Namespace = 1;
 }
 
 message IterateResponse {

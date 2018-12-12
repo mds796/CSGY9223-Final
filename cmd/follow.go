@@ -27,7 +27,7 @@ func followSetStartArgs(command *cobra.Command) {
 	command.Flags().StringVar(&followConfig.UserHost, "userHost", "localhost", "The hostname user service listens on.")
 	command.Flags().Uint16Var(&followConfig.UserPort, "userPort", 8081, "The TCP port user service listens on.")
 
-	command.Flags().StringSliceVar(&followConfig.StorageHosts, "storageHosts", []string{"localhost:2379", "localhost:22379", "localhost:32379"}, "The hostnames and TCP ports storage nodes listen on.")
+	command.Flags().StringSliceVar(&followConfig.StorageHosts, "storageHosts", []string{"localhost:7000", "localhost:7010", "localhost:7020"}, "The hostnames and TCP ports storage nodes listen on.")
 }
 
 var followCmd = &cobra.Command{

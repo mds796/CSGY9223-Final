@@ -6,8 +6,8 @@ import (
 )
 
 func createRaftKV() *RaftKV {
-	r := CreateRaftKV("0.0.0.0:1234")
-	r.Open("node0", true)
+	r := CreateRaftKV("node0", "localhost:1234")
+	r.Open(true)
 
 	// Wait to rig an election
 	time.Sleep(3 * time.Second)
@@ -66,26 +66,47 @@ func TestRaftKV_Delete(t *testing.T) {
 
 // 	k := "key"
 // 	err := r.Delete(k)
-// 	log.Print(r.KV)
 // 	if err == nil {
 // 		t.Fatalf("Error in DELETE call with invalid key")
 // 	}
 // }
 
-func TestRaftKV_Iterate(t *testing.T) {
+func TestRaftKV_IterateWithNamespace(t *testing.T) {
 	r := createRaftKV()
 
 	kvs := map[string][]byte{
-		"key1": []byte("value1"),
-		"key2": []byte("value2"),
-		"key3": []byte("value3"),
+		"ns1/key1": []byte("value1"),
+		"ns1/key2": []byte("value2"),
+		"ns1/key3": []byte("value3"),
+	}
+
+	for k, v := range kvs {
+		r.Put(k, v)
+	}
+	r.Put("ns2/key1", []byte("not-value"))
+
+	for k, v := range r.Iterate("ns1/") {
+		if string(kvs[k]) != string(v) {
+			t.Fatalf("Expected '%v', received '%v'.", string(kvs[k]), string(v))
+		}
+	}
+}
+
+func TestRaftKV_IterateWithoutNamespace(t *testing.T) {
+	r := createRaftKV()
+
+	kvs := map[string][]byte{
+		"ns1/key1": []byte("value1"),
+		"ns1/key2": []byte("value2"),
+		"ns1/key3": []byte("value3"),
+		"ns2/key1": []byte("not-value"),
 	}
 
 	for k, v := range kvs {
 		r.Put(k, v)
 	}
 
-	for k, v := range r.Iterate() {
+	for k, v := range r.Iterate("") {
 		if string(kvs[k]) != string(v) {
 			t.Fatalf("Expected '%v', received '%v'.", string(kvs[k]), string(v))
 		}
