@@ -22,7 +22,7 @@ func (srv *HttpService) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 		if err == nil {
 			http.SetCookie(w, &http.Cookie{Name: "error", Value: "", Expires: time.Unix(0, 0)})
-			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
+			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(24 * time.Hour)})
 			responseCookie := auth.DecodeCookie(response.Cookie)
 			http.SetCookie(w, responseCookie)
 
@@ -69,7 +69,7 @@ func getUserAndPassword(reader io.ReadCloser, repeatPassword bool) (username str
 }
 
 func setErrorCookie(w http.ResponseWriter, message string) {
-	http.SetCookie(w, &http.Cookie{Name: "error", Value: message, Expires: time.Now().Add(5 * time.Minute)})
+	http.SetCookie(w, &http.Cookie{Name: "error", Value: message, Expires: time.Now().Add(10 * time.Second)})
 }
 
 func (srv *HttpService) LogInUser(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +82,7 @@ func (srv *HttpService) LogInUser(w http.ResponseWriter, r *http.Request) {
 
 		if err == nil {
 			http.SetCookie(w, &http.Cookie{Name: "error", Value: "", Expires: time.Unix(0, 0)})
-			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(1 * time.Minute)})
+			http.SetCookie(w, &http.Cookie{Name: "username", Value: username, Expires: time.Now().Add(24 * time.Hour)})
 			responseCookie := auth.DecodeCookie(response.Cookie)
 			http.SetCookie(w, responseCookie)
 

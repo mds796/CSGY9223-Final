@@ -9,14 +9,14 @@ if [[ $CMD == "start" ]]; then
         ./CSGY9223-Final raftkv restart -N node0 -H localhost -P 7000 &
 
         # Wait for an election
-        sleep 5
+        sleep 3
 
         # Start node1 and node2 and join cluster at localhost:7000
         ./CSGY9223-Final raftkv restart -N node1 -H localhost -P 7010 --joinHost localhost --joinPort 7000 &
         ./CSGY9223-Final raftkv restart -N node2 -H localhost -P 7020 --joinHost localhost --joinPort 7000 &
 
         # Wait raft nodes to join and update configuration
-        sleep 10
+        sleep 2
     elif [[ $NODE == "node0" ]]; then
         ./CSGY9223-Final raftkv restart -N node0 -H localhost -P 7000 &
     elif [[ $NODE == "node1" ]]; then
