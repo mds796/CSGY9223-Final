@@ -88,7 +88,7 @@
 ```
 ### HashiCorp
 
-## Demo Showing All the Functionality of the UI
+## Demo All the Functionality of the UI
 * Register(`professor`)
 * Login(`professor`)
 * Post(`professor`, `There are only two hard problems in distributed systems:  2. Exactly-once delivery 1. Guaranteed order of messages 2. Exactly-once delivery`)
@@ -100,6 +100,18 @@
 * Unfollow(`mks629`, `professor`)
   * Doesn't see post by `professor`
 * Logout(`mks629`)
+
+## Demo User Scenario That Would Use Replication
+Any action that interacts with `storage` uses replication.
+* Login(`mks629`)
+* Follow(`mks629`, `professor`)
+* Logout(`mks629`)
+* Login(`professor`)
+* \**kill one of the backend servers*\*
+* Post(`professor`, `I was gonna tell you guys a joke about UDP, but you might not get it.`)
+* Logout(`professor`)
+* Login(`mks629`)
+  * Sees most recent post by `professor`
 
 ## Problems
 * **RPC Messages from Stage 2 to Stage 3**
