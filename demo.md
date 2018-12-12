@@ -89,7 +89,7 @@
 ```
 ### HashiCorp
 
-### Demo Showing All the Functionality of the UI
+## Demo Showing All the Functionality of the UI
 * Register user `professor`
 * Login user `professor`
 * Post under user `professor`
