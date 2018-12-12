@@ -89,17 +89,17 @@
 ### HashiCorp
 
 ## Demo Showing All the Functionality of the UI
-* Register user `professor`
-* Login user `professor`
-* Post under user `professor`
-* Logout user `professor`
-* Login user `mks629`
-* Search for user `professor`
-* Follow `professor`
+* Register(`professor`)
+* Login(`professor`)
+* Post(`professor`, `There are only two hard problems in distributed systems:  2. Exactly-once delivery 1. Guaranteed order of messages 2. Exactly-once delivery`)
+* Logout(`professor`)
+* Login(`mks629`)
+* Search(`p`)
+* Follow(`mks629`, `professor`)
   * Sees post by `professor`
-* Unfollow `professor`
+* Unfollow(`mks629`, `professor`)
   * Doesn't see post by `professor`
-* Logout user `mks629`
+* Logout(`mks629`)
 
 ## Problems
 * **RPC Messages from Stage 2 to Stage 3**
