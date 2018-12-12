@@ -89,6 +89,19 @@
 ```
 ### HashiCorp
 
+### Demo
+* Register user `professor`
+* Login user `professor`
+* Post under user `professor`
+* Logout user `professor`
+* Login user `mks629`
+* Search for user `professor`
+* Follow `professor`
+  * Sees post by `professor`
+* Unfollow `professor`
+  * Doesn't see post by `professor`
+* Logout user `mks629`
+
 ## Problems
 
 ## What We Learned
