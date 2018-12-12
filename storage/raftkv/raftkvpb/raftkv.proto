@@ -1,0 +1,23 @@
+syntax="proto3";
+package raftkv.model;
+
+option go_package= "raftkvpb";
+
+enum LogEntryType {
+    PUT = 0;
+    DEL = 1;
+}
+
+message LogEntry {
+    LogEntryType Type = 1;
+    string Key = 2;
+    bytes Value = 3;
+}
+
+message KeyValue {
+    map<string, bytes> KV = 1;
+}
+
+message Snapshot {
+    KeyValue Store = 1;
+}

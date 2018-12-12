@@ -25,6 +25,7 @@ func (s *StubStorage) Put(key string, value []byte) error {
 func (s *StubStorage) Delete(key string) error {
 	if _, ok := s.storage[key]; ok {
 		delete(s.storage, key)
+		return nil
 	}
 	return &InvalidKeyError{Key: key}
 }
