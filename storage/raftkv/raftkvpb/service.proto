@@ -1,0 +1,53 @@
+syntax="proto3";
+package raftkv.service;
+
+option go_package= "raftkvpb";
+
+import "raftkv.proto";
+
+service RaftKV {
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc Put(PutRequest) returns (PutResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc Iterate(IterateRequest) returns (IterateResponse);
+  rpc Join(JoinRequest) returns (JoinResponse);
+}
+
+message GetRequest {
+  string Key = 1;
+}
+
+message GetResponse {
+  string Key = 1;
+  bytes Value = 2;
+}
+
+message PutRequest {
+  string Key = 1;
+  bytes Value = 2;
+}
+
+message PutResponse {
+}
+
+message DeleteRequest {
+  string Key = 1;
+}
+
+message DeleteResponse {
+}
+
+message IterateRequest {
+}
+
+message IterateResponse {
+  raftkv.model.KeyValue KV = 1;
+}
+
+message JoinRequest {
+  string NodeID = 1;
+  string Address = 2;
+}
+
+message JoinResponse {
+}

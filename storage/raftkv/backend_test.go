@@ -6,7 +6,7 @@ import (
 )
 
 func createRaftKV() *RaftKV {
-	r := CreateRaftKV()
+	r := CreateRaftKV("0.0.0.0:1234")
 	r.Open("node0", true)
 
 	// Wait to rig an election

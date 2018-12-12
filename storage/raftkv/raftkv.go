@@ -1,252 +1,61 @@
-// Based on https://github.com/otoolep/hraftd/
-
 package raftkv
 
 import (
-	"fmt"
-	"github.com/gogo/protobuf/proto"
-	"github.com/hashicorp/raft"
+	"context"
 	"github.com/mds796/CSGY9223-Final/storage/raftkv/raftkvpb"
-	"io"
+	"google.golang.org/grpc"
 	"log"
 	"net"
-	"os"
-	"sync"
-	"time"
 )
 
-type RaftKV struct {
-	RaftDir           string
-	RaftBind          string
-	SnapshotThreshold int
-	Timeout           time.Duration
-	KV                map[string][]byte // key-value storage
-	Raft              *raft.Raft
-	mutex             sync.Mutex
+type RpcService struct {
+	config  *Config
+	service *Service
 }
 
-func CreateRaftKV() *RaftKV {
-	return &RaftKV{
-		SnapshotThreshold: 100,
-		Timeout:           10 * time.Second,
-		KV:                map[string][]byte{},
-	}
-}
+func (s *RpcService) Start() error {
+	srv := grpc.NewServer()
+	raftkvpb.RegisterRaftKVServer(srv, s.service)
 
-func (r *RaftKV) Open(localID string, singlePeer bool) error {
-	// Setup Raft
-	config := raft.DefaultConfig()
-	config.LocalID = raft.ServerID(localID)
-
-	// Setup Raft gRPC
-	// TODO
-	addr, err := net.ResolveTCPAddr("tcp", r.RaftBind)
-	if err != nil {
-		return err
-	}
-	transport, err := raft.NewTCPTransport(r.RaftBind, addr, 3, 10*time.Second, os.Stderr)
+	lis, err := net.Listen("tcp", s.config.Target())
 	if err != nil {
 		return err
 	}
 
-	// Setup snapshot store
-	snapshotStore, err := raft.NewFileSnapshotStore(r.RaftDir, r.SnapshotThreshold, os.Stderr)
-	if err != nil {
-		return &SnapshotStoreError{Path: r.RaftDir}
-	}
-	logStore := raft.NewInmemStore()
-	stableStore := raft.NewInmemStore()
+	log.Printf("RaftKV now listening on %v.\n", s.config.Target())
 
-	raftInstance, err := raft.NewRaft(config, r, logStore, stableStore, snapshotStore, transport)
-	if err != nil {
-		return &RaftInstantiationError{}
-	}
-	r.Raft = raftInstance
-
-	if singlePeer {
-		clusterConfig := raft.Configuration{
-			Servers: []raft.Server{
-				{
-					ID:      config.LocalID,
-					Address: transport.LocalAddr(),
-				},
-			},
-		}
-		r.Raft.BootstrapCluster(clusterConfig)
-	}
-
-	return nil
+	return srv.Serve(lis)
 }
 
-// Configuration changes in the Raft cluster
-func (r *RaftKV) Join(nodeID string, addr string) error {
-	log.Printf("[RAFTDB] Received join request for remote node '%s' at '%s'", nodeID, addr)
+func New(config *Config) *RpcService {
+	standaloneCluster := config.JoinHost == ""
 
-	configFuture := r.Raft.GetConfiguration()
-	err := configFuture.Error()
-	if err != nil {
-		log.Printf("[RAFTDB] Railed to get Raft configuration future: %v", err)
-		return err
+	r := &RpcService{
+		config:  config,
+		service: CreateService(config.NodeID, config.RaftTarget(), standaloneCluster),
 	}
 
-	for _, server := range configFuture.Configuration().Servers {
-		// Remove existing nodes from config
-		if server.ID == raft.ServerID(nodeID) || server.Address == raft.ServerAddress(addr) {
-			// Ignore if this config is already done
-			if server.ID == raft.ServerID(nodeID) && server.Address == raft.ServerAddress(addr) {
-				return nil
-			}
-
-			indexFuture := r.Raft.RemoveServer(server.ID, 0, 0)
-			err := indexFuture.Error()
-			if err != nil {
-				return fmt.Errorf("error removing existing node %s at %s: %s", nodeID, addr, err)
-			}
-		}
-	}
-
-	// Add node to Raft config
-	f := r.Raft.AddVoter(raft.ServerID(nodeID), raft.ServerAddress(addr), 0, 0)
-	err = f.Error()
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[RAFTDB] Node %s at %s joined Raft cluster", nodeID, addr)
-	return nil
-}
-
-func (r *RaftKV) Get(key string) ([]byte, error) {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-
-	if value, ok := r.KV[key]; ok {
-		return value, nil
-	}
-	return []byte{}, &InvalidKeyError{Key: key}
-}
-
-func (r *RaftKV) Put(key string, value []byte) error {
-	// r.KV[key] = value
-	// return nil
-
-	return r.ApplyLogEntry(raftkvpb.LogEntryType_PUT, key, value)
-}
-
-func (r *RaftKV) Delete(key string) error {
-	// if _, ok := r.KV[key]; ok {
-	// 	delete(r.KV, key)
-	// 	return nil
-	// }
-	// return &InvalidKeyError{Key: key}
-
-	return r.ApplyLogEntry(raftkvpb.LogEntryType_DEL, key, []byte{})
-}
-
-func (r *RaftKV) Iterate() map[string][]byte {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-
-	kv := map[string][]byte{}
-	for k, v := range r.KV {
-		kv[k] = v
-	}
-
-	return kv
-}
-
-func (r *RaftKV) ApplyLogEntry(t raftkvpb.LogEntryType, key string, value []byte) error {
-	logEntry := &raftkvpb.LogEntry{
-		Type:  t,
-		Key:   key,
-		Value: value,
-	}
-
-	b, err := proto.Marshal(logEntry)
-	if err != nil {
-		return err
-	}
-	f := r.Raft.Apply(b, r.Timeout)
-	return f.Error()
-}
-
-// Apply log entry to state-machine
-func (r *RaftKV) Apply(l *raft.Log) interface{} {
-	var entry raftkvpb.LogEntry
-
-	if err := proto.Unmarshal(l.Data, &entry); err != nil {
-		panic("failed to unmarshal log entry")
-	}
-
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-
-	switch entry.Type {
-	case raftkvpb.LogEntryType_PUT:
-		r.KV[entry.Key] = entry.Value
-		return nil
-	case raftkvpb.LogEntryType_DEL:
-		_, ok := r.KV[entry.Key]
-		if ok {
-			delete(r.KV, entry.Key)
-			return nil
-		}
-		return &InvalidKeyError{Key: entry.Key}
-	default:
-		return &InvalidLogEntryTypeError{LogEntryType: entry.Type}
-	}
-}
-
-// Restore key-value store from a snapshot
-func (r *RaftKV) Restore(rc io.ReadCloser) error {
-	buffer := []byte{}
-	_, err := io.ReadFull(rc, buffer)
-	if err != nil {
-		return err
-	}
-
-	snapshot := raftkvpb.Snapshot{}
-	err = proto.Unmarshal(buffer, &snapshot)
-	if err != nil {
-		return err
-	}
-
-	// Set the state from the snapshot, no lock required according to
-	// Hashicorp docs.
-	r.KV = snapshot.Store.KV
-	return nil
-}
-
-// Current state of the key-value store
-func (r *RaftKV) Snapshot() (raft.FSMSnapshot, error) {
-	return &Snapshot{Store: &raftkvpb.KeyValue{KV: r.Iterate()}}, nil
-}
-
-type Snapshot raftkvpb.Snapshot
-
-// Write snapshot to disk
-func (s *Snapshot) Persist(sink raft.SnapshotSink) error {
-	err := func() error {
-		// Encode data.
-		b, err := proto.Marshal(s.Store)
+	if standaloneCluster {
+		log.Printf("RaftKV node %v started as standalone cluster", config.NodeID)
+	} else {
+		log.Printf("RaftKV node %v trying to join cluster at %v", config.NodeID, config.JoinTarget())
+		c, err := NewClient(config.JoinTarget())
 		if err != nil {
-			return err
+			panic("Could not open connection with RaftKV cluster")
 		}
-
-		// Write data to sink.
-		if _, err := sink.Write(b); err != nil {
-			return err
-		}
-
-		// Close the sink.
-		return sink.Close()
-	}()
-
-	if err != nil {
-		sink.Cancel()
+		c.Join(context.Background(), &raftkvpb.JoinRequest{NodeID: config.NodeID, Address: config.RaftTarget()})
 	}
 
-	return err
+	return r
 }
 
-func (s *Snapshot) Release() {}
+func NewClient(target string) (raftkvpb.RaftKVClient, error) {
+	conn, err := grpc.Dial(target, grpc.WithInsecure())
+
+	if err != nil {
+		return nil, err
+	}
+
+	return raftkvpb.NewRaftKVClient(conn), nil
+
+}
