@@ -1,5 +1,4 @@
-# M3
-### Matheus Vieira Portela, Miguel David Salcedo, Mel Savich
+# M3: Matheus Vieira Portela, Miguel David Salcedo, Mel Savich
 
 ## Architecture
 ```bash
