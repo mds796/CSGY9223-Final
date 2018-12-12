@@ -1,3 +1,7 @@
+# M3
+> Matheus Vieira Portela, Mel Savich, Miguel David Salcedo
+
+## Architecture
 ```bash
 .
 └── CSGY9223-Final
@@ -83,3 +87,27 @@
         ├── web.go
         └── web_test.go
 ```
+### HashiCorp
+
+## Demo Showing All the Functionality of the UI
+* Register user `professor`
+* Login user `professor`
+* Post under user `professor`
+* Logout user `professor`
+* Login user `mks629`
+* Search for user `professor`
+* Follow `professor`
+  * Sees post by `professor`
+* Unfollow `professor`
+  * Doesn't see post by `professor`
+* Logout user `mks629`
+
+## Problems
+* **RPC Messages from Stage 2 to Stage 3**
+  * Our RPC messages contained different types such as `int`, object `Cookie`, and pointers to miscellaneous objects. We ended up using one coherent model; all data was serialized as bytes, and once received, it was deserialized.
+
+## What We Learned
+* **Good design early on is *critical*.**
+  * We didn't have to go back and redo *too much* work.
+* **Unit test often.**
+  * Testing made trying new things easier. It helped us decide early on if something was going to work, or it wasn't.
