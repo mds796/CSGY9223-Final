@@ -103,5 +103,8 @@
 * Logout user `mks629`
 
 ## Problems
+* **RPC messages from Stage 2 to Stage 3**
+  * Our RPC messages contained different types such as `int`, object `Cookie`, and pointers to miscellaneous objects. We ended up using one coherent model; all data was serialized as bytes, and once received, it was deserialized.
 
 ## What We Learned
+* Good design early on is *critical*.
