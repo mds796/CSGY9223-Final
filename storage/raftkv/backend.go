@@ -17,14 +17,14 @@ import (
 )
 
 type RaftKV struct {
-	RaftID            string
-	RaftDir           string
-	RaftAddress       string
-	SnapshotThreshold int
-	Timeout           time.Duration
-	KV                map[string][]byte // key-value storage
-	Raft              *raft.Raft
-	mutex             sync.Mutex
+	RaftID           string
+	RaftDir          string
+	RaftAddress      string
+	MaxSnapshotCount int
+	Timeout          time.Duration
+	KV               map[string][]byte // key-value storage
+	Raft             *raft.Raft
+	mutex            sync.Mutex
 }
 
 func CreateRaftKV(raftID string, address string) *RaftKV {
@@ -32,13 +32,13 @@ func CreateRaftKV(raftID string, address string) *RaftKV {
 	os.MkdirAll(raftDir, 0700)
 
 	return &RaftKV{
-		RaftID:            raftID,
-		RaftDir:           raftDir,
-		RaftAddress:       address,
-		SnapshotThreshold: 100,
-		Timeout:           10 * time.Second,
-		KV:                map[string][]byte{},
-		mutex:             sync.Mutex{},
+		RaftID:           raftID,
+		RaftDir:          raftDir,
+		RaftAddress:      address,
+		MaxSnapshotCount: 2,
+		Timeout:          10 * time.Second,
+		KV:               map[string][]byte{},
+		mutex:            sync.Mutex{},
 	}
 }
 
@@ -59,7 +59,7 @@ func (r *RaftKV) Open(standaloneCluster bool) error {
 	}
 
 	// Setup snapshot store
-	snapshotStore, err := raft.NewFileSnapshotStore(r.RaftDir, r.SnapshotThreshold, os.Stderr)
+	snapshotStore, err := raft.NewFileSnapshotStore(r.RaftDir, r.MaxSnapshotCount, os.Stderr)
 	if err != nil {
 		return &SnapshotStoreError{Path: r.RaftDir}
 	}

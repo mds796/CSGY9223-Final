@@ -27,7 +27,7 @@ if [[ $CMD == "start" ]]; then
         echo "Choose which node to start: node0, node1, node2 or all"
     fi
 elif [[ $CMD == "restart" ]]; then
-    elif [[ $NODE == "node0" ]]; then
+    if [[ $NODE == "node0" ]]; then
         # Restart node0 and join cluster at localhost:7010
         ./CSGY9223-Final raftkv restart -N node0 -H localhost -P 7000 --joinHost localhost --joinPort 7010 &
     elif [[ $NODE == "node1" ]]; then
