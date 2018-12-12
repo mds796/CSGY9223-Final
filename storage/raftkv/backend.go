@@ -132,7 +132,7 @@ func (r *RaftKV) Get(key string) ([]byte, error) {
 	if value, ok := r.KV[key]; ok {
 		return value, nil
 	}
-	return []byte{}, &InvalidKeyError{Key: key}
+	return []byte{}, nil
 }
 
 func (r *RaftKV) Put(key string, value []byte) error {

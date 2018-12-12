@@ -4,6 +4,12 @@ import (
 	"fmt"
 )
 
+type RaftClusterError struct {
+}
+
+type NotLeaderError struct {
+}
+
 type SnapshotStoreError struct {
 	Path string
 }
@@ -17,6 +23,14 @@ type InvalidLogEntryTypeError struct {
 
 type InvalidKeyError struct {
 	Key string
+}
+
+func (e *RaftClusterError) Error() string {
+	return fmt.Sprintf("[RAFTKV]: Could not connect to a Raft cluster.")
+}
+
+func (e *NotLeaderError) Error() string {
+	return fmt.Sprintf("[RAFTKV]: Node is not the Raft cluster leader.")
 }
 
 func (e *SnapshotStoreError) Error() string {
