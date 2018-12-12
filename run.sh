@@ -34,9 +34,7 @@ function awaitServer()
     echo "$NAME has started."
 }
 
-./raft.sh &
-# Wait raft nodes to join and update configuration
-sleep 15
+./raft.sh start all
 
 cd static && npm run build:static && npm run start -- --port=8000 &
 awaitServer 8000 "static asset"

@@ -28,13 +28,7 @@ func (s *Service) Get(ctx context.Context, request *raftkvpb.GetRequest) (*raftk
 
 func (s *Service) Put(ctx context.Context, request *raftkvpb.PutRequest) (*raftkvpb.PutResponse, error) {
 	err := s.Raft.Put(request.Key, request.Value)
-	if err != nil {
-		switch err.(type) {
-		case *NotLeaderError:
-			return &raftkvpb.PutResponse{IsLeader: false}, err
-		}
-	}
-	return &raftkvpb.PutResponse{IsLeader: true}, err
+	return &raftkvpb.PutResponse{}, err
 }
 
 func (s *Service) Delete(ctx context.Context, request *raftkvpb.DeleteRequest) (*raftkvpb.DeleteResponse, error) {
