@@ -37,10 +37,12 @@ Any action that interacts with `storage` uses replication.
   * Our RPC messages contained different types such as `int`, object `Cookie`, and pointers to miscellaneous objects. We ended up using one coherent model; all data was serialized as bytes, and once received, it was deserialized.
 * **Handling Leader Failures**
   * It was cumbersome to implement with Hashicorp. Perhaps with CoreOS, it would have been easier.
+* **It was difficult to understand the reasons for failures in Raft.**
+  * One example was that the Raft nodes needed their own TCP ports. The error messages were not that clear, as well as the failure modes.
 
 ## What We Learned
 * **Good design early on is *critical*.**
-  * We didn't have to go back and redo *too much* work.
+  * We didn't have to go back and redo *too much* work. Because of our design, mistakes we made were easy to fix.
 * **Unit test often.**
   * Testing made trying new things easier. It helped us decide early on if something was going to work, or it wasn't.
 * **How to build a distributed system with fault tolerance, replication, and consistency.**
