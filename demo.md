@@ -45,4 +45,5 @@ Any action that interacts with `storage` uses replication.
   * We didn't have to go back and redo *too much* work. Because of our design, mistakes we made were easy to fix.
 * **Unit test often.**
   * Testing made trying new things easier. It helped us decide early on if something was going to work, or it wasn't.
+* **How to build a non-trivial project from scratch using Go.**
 * **How to build a distributed system with fault tolerance, replication, and consistency.**
