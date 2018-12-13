@@ -17,6 +17,7 @@ go get github.com/pkg/errors
 go get github.com/etcd-io/etcd
 go get github.com/mattn/goreman
 go get github.com/gogo/protobuf/proto
+go get github.com/hashicorp/raft
 go get github.com/google/uuid
 rm -rf $GOPATH/src/go.etcd.io/etcd/vendor/golang.org/x/net/trace
 ```
