@@ -23,6 +23,7 @@
 ## Demo User Scenario That Would Use Replication
 Any action that interacts with `storage` uses replication.
 * Login(`mks629`)
+* Post(`mks629`, `Hello World!`)
 * Follow(`mks629`, `professor`)
 * Logout(`mks629`)
 * Login(`professor`)
