@@ -4,6 +4,7 @@
 ![M3 Architecture](https://github.com/mds796/CSGY9223-Final/blob/master/m3.png)
 
 ### HashiCorp
+* CoreOS is the most widely used Raft library in production, we wanted to try something different.
 
 ## Demo All the Functionality of the UI
 * Register(`professor`)
@@ -39,3 +40,4 @@ Any action that interacts with `storage` uses replication.
   * We didn't have to go back and redo *too much* work.
 * **Unit test often.**
   * Testing made trying new things easier. It helped us decide early on if something was going to work, or it wasn't.
+* **How to build a distributed system with fault tolerance, replication, and consistency.**
