@@ -5,6 +5,7 @@
 
 ### HashiCorp
 * CoreOS is the most widely used Raft library in production, we wanted to try something different.
+* There were many well written third-party examples on Hashicorp.
 
 ## Demo All the Functionality of the UI
 * Register(`professor`)
